@@ -1,7 +1,7 @@
 ##
 ## Makefile
 ##
-## Licensed under GNU GPL v3
+## Licensed under MIT license
 ##
 
 .PHONY: all clean fclean re
