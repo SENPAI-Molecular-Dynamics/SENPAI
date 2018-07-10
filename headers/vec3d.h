@@ -27,8 +27,5 @@ double vec3d_mag(const t_vec3d *v);
 t_vec3d *vec3d_cross(t_vec3d *dest, const t_vec3d *v1, const t_vec3d *v2);
 t_vec3d *vec3d_unit(t_vec3d *dest, const t_vec3d *v);
 
-t_vec3d e_x = {1.0, 0.0, 0.0};
-t_vec3d e_y = {0.0, 1.0, 0.0};
-t_vec3d e_z = {0.0, 0.0, 1.0};
-
+t_vec3d e_x, ey, ez;
 #endif
