@@ -25,6 +25,5 @@ struct s_universe
 
 t_particle *universe_init(t_universe *universe);
 t_particle *universe_updateparticle(t_universe *universe, const uint64_t part_id);
-t_particle *universe_update(t_universe *universe);
 
 #endif

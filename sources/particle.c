@@ -7,8 +7,9 @@
 
 #include <vec3d.h>
 #include <particle.h>
+#include <stdint.h>
 
-t_particle *particle_init(t_particle *particle)
+t_particle *particle_init(t_particle *particle, const uint64_t id)
 {
   particle->pos.x = 0.0;
   particle->pos.y = 0.0;
@@ -26,5 +27,8 @@ t_particle *particle_init(t_particle *particle)
   particle->frc.y = 0.0;
   particle->frc.z = 0.0;
 
+  particle->mass = 1;
+  particle->charge = 0;
+  particle->id = id;
   return (particle);
 }

@@ -29,7 +29,7 @@ t_particle *universe_init(t_universe *universe)
   universe->c_size.z = C_SIZE_DEFAULT;  
   for (i=0; i<C_PART_NB; ++i)
   {
-    if (particle_init(&(universe->particle[i])) == NULL)
+    if (particle_init(&(universe->particle[i]), i) == NULL)
     {
       fprintf(stderr, "[FAILURE] universe_init: can't initialize particle %ld (%s:%d)\n", i, __FILE__, __LINE__);
       return (NULL);

@@ -24,6 +24,6 @@ struct s_particle
   t_vec3d frc;
 };
 
-t_particle *particle_init(t_particle *particle);
+t_particle *particle_init(t_particle *particle, const uint64_t id);
 
 #endif
