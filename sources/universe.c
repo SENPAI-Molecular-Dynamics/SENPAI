@@ -27,6 +27,7 @@ t_particle *universe_init(t_universe *universe)
   universe->c_size.x = C_SIZE_DEFAULT;
   universe->c_size.y = C_SIZE_DEFAULT;
   universe->c_size.z = C_SIZE_DEFAULT;  
+  universe->time = 0.0;
   for (i=0; i<C_PART_NB; ++i)
   {
     if (particle_init(&(universe->particle[i]), i) == NULL)
@@ -75,5 +76,14 @@ t_particle *universe_updateparticle(t_universe *universe, const uint64_t part_id
     fprintf(stderr, "[FAILURE} universe_updateparticle: Couldn't do maths (%s:%d)\n", __FILE__, __LINE__);
     return (NULL);
   }
+  printf("Particle updated (id= %ld, t=%lf, m=%lf, F=(%lf,%lf,%lf), a=(%lf,%lf,%lf), v=(%lf,%lf,%lf), pos=(%lf,%lf,%lf)\n",
+      part_id,
+      universe->time,
+      universe->particle[part_id].mass,
+      universe->particle[part_id].frc.x, universe->particle[part_id].frc.y, universe->particle[part_id].frc.z,
+      universe->particle[part_id].acc.x, universe->particle[part_id].acc.y, universe->particle[part_id].acc.z,
+      universe->particle[part_id].spd.x, universe->particle[part_id].spd.y, universe->particle[part_id].spd.z,
+      universe->particle[part_id].pos.x, universe->particle[part_id].pos.y, universe->particle[part_id].pos.z
+  );
   return (&(universe->particle[part_id]));
 }

@@ -20,6 +20,7 @@ struct s_universe
   double  c_time;
   t_vec3d c_size; /* Size of the universe */
 
+  double time; /* Current time */
   t_particle particle[C_PART_NB];
 };
 

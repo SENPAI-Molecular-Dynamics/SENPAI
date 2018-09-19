@@ -18,12 +18,9 @@ int main(int argc, char **argv)
   (void)argv;
 
   universe_init(&universe);
-  while (universe.c_time < C_MAXTIME)
-  {
+  for (universe.time=0.0; universe.time<C_MAXTIME; universe.time += universe.c_time)
     for (i=0; i<C_PART_NB; ++i)
-    {
       universe_updateparticle(&universe, i);
-    }
-  }
+
   return (EXIT_SUCCESS);
 }
