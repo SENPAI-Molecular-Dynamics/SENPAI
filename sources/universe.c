@@ -76,7 +76,7 @@ t_particle *universe_updateparticle(t_universe *universe, const uint64_t part_id
     fprintf(stderr, "[FAILURE} universe_updateparticle: Couldn't do maths (%s:%d)\n", __FILE__, __LINE__);
     return (NULL);
   }
-  printf("Particle updated (id= %ld, t=%lf, m=%lf, F=(%lf,%lf,%lf), a=(%lf,%lf,%lf), v=(%lf,%lf,%lf), pos=(%lf,%lf,%lf)\n",
+  fprintf(stdout, "Particle updated (id= %.4ld, t=%.10lf, m=%.10lf, F=(%.10lf,%.10lf,%.10lf), a=(%.10lf,%.10lf,%.10lf), v=(%.10lf,%.10lf,%.10lf), pos=(%.10lf,%.10lf,%.10lf)\n",
       part_id,
       universe->time,
       universe->particle[part_id].mass,
