@@ -41,37 +41,42 @@ t_particle *universe_init(t_universe *universe)
 
 t_particle *universe_updateparticle(t_universe *universe, const uint64_t part_id)
 {
+  t_particle *current_part;
   t_vec3d temp;
   t_vec3d target; /* The vector to update */
+  uint64_t i;
+  double dst;
+
+  current_part = &(universe->particle[part_id]);
 
   /* Update the position */
-  target = universe->particle[part_id].pos;
-  if (vec3d_mul(&temp, &(universe->particle[part_id].spd), universe->c_time) == NULL)
+  target = current_part->pos;
+  if (vec3d_mul(&temp, &(current_part->spd), universe->c_time) == NULL)
   {
     fprintf(stderr, "[FAILURE} universe_updateparticle: Couldn't do maths (%s:%d)\n", __FILE__, __LINE__);
     return (NULL);
   }
-  if (vec3d_add(&(universe->particle[part_id].pos), &target, &temp) == NULL)
+  if (vec3d_add(&(current_part->pos), &target, &temp) == NULL)
   { 
     fprintf(stderr, "[FAILURE} universe_updateparticle: Couldn't do maths (%s:%d)\n", __FILE__, __LINE__);
     return (NULL);
   }
 
   /* Update the speed */
-  target = universe->particle[part_id].spd;
-  if (vec3d_mul(&temp, &(universe->particle[part_id].acc), universe->c_time) == NULL)
+  target = current_part->spd;
+  if (vec3d_mul(&temp, &(current_part->acc), universe->c_time) == NULL)
   { 
     fprintf(stderr, "[FAILURE} universe_updateparticle: Couldn't do maths (%s:%d)\n", __FILE__, __LINE__);
     return (NULL);
   }
-  if (vec3d_add(&(universe->particle[part_id].spd), &target, &temp) == NULL)
+  if (vec3d_add(&(current_part->spd), &target, &temp) == NULL)
   {                                                                                      
     fprintf(stderr, "[FAILURE} universe_updateparticle: Couldn't do maths (%s:%d)\n", __FILE__, __LINE__);
     return (NULL);
   }
 
   /* Update the acceleration */
-  if (vec3d_div(&(universe->particle[part_id].acc), &(universe->particle[part_id].frc), universe->particle[part_id].mass) == NULL)
+  if (vec3d_div(&(current_part->acc), &(current_part->frc), universe->particle[part_id].mass) == NULL)
   {                                                                                      
     fprintf(stderr, "[FAILURE} universe_updateparticle: Couldn't do maths (%s:%d)\n", __FILE__, __LINE__);
     return (NULL);
@@ -79,11 +84,24 @@ t_particle *universe_updateparticle(t_universe *universe, const uint64_t part_id
   fprintf(stdout, "Particle updated (id= %.4ld, t=%.10lf, m=%.10lf, F=(%.10lf,%.10lf,%.10lf), a=(%.10lf,%.10lf,%.10lf), v=(%.10lf,%.10lf,%.10lf), pos=(%.10lf,%.10lf,%.10lf)\n",
       part_id,
       universe->time,
-      universe->particle[part_id].mass,
-      universe->particle[part_id].frc.x, universe->particle[part_id].frc.y, universe->particle[part_id].frc.z,
-      universe->particle[part_id].acc.x, universe->particle[part_id].acc.y, universe->particle[part_id].acc.z,
-      universe->particle[part_id].spd.x, universe->particle[part_id].spd.y, universe->particle[part_id].spd.z,
-      universe->particle[part_id].pos.x, universe->particle[part_id].pos.y, universe->particle[part_id].pos.z
+      current_part->mass,
+      current_part->frc.x, current_part->frc.y, current_part->frc.z,
+      current_part->acc.x, current_part->acc.y, current_part->acc.z,
+      current_part->spd.x, current_part->spd.y, current_part->spd.z,
+      current_part->pos.x, current_part->pos.y, current_part->pos.z
   );
+
+  /* Update the force */
+  current_part->frc = e_0;
+  for (i=0; i<C_PART_NB; ++i)
+  {
+    vec3d_sub(&temp, &(universe->particle[i].pos), &(current_part->pos));
+    dst = vec3d_mag(&temp);
+    vec3d_div(&temp, &temp, dst); /* Turn temp into its unit vector */
+    vec3d_mul(&temp, &temp, universe->c_grav*(current_part->mass)*(universe->particle[i].mass)/(dst*dst));
+    vec3d_add(&(current_part->frc), &(current_part->frc), &temp);
+  }
+  /* Coulomb force */
+
   return (&(universe->particle[part_id]));
 }

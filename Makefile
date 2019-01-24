@@ -16,7 +16,7 @@ OBJS := $(SRCS:.c=.o)
 NAME := ammonium
 
 WARNINGS := -Wall -Wextra -Werror -Wshadow -Wpointer-arith -Wcast-align -Wwrite-strings -Wmissing-prototypes -Wmissing-declarations -Wredundant-decls -Wnested-externs -Winline -Wno-long-long -Wuninitialized -Wstrict-prototypes
-CFLAGS := -std=c89 -s -O2 -I$(HDR_DIR) $(WARNINGS) -o $(BIN_DIR)/$(NAME)-$(shell date --iso=seconds).bin -lm
+CFLAGS := -std=c89 -lm -s -O2 -I$(HDR_DIR) $(WARNINGS) -o $(BIN_DIR)/$(NAME).bin
 
 all: $(OBJS)
 	mv $(OBJS) $(OBJ_DIR)

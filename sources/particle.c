@@ -27,7 +27,7 @@ t_particle *particle_init(t_particle *particle, const uint64_t id)
   particle->frc.y = 0.0;
   particle->frc.z = 0.0;
 
-  particle->mass = 1;
+  particle->mass = 0;
   particle->charge = 0;
   particle->id = id;
   return (particle);

@@ -18,6 +18,14 @@ int main(int argc, char **argv)
   (void)argv;
 
   universe_init(&universe);
+  
+  universe.particle[0].mass = 5.972E24;
+  universe.particle[0].pos = e_0;
+
+  universe.particle[1].mass = 7.342E22;
+  universe.particle[1].pos = e_0;
+  universe.particle[1].pos.x = 3.844E8;
+
   for (universe.time=0.0; universe.time<C_MAXTIME; universe.time += universe.c_time)
     for (i=0; i<C_PART_NB; ++i)
       universe_updateparticle(&universe, i);
