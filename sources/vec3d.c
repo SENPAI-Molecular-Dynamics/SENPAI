@@ -8,12 +8,13 @@
 #include <vec3d.h>
 #include <stdio.h>
 #include <math.h>
+#include <text.h>
 
 t_vec3d *vec3d_add(t_vec3d *dest, const t_vec3d *v1, const t_vec3d *v2)
 {
   if (dest == NULL || v1 == NULL || v2 == NULL)
   {
-    fprintf(stderr, "[FAILURE] vec3d_add: Argument cannot be null (%s:%d)\n", __FILE__, __LINE__);
+    fprintf(stderr, TEXT_VEC3D_ADD_NULLARG, __FILE__, __LINE__);
     return (NULL);
   }
   dest->x = (v1->x + v2->x);
@@ -26,7 +27,7 @@ t_vec3d *vec3d_sub(t_vec3d *dest, const t_vec3d *v1, const t_vec3d *v2)
 {
   if (dest == NULL || v1 == NULL || v2 == NULL)
   {
-    fprintf(stderr, "[FAILURE] vec3d_sub: Argument cannot be null (%s:%d)\n", __FILE__, __LINE__);
+    fprintf(stderr, TEXT_VEC3D_SUB_NULLARG, __FILE__, __LINE__);
     return (NULL);
   }
   dest->x = (v1->x - v2->x);
@@ -39,7 +40,7 @@ t_vec3d *vec3d_mul(t_vec3d *dest, const t_vec3d *v, const double lambda)
 {
   if (dest == NULL || v == NULL)
   {
-    fprintf(stderr, "[FAILURE] vec3d_mul: Argument cannot be null (%s:%d)\n", __FILE__, __LINE__);
+    fprintf(stderr, TEXT_VEC3D_MUL_NULLARG, __FILE__, __LINE__);
     return (NULL);
   }
 
@@ -53,13 +54,13 @@ t_vec3d *vec3d_div(t_vec3d *dest, const t_vec3d *v, const double lambda)
 {
   if (dest == NULL || v == NULL)
   {
-    fprintf(stderr, "[FAILURE] vec3d_div: Argument cannot be null (%s:%d)\n", __FILE__, __LINE__);
+    fprintf(stderr, TEXT_VEC3D_DIV_NULLARG, __FILE__, __LINE__);
     return (NULL);
   }
 
   else if (lambda == 0.0)
   {
-    fprintf(stderr, "[FAILURE] vec3d_div: Attempting to divide by zero (%s:%d)\n", __FILE__, __LINE__);
+    fprintf(stderr,TEXT_VEC3D_DIV_DIVBYZERO, __FILE__, __LINE__);
     return (NULL);
   }
 
@@ -73,7 +74,7 @@ double vec3d_dot(const t_vec3d *v1, const t_vec3d *v2)
 {
   if (v1 == NULL || v2 == NULL)
   {
-    fprintf(stderr, "[FAILURE] vec3d_dot: Argument cannot be null (%s:%d)\n", __FILE__, __LINE__);
+    fprintf(stderr, TEXT_VEC3D_DOT_NULLARG, __FILE__, __LINE__);
     return(0.0);
   }
 
@@ -84,7 +85,7 @@ double vec3d_mag(const t_vec3d *v)
 {
   if (v == NULL)
   {
-    fprintf(stderr, "[FAILURE] vec3d_mag: Argument cannot be null (%s:%d)\n", __FILE__, __LINE__);
+    fprintf(stderr, TEXT_VEC3D_MAG_NULLARG, __FILE__, __LINE__);
     return(0.0);
   }
 
@@ -95,7 +96,7 @@ t_vec3d *vec3d_cross(t_vec3d *dest, const t_vec3d *v1, const t_vec3d *v2)
 {
   if (dest == NULL || v1 == NULL || v2 == NULL)
   {
-    fprintf(stderr, "[FAILURE] vec3d_cross: Argument cannot be null (%s:%d)\n", __FILE__, __LINE__);
+    fprintf(stderr, TEXT_VEC3D_CROSS_NULLARG, __FILE__, __LINE__);
     return(NULL);
   }
 
@@ -112,7 +113,7 @@ t_vec3d *vec3d_unit(t_vec3d *dest, const t_vec3d *v)
 
   if (dest == NULL || v == NULL)
   {
-    fprintf(stderr, "[FAILURE] vec3d_unit: Argument cannot be null (%s:%d)\n", __FILE__, __LINE__);
+    fprintf(stderr, TEXT_VEC3D_UNIT_NULLARG, __FILE__, __LINE__);
     return(NULL);
   }
 
@@ -121,7 +122,7 @@ t_vec3d *vec3d_unit(t_vec3d *dest, const t_vec3d *v)
 
   if (res == NULL)
   {
-    fprintf(stderr, "[FAILURE] vec3d_unit: Failed vector division (%s:%d)\n", __FILE__, __LINE__);
+    fprintf(stderr, TEXT_VEC3D_UNIT_VECDIVFAILURE, __FILE__, __LINE__);
   }
 
   return (res);

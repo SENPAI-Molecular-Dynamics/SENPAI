@@ -10,6 +10,7 @@
 
 #include <particle.h>
 #include <constants.h>
+#include <text.h>
 
 typedef struct s_universe t_universe;
 struct s_universe

@@ -6,29 +6,29 @@
  */
 
 #include <stdlib.h>
+#include <stdio.h>
+#include <time.h>
 #include <universe.h>
 #include <particle.h>
 #include <constants.h>
+#include <text.h>
 
 int main(int argc, char **argv)
 {
   t_universe universe;
   size_t i;
+  time_t start_time;
   (void)argc;
   (void)argv;
 
   universe_init(&universe);
-  
-  universe.particle[0].mass = 5.972E24;
-  universe.particle[0].pos = e_0;
 
-  universe.particle[1].mass = 7.342E22;
-  universe.particle[1].pos = e_0;
-  universe.particle[1].pos.x = 3.844E8;
-
+  fprintf(stdout, TEXT_SIMSTART, C_PART_NB, universe.c_time);
+  start_time = time(NULL);
   for (universe.time=0.0; universe.time<C_MAXTIME; universe.time += universe.c_time)
     for (i=0; i<C_PART_NB; ++i)
       universe_updateparticle(&universe, i);
+  fprintf(stdout, TEXT_SIMEND, time(NULL)-start_time);
 
   return (EXIT_SUCCESS);
 }
