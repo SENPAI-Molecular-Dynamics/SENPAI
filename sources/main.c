@@ -21,11 +21,16 @@ int main(int argc, char **argv)
   (void)argc;
   (void)argv;
 
+  srand(time(NULL));
   universe_init(&universe);
 
-  universe.particle[0].mass = 1;
-  universe.particle[1].mass = 100;
-  universe.particle[1].pos = e_x;
+  for (i=0; i<C_PART_NB; ++i)
+  {
+    universe.particle[i].mass = rand();
+    universe.particle[i].pos.x = rand();
+    universe.particle[i].pos.y = rand();
+    universe.particle[i].pos.z = rand();
+  }
 
   fprintf(stdout, TEXT_SIMSTART, C_PART_NB, universe.c_time);
   start_time = time(NULL);
