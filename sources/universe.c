@@ -82,6 +82,32 @@ t_particle *universe_updateparticle(t_universe *universe, const uint64_t part_id
     fprintf(stderr, TEXT_UNIVERSE_UPDATEPART_CANTMATH, __FILE__, __LINE__);
     return (NULL);
   }
+
+  /* Update the force */
+  current_part->frc = e_0;
+  for (i=0; i<C_PART_NB; ++i)
+  {
+    if (i != part_id)
+    {
+      if (vec3d_sub(&temp, &(universe->particle[i].pos), &(current_part->pos)) == NULL)
+      {
+        fprintf(stderr, TEXT_UNIVERSE_UPDATEPART_CANTMATH, __FILE__, __LINE__);
+        return (NULL);
+      }
+      dst = vec3d_mag(&temp);
+      if (vec3d_mul(&temp, &temp, universe->c_grav*(current_part->mass)*(universe->particle[i].mass)/(dst*dst*dst)) == NULL)
+      {
+        fprintf(stderr, TEXT_UNIVERSE_UPDATEPART_CANTMATH, __FILE__, __LINE__);
+        return (NULL);
+      }
+      if (vec3d_add(&(current_part->frc), &(current_part->frc), &temp) == NULL)
+      {
+        fprintf(stderr, TEXT_UNIVERSE_UPDATEPART_CANTMATH, __FILE__, __LINE__);
+        return (NULL);
+      }
+    }
+  }
+
   fprintf(stdout, TEXT_UNIVERSE_UPDATEPART_LOG,
       part_id,
       universe->time,
@@ -91,28 +117,6 @@ t_particle *universe_updateparticle(t_universe *universe, const uint64_t part_id
       current_part->spd.x, current_part->spd.y, current_part->spd.z,
       current_part->pos.x, current_part->pos.y, current_part->pos.z
   );
-
-  /* Update the force */
-  current_part->frc = e_0;
-  for (i=0; i<C_PART_NB && i!=part_id; ++i)
-  {
-    if (vec3d_sub(&temp, &(universe->particle[i].pos), &(current_part->pos)) == NULL)
-    {
-      fprintf(stderr, TEXT_UNIVERSE_UPDATEPART_CANTMATH, __FILE__, __LINE__);
-      return (NULL);
-    }
-    dst = vec3d_mag(&temp);
-    if (vec3d_mul(&temp, &temp, universe->c_grav*(current_part->mass)*(universe->particle[i].mass)/(dst*dst*dst)) == NULL)
-    {
-      fprintf(stderr, TEXT_UNIVERSE_UPDATEPART_CANTMATH, __FILE__, __LINE__);
-      return (NULL);
-    }
-    if (vec3d_add(&(current_part->frc), &(current_part->frc), &temp) == NULL)
-    {
-      fprintf(stderr, TEXT_UNIVERSE_UPDATEPART_CANTMATH, __FILE__, __LINE__);
-      return (NULL);
-    }
-  }
 
   return (&(universe->particle[part_id]));
 }

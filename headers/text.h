@@ -16,22 +16,22 @@
 
 /* English */
 #if LANG == EN
-#define TEXT_SIMSTART						"[  LOG  ] Simulation started (%ld particles, dt=%.10lf s)\n"
-#define TEXT_SIMEND							"[  LOG  ] Simulation ended (runtime: %ld seconds)\n"
-#define TEXT_UNIVERSE_INIT_NULLARG			"[FAILURE] universe_init: Null argument (%s:%d)\n"
-#define TEXT_UNIVERSE_INIT_CANTINITPART		"[FAILURE] universe_init: can't initialize particle #%ld (%s:%d)\n"
-#define TEXT_UNIVERSE_UPDATEPART_CANTMATH	"[FAILURE] universe_updateparticle: Couldn't do maths (%s:%d)\n"
-#define TEXT_UNIVERSE_UPDATEPART_LOG		"[  LOG  ] Particle updated (id=%.4ld t=%.10lf m=%.10lf F=(%.10lf,%.10lf,%.10lf) a=(%.10lf,%.10lf,%.10lf) v=(%.10lf,%.10lf,%.10lf) pos=(%.10lf,%.10lf,%.10lf)\n"
-#define TEXT_VEC3D_ADD_NULLARG				"[FAILURE] vec3d_add: Argument cannot be null (%s:%d)\n"
-#define TEXT_VEC3D_SUB_NULLARG				"[FAILURE] vec3d_sub: Argument cannot be null (%s:%d)\n"
-#define TEXT_VEC3D_MUL_NULLARG				"[FAILURE] vec3d_mul: Argument cannot be null (%s:%d)\n"
-#define TEXT_VEC3D_DIV_NULLARG				"[FAILURE] vec3d_div: Argument cannot be null (%s:%d)\n"
-#define TEXT_VEC3D_DIV_DIVBYZERO			"[FAILURE] vec3d_div: Attempting to divide by zero (%s:%d)\n"
-#define TEXT_VEC3D_DOT_NULLARG				"[FAILURE] vec3d_dot: Argument cannot be null (%s:%d)\n"
-#define TEXT_VEC3D_MAG_NULLARG				"[FAILURE] vec3d_mag: Argument cannot be null (%s:%d)\n"
-#define TEXT_VEC3D_CROSS_NULLARG			"[FAILURE] vec3d_cross: Argument cannot be null (%s:%d)\n"
-#define TEXT_VEC3D_UNIT_NULLARG				"[FAILURE] vec3d_unit: Argument cannot be null (%s:%d)\n"
-#define TEXT_VEC3D_UNIT_VECDIVFAILURE		"[FAILURE] vec3d_unit: Failed vector division (%s:%d)\n"
+#define TEXT_SIMSTART                     "[  LOG  ] Simulation started (%ld particles, dt=%.10lf s)\n"
+#define TEXT_SIMEND                       "[  LOG  ] Simulation ended (runtime: %ld seconds)\n"
+#define TEXT_UNIVERSE_INIT_NULLARG        "[FAILURE] universe_init: Null argument (%s:%d)\n"
+#define TEXT_UNIVERSE_INIT_CANTINITPART   "[FAILURE] universe_init: can't initialize particle #%ld (%s:%d)\n"
+#define TEXT_UNIVERSE_UPDATEPART_CANTMATH "[FAILURE] universe_updateparticle: Couldn't do maths (%s:%d)\n"
+#define TEXT_UNIVERSE_UPDATEPART_LOG      "[  LOG  ] Particle updated (id=%.4ld t=%.10lf m=%.10lf F=(%.10lf,%.10lf,%.10lf) a=(%.10lf,%.10lf,%.10lf) v=(%.10lf,%.10lf,%.10lf) pos=(%.10lf,%.10lf,%.10lf)\n"
+#define TEXT_VEC3D_ADD_NULLARG            "[FAILURE] vec3d_add: Argument cannot be null (%s:%d)\n"
+#define TEXT_VEC3D_SUB_NULLARG            "[FAILURE] vec3d_sub: Argument cannot be null (%s:%d)\n"
+#define TEXT_VEC3D_MUL_NULLARG            "[FAILURE] vec3d_mul: Argument cannot be null (%s:%d)\n"
+#define TEXT_VEC3D_DIV_NULLARG            "[FAILURE] vec3d_div: Argument cannot be null (%s:%d)\n"
+#define TEXT_VEC3D_DIV_DIVBYZERO          "[FAILURE] vec3d_div: Attempting to divide by zero (%s:%d)\n"
+#define TEXT_VEC3D_DOT_NULLARG            "[FAILURE] vec3d_dot: Argument cannot be null (%s:%d)\n"
+#define TEXT_VEC3D_MAG_NULLARG            "[FAILURE] vec3d_mag: Argument cannot be null (%s:%d)\n"
+#define TEXT_VEC3D_CROSS_NULLARG          "[FAILURE] vec3d_cross: Argument cannot be null (%s:%d)\n"
+#define TEXT_VEC3D_UNIT_NULLARG           "[FAILURE] vec3d_unit: Argument cannot be null (%s:%d)\n"
+#define TEXT_VEC3D_UNIT_VECDIVFAILURE     "[FAILURE] vec3d_unit: Failed vector division (%s:%d)\n"
 #endif
 
 
