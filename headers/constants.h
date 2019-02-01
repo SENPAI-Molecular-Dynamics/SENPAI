@@ -15,6 +15,7 @@
 #define C_TIME_DEFAULT (double)1E-3           /* dt */
 #define C_SIZE_DEFAULT (double)1E0            /* Radius of the simulated universe (sphere) */
 
-#define C_PART_NB   (long int)1024
+#define C_PART_NB (long int)16
+#define C_CSVPATH "./part"
 
 #endif

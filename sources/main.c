@@ -26,10 +26,10 @@ int main(int argc, char **argv)
 
   for (i=0; i<C_PART_NB; ++i)
   {
-    universe.particle[i].mass = rand();
-    universe.particle[i].pos.x = rand();
-    universe.particle[i].pos.y = rand();
-    universe.particle[i].pos.z = rand();
+    universe.particle[i].mass = rand() % 1000;
+    universe.particle[i].pos.x = rand() % 10;
+    universe.particle[i].pos.y = rand() % 10;
+    universe.particle[i].pos.z = rand() % 10;
   }
 
   fprintf(stdout, TEXT_SIMSTART, C_PART_NB, universe.c_time);
@@ -42,6 +42,7 @@ int main(int argc, char **argv)
         return (EXIT_FAILURE);
       }
   fprintf(stdout, TEXT_SIMEND, time(NULL)-start_time);
+  universe_clean(&universe);
 
   return (EXIT_SUCCESS);
 }

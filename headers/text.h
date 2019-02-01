@@ -19,6 +19,7 @@
 #define TEXT_SIMSTART                     "[  LOG  ] Simulation started (%ld particles, dt=%.10lf s)\n"
 #define TEXT_SIMEND                       "[  LOG  ] Simulation ended (runtime: %ld seconds)\n"
 #define TEXT_UNIVERSE_INIT_NULLARG        "[FAILURE] universe_init: Null argument (%s:%d)\n"
+#define TEXT_UNIVERSE_INIT_FDTABFAIL      "[FAILURE] Failed to initialize the log files (%s:%d)\n"
 #define TEXT_UNIVERSE_INIT_CANTINITPART   "[FAILURE] universe_init: can't initialize particle #%ld (%s:%d)\n"
 #define TEXT_UNIVERSE_UPDATEPART_CANTMATH "[FAILURE] universe_updateparticle: Couldn't do maths (%s:%d)\n"
 #define TEXT_UNIVERSE_UPDATEPART_LOG      "[  LOG  ] Particle updated (id=%.4ld t=%.10lf m=%.10lf F=(%.10lf,%.10lf,%.10lf) a=(%.10lf,%.10lf,%.10lf) v=(%.10lf,%.10lf,%.10lf) pos=(%.10lf,%.10lf,%.10lf)\n"
