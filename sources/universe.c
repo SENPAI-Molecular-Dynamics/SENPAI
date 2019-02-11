@@ -26,9 +26,6 @@ t_particle *universe_init(t_universe *universe)
   universe->c_grav = C_GRAV_DEFAULT;
   universe->c_elec = C_ELEC_DEFAULT;
   universe->c_time = C_TIME_DEFAULT;
-  universe->c_size.x = C_SIZE_DEFAULT;
-  universe->c_size.y = C_SIZE_DEFAULT;
-  universe->c_size.z = C_SIZE_DEFAULT;  
   universe->time = 0.0;
   for (i=0; i<C_PART_NB; ++i)
   {
@@ -48,7 +45,7 @@ t_particle *universe_init(t_universe *universe)
       fprintf(stderr, TEXT_UNIVERSE_INIT_FDTABFAIL, __FILE__, __LINE__);
       return (NULL);
     }
-	fprintf(universe->fd_tab[i], "t,m,Fx,Fy,Fz,ax,ay,az,vx,vy,vz,x,y,z\n");
+	fprintf(universe->fd_tab[i], "Time,Mass,Charge,Fx,Fy,Fz,ax,ay,az,vx,vy,vz,x,y,z,F,a,v,r\n");
   }
 
   return (&(universe->particle[0]));
@@ -129,13 +126,18 @@ t_particle *universe_updateparticle(t_universe *universe, const uint64_t part_id
     }
   }
 
-  fprintf(universe->fd_tab[part_id], "%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
+  fprintf(universe->fd_tab[part_id], "%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
       universe->time,
       current_part->mass,
+      current_part->charge,
       current_part->frc.x, current_part->frc.y, current_part->frc.z,
       current_part->acc.x, current_part->acc.y, current_part->acc.z,
       current_part->spd.x, current_part->spd.y, current_part->spd.z,
-      current_part->pos.x, current_part->pos.y, current_part->pos.z
+      current_part->pos.x, current_part->pos.y, current_part->pos.z,
+      vec3d_mag(&(current_part->frc)),
+      vec3d_mag(&(current_part->acc)),
+      vec3d_mag(&(current_part->spd)),
+      vec3d_mag(&(current_part->pos))
   );
 
   return (&(universe->particle[part_id]));

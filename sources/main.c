@@ -26,7 +26,7 @@ int main(int argc, char **argv)
 
   for (i=0; i<C_PART_NB; ++i)
   {
-    universe.particle[i].mass = rand() % 1000;
+    universe.particle[i].mass = 1E24;
     universe.particle[i].pos.x = rand() % 10;
     universe.particle[i].pos.y = rand() % 10;
     universe.particle[i].pos.z = rand() % 10;
