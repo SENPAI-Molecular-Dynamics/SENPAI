@@ -8,24 +8,21 @@
 
 SRC_DIR := ./sources
 HDR_DIR := ./headers
-BIN_DIR := ./bin
-OBJ_DIR := $(BIN_DIR)/obj
 
 SRCS := $(shell find $(SRC_DIR) -name "*.c")
-OBJS := $(SRCS:.c=.o)
+OBJS := $(shell find $(SRC_DIR) -name "*.o")
 NAME := ammonium
 
 WARNINGS := -Wall -Wextra -Werror -Wshadow -Wpointer-arith -Wcast-align -Wwrite-strings -Wmissing-prototypes -Wmissing-declarations -Wredundant-decls -Wnested-externs -Winline -Wno-long-long -Wuninitialized -Wstrict-prototypes
-CFLAGS := -std=c89 -lm -s -O2 -I$(HDR_DIR) $(WARNINGS) -o $(BIN_DIR)/$(NAME).bin
+CFLAGS := -std=c89 -lm -s -O2 -I$(HDR_DIR) $(WARNINGS) -o $(NAME).bin
 
-all: $(OBJS)
-	mv $(OBJS) $(OBJ_DIR)
-	$(CC) $(CFLAGS) $(OBJ_DIR)/*.o
+all:
+	gcc $(SRCS) $(CFLAGS)
 
 clean:
-	$(RM) $(OBJ_DIR)/*.o
+	$(RM) $(OBJS)
 
 fclean: clean
-	$(RM) $(BIN_DIR)/*.bin
+	$(RM) $(NAME).bin
 
 re: fclean all
