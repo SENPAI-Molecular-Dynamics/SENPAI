@@ -67,6 +67,8 @@ t_particle *universe_updateparticle(t_universe *universe, const uint64_t part_id
   t_vec3d temp;
   uint64_t i;
   double dst;
+  double frc_grav;
+  double frc_elec;
 
   current_part = &(universe->particle[part_id]);
 
@@ -107,18 +109,27 @@ t_particle *universe_updateparticle(t_universe *universe, const uint64_t part_id
   {
     if (i != part_id)
     {
-      if (vec3d_sub(&temp, &(universe->particle[i].pos), &(current_part->pos)) == NULL)
+      if (vec3d_sub(&temp, &(universe->particle[i].pos), &(current_part->pos)) == NULL) /* compute the vector between the two particles */
       {
         fprintf(stderr, TEXT_UNIVERSE_UPDATEPART_CANTMATH, __FILE__, __LINE__);
         return (NULL);
       }
-      dst = vec3d_mag(&temp);
-      if (vec3d_mul(&temp, &temp, universe->c_grav*(current_part->mass)*(universe->particle[i].mass)/(dst*dst*dst)) == NULL)
+
+      dst = vec3d_mag(&temp); /* distance between the two particles */
+      frc_grav = (universe->c_grav)*(current_part->mass)*(universe->particle[i].mass);
+      frc_elec = (universe->c_elec)*(current_part->charge)*(universe->particle[i].charge);
+
+      if (vec3d_mul(&temp, &temp, frc_grav + frc_elec) == NULL) /* tmp *= (k*q1*q2) + (G*m1*m2) */
       {
         fprintf(stderr, TEXT_UNIVERSE_UPDATEPART_CANTMATH, __FILE__, __LINE__);
         return (NULL);
       }
-      if (vec3d_add(&(current_part->frc), &(current_part->frc), &temp) == NULL)
+      if (vec3d_div(&temp, &temp, dst*dst*dst) == NULL) /* tmp /= dst^3 */
+      {
+        fprintf(stderr, TEXT_UNIVERSE_UPDATEPART_CANTMATH, __FILE__, __LINE__);
+        return (NULL);
+      }
+      if (vec3d_add(&(current_part->frc), &(current_part->frc), &temp) == NULL) /* frc += tmp */
       {
         fprintf(stderr, TEXT_UNIVERSE_UPDATEPART_CANTMATH, __FILE__, __LINE__);
         return (NULL);
@@ -126,7 +137,7 @@ t_particle *universe_updateparticle(t_universe *universe, const uint64_t part_id
     }
   }
 
-  fprintf(universe->fd_tab[part_id], "%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
+  fprintf(universe->fd_tab[part_id], "%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf\n",
       universe->time,
       current_part->mass,
       current_part->charge,
