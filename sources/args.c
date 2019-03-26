@@ -46,6 +46,7 @@ t_args *args_parse(t_args *args, int argc, char **argv)
       args->max_time = atof(argv[++i]);
     else if ((!strcmp(argv[i], "--dt") && (i+1)<argc))
       args->cnst_time = atof(argv[++i]);
+    ++i;
   }
 
   if (args->path == NULL || args->csv_path == NULL)
