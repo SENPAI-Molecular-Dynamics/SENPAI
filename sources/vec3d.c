@@ -62,10 +62,7 @@ t_vec3d *vec3d_div(t_vec3d *dest, const t_vec3d *v, const double lambda)
 double vec3d_dot(const t_vec3d *v1, const t_vec3d *v2)
 {
   if (v1 == NULL || v2 == NULL)
-  {
-    fprintf(stderr, TEXT_VEC3D_DOT_NULLARG, __FILE__, __LINE__);
-    return (0.0);
-  }
+    return (retstri(-1.0, TEXT_VEC3D_DOT_NULLARG, __FILE__, __LINE__));
 
   return ((v1->x * v2->x) + (v1->y * v2->y) + (v1->z * v2->z));
 }
@@ -73,10 +70,7 @@ double vec3d_dot(const t_vec3d *v1, const t_vec3d *v2)
 double vec3d_mag(const t_vec3d *v)
 {
   if (v == NULL)
-  {
-    fprintf(stderr, TEXT_VEC3D_MAG_NULLARG, __FILE__, __LINE__);
-    return(0.0);
-  }
+    return (retstri(-1.0, TEXT_VEC3D_MAG_NULLARG, __FILE__, __LINE__));
 
   return (sqrt((v->x * v->x)+(v->y * v->y)+(v->z * v->z)));
 }

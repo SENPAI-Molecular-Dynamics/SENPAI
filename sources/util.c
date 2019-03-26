@@ -13,3 +13,9 @@ void *retstr(void *ret, const char *str, const char *file, const int line)
   fprintf(stderr, "%s (%s:%d)\n", str, file, line);
   return (ret);
 }
+
+int retstri(int ret, const char *str, const char *file, const int line)
+{
+  fprintf(stderr, "%s (%s:%d)\n", str, file, line);
+  return (ret);
+}

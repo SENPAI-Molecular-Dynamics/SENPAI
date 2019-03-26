@@ -9,9 +9,9 @@
 #define UNIVERSE_H
 
 #include <universe.h>
-#include <constants.h>
 #include <vec3d.h>
 #include <text.h>
+#include <args.h>
 
 #include <stdint.h>
 #include <stdio.h>
@@ -32,14 +32,15 @@ struct s_particle
 typedef struct s_universe t_universe;
 struct s_universe
 {
+  uint64_t part_nb;
+
   /* Universe constants */
   double  c_grav;
   double  c_elec;
   double  c_time;
 
   double time; /* Current time */
-  t_particle particle[C_PART_NB];
-  FILE *fd_tab[C_PART_NB]; /* Each particle will its log written to a corresponding .csv file */
+  t_particle *particle;
 };
 
 t_particle *particle_init(t_particle *particle);
@@ -48,7 +49,8 @@ t_universe *particle_update_acc(t_universe *universe, const uint64_t part_id);
 t_universe *particle_update_spd(t_universe *universe, const uint64_t part_id);
 t_universe *particle_update_pos(t_universe *universe, const uint64_t part_id);
 
-t_universe *universe_init(t_universe *universe);
+t_universe *universe_init(t_universe *universe, const t_args *args);
+void        universe_clean(t_universe *universe);
 t_universe *universe_iterate(t_universe *universe);
 
 #endif

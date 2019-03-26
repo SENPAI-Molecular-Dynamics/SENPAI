@@ -35,7 +35,11 @@
 #define TEXT_VEC3D_UNIT_NULLARG           "[FAILURE] vec3d_unit: Argument cannot be null (%s:%d)\n"
 #define TEXT_VEC3D_UNIT_VECDIVFAILURE     "[FAILURE] vec3d_unit: Failed vector division (%s:%d)\n"
 #define TEXT_ARGS_INIT_NULLARG            "[FAILURE] args_init: Argument cannot be null"
-#define TEXT_ARGS_PARSE_BADFORMAT         "[FAILURE] Usage: ammonium [--verbose] --path /path/to/file"
+#define TEXT_ARGS_PARSE_BADFORMAT         "[FAILURE] Bad argument format"
+#define TEXT_ARGS_PARSE_FAILURE           "[FAILURE] Arguments couldn't be parsed!"
+#define TEXT_MALLOC_FAILURE               "[FAILURE] Memory allocation failed! (malloc call returned NULL)"
+#define TEXT_SIMFAILURE                   "[FAILURE] Critical simulation failure. Simulation aborted."
+#define TEXT_INPUTFILE_ERROR              "[FAILURE] Failed to open the input file"
 #endif
 
 

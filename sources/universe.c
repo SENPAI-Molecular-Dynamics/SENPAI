@@ -5,29 +5,50 @@
  *
  */
 
-#include <text.h>
 #include <stdio.h>
+#include <stdlib.h>
+
+#include <args.h>
+#include <text.h>
 #include <vec3d.h>
 #include <util.h>
-#include <constants.h>
 #include <universe.h>
 
-t_universe *universe_init(t_universe *universe)
+t_universe *universe_init(t_universe *universe, const t_args *args)
 {
   size_t i;
+  char c;
+  FILE *input_file;
 
   if (universe == NULL)
     return (retstr(NULL, TEXT_UNIVERSE_INIT_NULLARG, __FILE__, __LINE__));
 
-  universe->c_grav = C_GRAV_DEFAULT;
-  universe->c_elec = C_ELEC_DEFAULT;
-  universe->c_time = C_TIME_DEFAULT;
+  /* Count the lines in the input file, one line = one particle */
+  if ((input_file = fopen(args->path, "r")) == NULL)
+    return (retstr(NULL, TEXT_INPUTFILE_ERROR, __FILE__, __LINE__));
+  universe->part_nb = 0;
+  while ((c = getc(input_file)) != EOF)
+     if (c == '\n')
+       ++(universe->part_nb);
+  fclose(input_file);
+  /* Use the number of lines to allocate memory for the particles */
+  if ((universe->particle = malloc((universe->part_nb)*sizeof(t_particle))) == NULL)
+    return (retstr(NULL, TEXT_MALLOC_FAILURE, __FILE__, __LINE__));
+ 
+  universe->c_grav = args->cnst_grav;
+  universe->c_elec = args->cnst_elec;
+  universe->c_time = args->cnst_time;
   universe->time = 0.0;
-  for (i=0; i<C_PART_NB; ++i)
+  for (i=0; i<(universe->part_nb); ++i)
     if (particle_init(&(universe->particle[i])) == NULL)
       return (retstr(NULL, TEXT_UNIVERSE_INIT_NULLARG, __FILE__, __LINE__));
 
   return (universe);
+}
+
+void universe_clean(t_universe *universe)
+{
+  free(universe->particle);
 }
 
 t_universe *universe_iterate(t_universe *universe)
@@ -35,13 +56,13 @@ t_universe *universe_iterate(t_universe *universe)
   uint64_t i;
 
   /* Holy shit this is so computationally expensive, thinking about OpenCL */
-  for (i=0; i<C_PART_NB; ++i)
+  for (i=0; i<(universe->part_nb); ++i)
     particle_update_frc(universe, i);
-  for (i=0; i<C_PART_NB; ++i)
+  for (i=0; i<(universe->part_nb); ++i)
     particle_update_acc(universe, i);
-  for (i=0; i<C_PART_NB; ++i)
+  for (i=0; i<(universe->part_nb); ++i)
     particle_update_spd(universe, i);
-  for (i=0; i<C_PART_NB; ++i)
+  for (i=0; i<(universe->part_nb); ++i)
     particle_update_pos(universe, i);
 
   return (universe);
@@ -71,7 +92,7 @@ t_universe *particle_update_frc(t_universe *universe, const uint64_t part_id)
   double frc_elec;
 
   current = &(universe->particle[part_id]);
-  for (i=0; i<C_PART_NB; ++i)
+  for (i=0; i<(universe->part_nb); ++i)
   {
     if (i != part_id)
     {
@@ -79,7 +100,7 @@ t_universe *particle_update_frc(t_universe *universe, const uint64_t part_id)
       if (vec3d_sub(&temp, &(universe->particle[i].pos), &(current->pos)) == NULL)
     	  return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
       /* Get its magnitude */
-      if ((dst = vec3d_mag(&temp)) == 0.0)
+      if ((dst = vec3d_mag(&temp)) == -1.0)
     	  return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
       /* Turn it into its unit vector */
       if (vec3d_unit(&temp, &temp) == NULL)
