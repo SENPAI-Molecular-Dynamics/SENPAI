@@ -40,6 +40,7 @@
 #define TEXT_MALLOC_FAILURE               "[FAILURE] Memory allocation failed! (malloc call returned NULL)"
 #define TEXT_SIMFAILURE                   "[FAILURE] Critical simulation failure. Simulation aborted."
 #define TEXT_INPUTFILE_ERROR              "[FAILURE] Failed to open the input file"
+#define TEXT_OUTPUTFILE_ERROR             "[FAILURE] Failed to open the output file"
 #endif
 
 

@@ -27,9 +27,14 @@ int main(int argc, char **argv)
 
   fprintf(stdout, TEXT_SIMSTART, universe.part_nb, universe.c_time);
   start_time = time(NULL);
+  /* Main simulation loop */
   for (universe.time=0.0; (universe.time)<(args.max_time); universe.time += universe.c_time)
+  {
     if (universe_iterate(&universe) == NULL)
       break;
+    if (universe_printstate(&universe) == NULL)
+      break;
+  }
   fprintf(stdout, TEXT_SIMEND, time(NULL)-start_time);
 
   universe_clean(&universe);

@@ -27,6 +27,7 @@ struct s_particle
   t_vec3d spd;
   t_vec3d acc;
   t_vec3d frc;
+
 };
 
 typedef struct s_universe t_universe;
@@ -41,6 +42,7 @@ struct s_universe
 
   double time; /* Current time */
   t_particle *particle;
+  FILE **output_file;
 };
 
 t_particle *particle_init(t_particle *particle);
@@ -49,6 +51,7 @@ t_universe *particle_update_acc(t_universe *universe, const uint64_t part_id);
 t_universe *particle_update_spd(t_universe *universe, const uint64_t part_id);
 t_universe *particle_update_pos(t_universe *universe, const uint64_t part_id);
 
+t_universe *universe_printstate(t_universe *universe);
 t_universe *universe_init(t_universe *universe, const t_args *args);
 void        universe_clean(t_universe *universe);
 t_universe *universe_iterate(t_universe *universe);

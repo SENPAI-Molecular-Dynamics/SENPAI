@@ -6,6 +6,7 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 
 #include <args.h>
@@ -18,6 +19,7 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
 {
   size_t i;
   char c;
+  char outpath[strlen(args->csv_path)+32];
   FILE *input_file;
 
   if (universe == NULL)
@@ -34,7 +36,19 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
   /* Use the number of lines to allocate memory for the particles */
   if ((universe->particle = malloc((universe->part_nb)*sizeof(t_particle))) == NULL)
     return (retstr(NULL, TEXT_MALLOC_FAILURE, __FILE__, __LINE__));
- 
+
+  /* Create an output file for each particle */
+  if ((universe->output_file = malloc((universe->part_nb)*sizeof(FILE*))) == NULL)
+    return (retstr(NULL, TEXT_MALLOC_FAILURE, __FILE__, __LINE__));
+  for (i=0; i<(universe->part_nb); ++i)
+  {
+    sprintf(outpath, "%s%zu.csv", args->csv_path, i);
+    if ((universe->output_file[i] = fopen(outpath, "w")) == NULL)
+      return (retstr(NULL, TEXT_OUTPUTFILE_ERROR, __FILE__, __LINE__));
+    fprintf(universe->output_file[i], "m,q,F,a,v,r,Fx,Fy,Fz,ax,ay,az,vx,vy,vz,x,y,z\n");
+  }
+
+
   universe->c_grav = args->cnst_grav;
   universe->c_elec = args->cnst_elec;
   universe->c_time = args->cnst_time;
@@ -48,7 +62,12 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
 
 void universe_clean(t_universe *universe)
 {
+  size_t i;
+
+  for (i=0; i<(universe->part_nb); ++i)
+    fclose(universe->output_file[i]);
   free(universe->particle);
+  free(universe->output_file);
 }
 
 t_universe *universe_iterate(t_universe *universe)
@@ -65,6 +84,38 @@ t_universe *universe_iterate(t_universe *universe)
   for (i=0; i<(universe->part_nb); ++i)
     particle_update_pos(universe, i);
 
+  return (universe);
+}
+
+t_universe *universe_printstate(t_universe *universe)
+{
+  size_t i;
+  t_particle *p;
+
+  for (i=0; i<(universe->part_nb); ++i)
+  {
+    p = &(universe->particle[i]);
+    fprintf(universe->output_file[i],
+            "%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,\n",
+            p->mass,
+            p->charge,
+            vec3d_mag(&(p->frc)),
+            vec3d_mag(&(p->acc)),
+            vec3d_mag(&(p->spd)),
+            vec3d_mag(&(p->pos)),
+            p->frc.x,
+            p->frc.y,
+            p->frc.z,
+            p->acc.x,
+            p->acc.y,
+            p->acc.z,
+            p->spd.x,
+            p->spd.y,
+            p->spd.z,
+            p->pos.x,
+            p->pos.y,
+            p->pos.z);
+  }
   return (universe);
 }
 
