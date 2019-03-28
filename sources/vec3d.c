@@ -49,9 +49,8 @@ t_vec3d *vec3d_div(t_vec3d *dest, const t_vec3d *v, const double lambda)
 {
   if (dest == NULL || v == NULL)
     return (retstr(NULL, TEXT_VEC3D_DIV_FAILURE, __FILE__, __LINE__));
-
-  else if (lambda == 0.0)
-    return (retstr(stderr,TEXT_VEC3D_DIV_FAILURE, __FILE__, __LINE__));
+  else if (lambda < 10E-50)
+    return (retstr(NULL, TEXT_VEC3D_DIV_FAILURE, __FILE__, __LINE__));
 
   dest->x = (v->x / lambda);
   dest->y = (v->y / lambda);
@@ -94,7 +93,7 @@ t_vec3d *vec3d_unit(t_vec3d *dest, const t_vec3d *v)
   if (dest == NULL || v == NULL)
     return (retstr(NULL, TEXT_VEC3D_UNIT_FAILURE, __FILE__, __LINE__));
 
-  if ((mag = vec3d_mag(v)) < 10E-50)
+  if ((mag = vec3d_mag(v)) < 0.0)
     return (retstr(NULL, TEXT_VEC3D_UNIT_FAILURE, __FILE__, __LINE__));
   if ((res = vec3d_div(dest, v, mag)) == NULL)
     return (retstr(NULL, TEXT_VEC3D_UNIT_FAILURE, __FILE__, __LINE__));

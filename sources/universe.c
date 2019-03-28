@@ -38,17 +38,6 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
   if ((universe->particle = malloc((universe->part_nb)*sizeof(t_particle))) == NULL)
     return (retstr(NULL, TEXT_MALLOC_FAILURE, __FILE__, __LINE__));
 
-  /* Load the initial state from the input file */
-  for (i=0; i<(universe->part_nb); ++i)
-    fscanf(input_file,
-           "%lf,%lf,%lf,%lf,%lf",
-           &(universe->particle[i].mass),
-           &(universe->particle[i].charge),
-           &(universe->particle[i].pos.x),
-           &(universe->particle[i].pos.y),
-           &(universe->particle[i].pos.z)
-    );
-
   /* Create an output file for each particle */
   if ((universe->output_file = malloc((universe->part_nb)*sizeof(FILE*))) == NULL)
     return (retstr(NULL, TEXT_MALLOC_FAILURE, __FILE__, __LINE__));
@@ -68,6 +57,17 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
   for (i=0; i<(universe->part_nb); ++i)
     if (particle_init(&(universe->particle[i])) == NULL)
       return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
+
+  /* Load the initial state from the input file */
+  /*for (i=0; i<(universe->part_nb); ++i)
+    fscanf(input_file,
+           "%lf,%lf,%lf,%lf,%lf",
+           &(universe->particle[i].mass),
+           &(universe->particle[i].charge),
+           &(universe->particle[i].pos.x),
+           &(universe->particle[i].pos.y),
+           &(universe->particle[i].pos.z)
+    );*/
 
   return (universe);
 }
@@ -125,7 +125,7 @@ t_universe *universe_printstate(t_universe *universe)
   {
     p = &(universe->particle[i]);
     fprintf(universe->output_file[i],
-            "%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,\n",
+            "%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf\n",
             p->mass,
             p->charge,
             vec3d_mag(&(p->frc)),
@@ -180,7 +180,7 @@ t_universe *particle_update_frc(t_universe *universe, const uint64_t part_id)
       if (vec3d_sub(&temp, &(universe->particle[i].pos), &(current->pos)) == NULL)
     	  return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
       /* Get its magnitude */
-      if ((dst = vec3d_mag(&temp)) == -1.0)
+      if ((dst = vec3d_mag(&temp)) < 0.0)
     	  return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
       /* Turn it into its unit vector */
       if (vec3d_unit(&temp, &temp) == NULL)
