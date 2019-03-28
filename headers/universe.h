@@ -52,6 +52,7 @@ t_universe *particle_update_spd(t_universe *universe, const uint64_t part_id);
 t_universe *particle_update_pos(t_universe *universe, const uint64_t part_id);
 
 t_universe *universe_printstate(t_universe *universe);
+int         universe_simulate(t_universe *universe, t_args *args);
 t_universe *universe_init(t_universe *universe, const t_args *args);
 void        universe_clean(t_universe *universe);
 t_universe *universe_iterate(t_universe *universe);

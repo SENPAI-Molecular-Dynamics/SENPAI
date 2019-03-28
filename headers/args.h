@@ -26,7 +26,7 @@ struct s_args
   double cnst_elec;
   double cnst_time;
   
-  uint64_t max_time;
+  double max_time;
   uint64_t part_nb;
 };
 

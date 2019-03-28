@@ -19,26 +19,21 @@ int main(int argc, char **argv)
   t_universe universe;
   t_args args;
   time_t start_time;
+  time_t end_time;
+  int exit_state;
 
   args_init(&args);
   if (args_parse(&args, argc, argv) == NULL)
-    return (retstri(EXIT_FAILURE, TEXT_ARGS_PARSE_FAILURE, __FILE__, __LINE__));
-  universe_init(&universe, &args);
+    return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));
+  if (universe_init(&universe, &args) == NULL)
+    return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));
 
   fprintf(stdout, TEXT_SIMSTART, universe.part_nb, universe.c_time);
   start_time = time(NULL);
-  /* Main simulation loop */
-  for (universe.time=0.0; (universe.time)<(args.max_time); universe.time += universe.c_time)
-  {
-    if (universe_iterate(&universe) == NULL)
-      break;
-    if (universe_printstate(&universe) == NULL)
-      break;
-  }
-  fprintf(stdout, TEXT_SIMEND, time(NULL)-start_time);
+  exit_state = universe_simulate(&universe, &args);
+  end_time = time(NULL);
+  fprintf(stdout, TEXT_SIMEND, end_time-start_time);
 
   universe_clean(&universe);
-  if (universe.time < args.max_time)
-    return (retstri(EXIT_FAILURE, TEXT_SIMFAILURE, __FILE__, __LINE__));
-  return (EXIT_SUCCESS);
+  return (exit_state);
 }

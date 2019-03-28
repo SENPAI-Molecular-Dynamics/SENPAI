@@ -23,11 +23,11 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
   FILE *input_file;
 
   if (universe == NULL)
-    return (retstr(NULL, TEXT_UNIVERSE_INIT_NULLARG, __FILE__, __LINE__));
+    return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
 
   /* Count the lines in the input file, one line = one particle */
   if ((input_file = fopen(args->path, "r")) == NULL)
-    return (retstr(NULL, TEXT_INPUTFILE_ERROR, __FILE__, __LINE__));
+    return (retstr(NULL, TEXT_INPUTFILE_FAILURE, __FILE__, __LINE__));
   universe->part_nb = 0;
   while ((c = getc(input_file)) != EOF)
      if (c == '\n')
@@ -44,7 +44,7 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
   {
     sprintf(outpath, "%s%zu.csv", args->csv_path, i);
     if ((universe->output_file[i] = fopen(outpath, "w")) == NULL)
-      return (retstr(NULL, TEXT_OUTPUTFILE_ERROR, __FILE__, __LINE__));
+      return (retstr(NULL, TEXT_OUTPUTFILE_FAILURE, __FILE__, __LINE__));
     fprintf(universe->output_file[i], "m,q,F,a,v,r,Fx,Fy,Fz,ax,ay,az,vx,vy,vz,x,y,z\n");
   }
 
@@ -55,7 +55,7 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
   universe->time = 0.0;
   for (i=0; i<(universe->part_nb); ++i)
     if (particle_init(&(universe->particle[i])) == NULL)
-      return (retstr(NULL, TEXT_UNIVERSE_INIT_NULLARG, __FILE__, __LINE__));
+      return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
 
   return (universe);
 }
@@ -76,15 +76,32 @@ t_universe *universe_iterate(t_universe *universe)
 
   /* Holy shit this is so computationally expensive, thinking about OpenCL */
   for (i=0; i<(universe->part_nb); ++i)
-    particle_update_frc(universe, i);
+    if (particle_update_frc(universe, i) == NULL)
+      return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
   for (i=0; i<(universe->part_nb); ++i)
-    particle_update_acc(universe, i);
+    if (particle_update_acc(universe, i) == NULL)
+      return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
   for (i=0; i<(universe->part_nb); ++i)
-    particle_update_spd(universe, i);
+    if (particle_update_spd(universe, i) == NULL)
+      return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
   for (i=0; i<(universe->part_nb); ++i)
-    particle_update_pos(universe, i);
+    if (particle_update_pos(universe, i) == NULL)
+      return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
 
   return (universe);
+}
+
+int universe_simulate(t_universe *universe, t_args *args)
+{
+  while (universe->time < args->max_time)
+  {
+    if (universe_iterate(universe) == NULL)
+      return (retstri(EXIT_FAILURE, TEXT_UNIVERSE_SIMULATE_FAILURE, __FILE__, __LINE__));
+    if (universe_printstate(universe) == NULL)
+      return (retstri(EXIT_FAILURE, TEXT_UNIVERSE_SIMULATE_FAILURE, __FILE__, __LINE__));
+    universe->time += universe->c_time;
+  }
+  return (EXIT_SUCCESS);
 }
 
 t_universe *universe_printstate(t_universe *universe)

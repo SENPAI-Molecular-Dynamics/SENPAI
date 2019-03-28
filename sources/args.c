@@ -16,7 +16,7 @@
 t_args *args_init(t_args *args)
 {
   if (args == NULL)
-    return (retstr(NULL, TEXT_ARGS_INIT_NULLARG, __FILE__, __LINE__));
+    return (retstr(NULL, TEXT_ARGS_INIT_FAILURE, __FILE__, __LINE__));
 
   args->path = NULL;
   args->csv_path = NULL;
@@ -50,6 +50,6 @@ t_args *args_parse(t_args *args, int argc, char **argv)
   }
 
   if (args->path == NULL || args->csv_path == NULL)
-    return (retstr(NULL, TEXT_ARGS_PARSE_BADFORMAT, __FILE__, __LINE__));
+    return (retstr(NULL, TEXT_ARGS_PARSE_FAILURE, __FILE__, __LINE__));
   return (args);
 }
