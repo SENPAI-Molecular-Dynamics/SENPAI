@@ -33,9 +33,21 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
      if (c == '\n')
        ++(universe->part_nb);
   fclose(input_file);
+
   /* Use the number of lines to allocate memory for the particles */
   if ((universe->particle = malloc((universe->part_nb)*sizeof(t_particle))) == NULL)
     return (retstr(NULL, TEXT_MALLOC_FAILURE, __FILE__, __LINE__));
+
+  /* Load the initial state from the input file */
+  for (i=0; i<(universe->part_nb); ++i)
+    fscanf(input_file,
+           "%lf,%lf,%lf,%lf,%lf",
+           &(universe->particle[i].mass),
+           &(universe->particle[i].charge),
+           &(universe->particle[i].pos.x),
+           &(universe->particle[i].pos.y),
+           &(universe->particle[i].pos.z)
+    );
 
   /* Create an output file for each particle */
   if ((universe->output_file = malloc((universe->part_nb)*sizeof(FILE*))) == NULL)
