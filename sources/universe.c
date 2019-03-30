@@ -21,11 +21,9 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
   char c;
   char outpath[strlen(args->csv_path)+32];
   FILE *input_file;
+  t_particle *temp;
 
-  if (universe == NULL)
-    return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
-
-  /* Count the lines in the input file, one line = one particle */
+  /* Count the lines in the input file to get the nb of particles */
   if ((input_file = fopen(args->path, "r")) == NULL)
     return (retstr(NULL, TEXT_INPUTFILE_FAILURE, __FILE__, __LINE__));
   universe->part_nb = 0;
@@ -46,7 +44,7 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
     sprintf(outpath, "%s%zu.csv", args->csv_path, i);
     if ((universe->output_file[i] = fopen(outpath, "w")) == NULL)
       return (retstr(NULL, TEXT_OUTPUTFILE_FAILURE, __FILE__, __LINE__));
-    fprintf(universe->output_file[i], "m,q,F,a,v,r,Fx,Fy,Fz,ax,ay,az,vx,vy,vz,x,y,z\n");
+    fprintf(universe->output_file[i], "m,q,R,F,a,v,r,Fx,Fy,Fz,ax,ay,az,vx,vy,vz,x,y,z\n");
   }
 
 
@@ -59,15 +57,16 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
       return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
 
   /* Load the initial state from the input file */
-  /*for (i=0; i<(universe->part_nb); ++i)
-    fscanf(input_file,
-           "%lf,%lf,%lf,%lf,%lf",
-           &(universe->particle[i].mass),
-           &(universe->particle[i].charge),
-           &(universe->particle[i].pos.x),
-           &(universe->particle[i].pos.y),
-           &(universe->particle[i].pos.z)
-    );*/
+  if ((input_file = fopen(args->path, "r")) == NULL)
+    return (retstr(NULL, TEXT_INPUTFILE_FAILURE, __FILE__, __LINE__));
+  for (i=0; i<(universe->part_nb); ++i)
+  {
+    temp = &(universe->particle[i]);
+    if (fscanf(input_file, "%lf %lf %lf %lf %lf %lf\n", &(temp->mass), &(temp->charge), &(temp->radius), &(temp->pos.x), &(temp->pos.y), &(temp->pos.z)) < 0)
+      return (retstr(NULL, TEXT_INPUTFILE_FAILURE, __FILE__, __LINE__));
+    printf("m=%lf, q=%lf, R=%lf, x=%lf, y=%lf, z=%lf\n", temp->mass, temp->charge, temp->radius, temp->pos.x, temp->pos.y, temp->pos.z);
+  }
+  fclose(input_file);
 
   return (universe);
 }
@@ -125,9 +124,10 @@ t_universe *universe_printstate(t_universe *universe)
   {
     p = &(universe->particle[i]);
     fprintf(universe->output_file[i],
-            "%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf\n",
+            "%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf\n",
             p->mass,
             p->charge,
+            p->radius,
             vec3d_mag(&(p->frc)),
             vec3d_mag(&(p->acc)),
             vec3d_mag(&(p->spd)),
@@ -156,7 +156,7 @@ t_particle *particle_init(t_particle *particle)
   particle->frc = e_0;
 
   particle->mass = 1.0;
-  particle->charge = 1.0;
+  particle->charge = 0.0;
   particle->radius = 1.0;
   return (particle);
 }
