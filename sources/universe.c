@@ -64,7 +64,6 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
     temp = &(universe->particle[i]);
     if (fscanf(input_file, "%lf %lf %lf %lf %lf %lf\n", &(temp->mass), &(temp->charge), &(temp->radius), &(temp->pos.x), &(temp->pos.y), &(temp->pos.z)) < 0)
       return (retstr(NULL, TEXT_INPUTFILE_FAILURE, __FILE__, __LINE__));
-    printf("m=%lf, q=%lf, R=%lf, x=%lf, y=%lf, z=%lf\n", temp->mass, temp->charge, temp->radius, temp->pos.x, temp->pos.y, temp->pos.z);
   }
   fclose(input_file);
 
