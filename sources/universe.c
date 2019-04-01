@@ -137,7 +137,8 @@ t_universe *universe_printstate(t_universe *universe)
   {
     p = &(universe->particle[i]);
     fprintf(universe->output_file[i],
-            "%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf\n",
+            "%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf,%.12lf\n",
+            universe->time,
             p->mass,
             p->charge,
             p->radius,
