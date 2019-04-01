@@ -62,7 +62,7 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
   for (i=0; i<(universe->part_nb); ++i)
   {
     temp = &(universe->particle[i]);
-    if (fscanf(input_file, "%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,\n",
+    if (fscanf(input_file, "%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
                &(temp->mass),
                &(temp->charge),
                &(temp->radius),
@@ -81,7 +81,6 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
       return (retstr(NULL, TEXT_INPUTFILE_FAILURE, __FILE__, __LINE__));
   }
   fclose(input_file);
-
   return (universe);
 }
 
