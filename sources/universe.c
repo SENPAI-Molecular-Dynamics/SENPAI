@@ -44,7 +44,7 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
     sprintf(outpath, "%s%zu.csv", args->csv_path, i);
     if ((universe->output_file[i] = fopen(outpath, "w")) == NULL)
       return (retstr(NULL, TEXT_OUTPUTFILE_FAILURE, __FILE__, __LINE__));
-    fprintf(universe->output_file[i], "m,q,R,F,a,v,r,Fx,Fy,Fz,ax,ay,az,vx,vy,vz,x,y,z\n");
+    fprintf(universe->output_file[i], "t,m,q,R,F,a,v,r,Fx,Fy,Fz,ax,ay,az,vx,vy,vz,x,y,z\n");
   }
 
 
