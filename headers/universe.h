@@ -19,15 +19,14 @@
 typedef struct s_particle t_particle;
 struct s_particle
 {
+  char element[3]; /* The element in question */
   double mass;
   double charge;
-  double radius;
 
   t_vec3d pos;
   t_vec3d spd;
   t_vec3d acc;
   t_vec3d frc;
-
 };
 
 typedef struct s_universe t_universe;

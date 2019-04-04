@@ -14,6 +14,7 @@
 #include <vec3d.h>
 #include <util.h>
 #include <universe.h>
+#include <lennard-jones.h>
 
 t_universe *universe_init(t_universe *universe, const t_args *args)
 {
@@ -44,7 +45,7 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
     sprintf(outpath, "%s%zu.csv", args->csv_path, i);
     if ((universe->output_file[i] = fopen(outpath, "w")) == NULL)
       return (retstr(NULL, TEXT_OUTPUTFILE_FAILURE, __FILE__, __LINE__));
-    fprintf(universe->output_file[i], "t,m,q,R,F,a,v,r,Fx,Fy,Fz,ax,ay,az,vx,vy,vz,x,y,z\n");
+    fprintf(universe->output_file[i], "Element,t,m,q,F,a,v,r,Fx,Fy,Fz,ax,ay,az,vx,vy,vz,x,y,z\n");
   }
 
 
@@ -62,10 +63,10 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
   for (i=0; i<(universe->part_nb); ++i)
   {
     temp = &(universe->particle[i]);
-    if (fscanf(input_file, "%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
+    if (fscanf(input_file, "%s,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
+               temp->element,
                &(temp->mass),
                &(temp->charge),
-               &(temp->radius),
                &(temp->pos.x),
                &(temp->pos.y),
                &(temp->pos.z),
@@ -137,11 +138,11 @@ t_universe *universe_printstate(t_universe *universe)
   {
     p = &(universe->particle[i]);
     fprintf(universe->output_file[i],
-            "%.50lf,%.50lf,%.50lf,%.50lf,%.50lf,%.50lf,%.50lf,%.50lf,%.50lf,%.50lf,%.50lf,%.50lf,%.50lf,%.50lf,%.50lf,%.50lf,%.50lf,%.50lf,%.50lf,%.50lf\n",
+            "%s,%.50lf,%.50lf,%.50lf,%.50lf,%.50lf,%.50lf,%.50lf,%.50lf,%.50lf,%.50lf,%.50lf,%.50lf,%.50lf,%.50lf,%.50lf,%.50lf,%.50lf,%.50lf,%.50lf\n",
+            p->element,
             universe->time,
             p->mass,
             p->charge,
-            p->radius,
             vec3d_mag(&(p->frc)),
             vec3d_mag(&(p->acc)),
             vec3d_mag(&(p->spd)),
@@ -169,12 +170,11 @@ t_particle *particle_init(t_particle *particle)
   particle->acc = e_0;
   particle->frc = e_0;
 
+  strcpy(particle->element, "??");
   particle->mass = 1.0;
   particle->charge = 0.0;
-  particle->radius = 1.0;
   return (particle);
 }
-
 
 t_universe *particle_update_frc(t_universe *universe, const uint64_t part_id)
 {
