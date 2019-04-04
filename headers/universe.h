@@ -33,6 +33,7 @@ typedef struct s_universe t_universe;
 struct s_universe
 {
   uint64_t part_nb;
+  uint64_t iterations;
 
   /* Universe constants */
   double  c_grav;

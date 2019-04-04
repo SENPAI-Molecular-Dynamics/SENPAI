@@ -18,7 +18,7 @@ double lj_epsilon(const t_particle *p1, const t_particle *p2)
   (void)p1;
   (void)p2;
   /* return the value for helium */
-  return (10.2);
+  return (10.2*10e3);
 }
 
 double lj_sigma(const t_particle *p1, const t_particle *p2)
@@ -26,7 +26,7 @@ double lj_sigma(const t_particle *p1, const t_particle *p2)
   (void)p1;
   (void)p2;
   /* return the value for helium */
-  return (2.28);
+  return (2.28*10e-15);
 }
 
 double lennardjones(const t_particle *p1, const t_particle *p2)

@@ -32,7 +32,7 @@ int main(int argc, char **argv)
   start_time = time(NULL);
   exit_state = universe_simulate(&universe, &args);
   end_time = time(NULL);
-  fprintf(stdout, TEXT_SIMEND, end_time-start_time);
+  fprintf(stdout, TEXT_SIMEND, universe.iterations, end_time-start_time, (double)(universe.iterations/(end_time-start_time)));
 
   universe_clean(&universe);
   return (exit_state);

@@ -24,6 +24,8 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
   FILE *input_file;
   t_particle *temp;
 
+  universe->iterations = 0;
+
   /* Count the lines in the input file to get the nb of particles */
   if ((input_file = fopen(args->path, "r")) == NULL)
     return (retstr(NULL, TEXT_INPUTFILE_FAILURE, __FILE__, __LINE__));
@@ -113,6 +115,7 @@ t_universe *universe_iterate(t_universe *universe)
     if (particle_update_pos(universe, i) == NULL)
       return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
 
+  universe->iterations++;
   return (universe);
 }
 
@@ -138,7 +141,7 @@ t_universe *universe_printstate(t_universe *universe)
   {
     p = &(universe->particle[i]);
     fprintf(universe->output_file[i],
-            "%s,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf\n",
+            "\"%s\",%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf\n",
             p->element,
             universe->time,
             p->mass,
