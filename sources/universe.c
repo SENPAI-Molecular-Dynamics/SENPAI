@@ -63,7 +63,7 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
   for (i=0; i<(universe->part_nb); ++i)
   {
     temp = &(universe->particle[i]);
-    if (fscanf(input_file, "%s,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
+    if (fscanf(input_file, "%2s,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
                temp->element,
                &(temp->mass),
                &(temp->charge),
@@ -138,7 +138,7 @@ t_universe *universe_printstate(t_universe *universe)
   {
     p = &(universe->particle[i]);
     fprintf(universe->output_file[i],
-            "%s,%.50lf,%.50lf,%.50lf,%.50lf,%.50lf,%.50lf,%.50lf,%.50lf,%.50lf,%.50lf,%.50lf,%.50lf,%.50lf,%.50lf,%.50lf,%.50lf,%.50lf,%.50lf,%.50lf\n",
+            "%s,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf\n",
             p->element,
             universe->time,
             p->mass,
@@ -184,6 +184,7 @@ t_universe *particle_update_frc(t_universe *universe, const uint64_t part_id)
   double dst;
   double frc_grav;
   double frc_elec;
+  double frc_lj;
 
   current = &(universe->particle[part_id]);
   for (i=0; i<(universe->part_nb); ++i)
@@ -202,8 +203,9 @@ t_universe *particle_update_frc(t_universe *universe, const uint64_t part_id)
       /* Compute the forces */
       frc_grav = (universe->c_grav)*(current->mass)*(universe->particle[i].mass)/(dst*dst);
       frc_elec = (universe->c_elec)*(current->charge)*(universe->particle[i].charge)/(dst*dst);
+      frc_lj = lennardjones(current, &(universe->particle[i]));
       /* Apply them to the particle */
-      if (vec3d_mul(&(current->frc), &temp, frc_grav+frc_elec) == NULL)
+      if (vec3d_mul(&(current->frc), &temp, frc_grav+frc_elec+frc_lj) == NULL)
     	  return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
     }
   }

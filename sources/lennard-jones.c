@@ -15,22 +15,27 @@
 
 double lj_epsilon(const t_particle *p1, const t_particle *p2)
 {
+  (void)p1;
+  (void)p2;
+  /* return the value for helium */
+  return (10.2);
 }
 
 double lj_sigma(const t_particle *p1, const t_particle *p2)
 {
+  (void)p1;
+  (void)p2;
+  /* return the value for helium */
+  return (2.28);
 }
 
 double lennardjones(const t_particle *p1, const t_particle *p2)
 {
   double r; /* Distance betwen the two particles */
-  double rc; /* Cutoff distance. No interation is computed if the distance is any greater */
-  double r6;
-  double A;
-  double B;
   double sigma;
-  double sigma6;
   double epsilon;
+  double rsig; /* Reduced sigma (=sigma/r) */
+  double rsig6; /* Above value raised to the sixth power */
   t_vec3d temp;
 
   /* Get the distance between the two particles */
@@ -40,16 +45,9 @@ double lennardjones(const t_particle *p1, const t_particle *p2)
     return (retstri(0, TEXT_CANTMATH, __FILE__, __LINE__));
 
   sigma = lj_sigma(p1, p2);
-  rc = 2.5*sigma;
-
-  if (r > rc)
-    return (0.0); /* We don't compute interaction beyond that distance */
-
   epsilon = lj_epsilon(p1, p2);
-  sigma6 = POW6(sigma);
-  r6 = POW6(r);
-  A = (4.0*epsilon*sigma6);
-  B = A*sigma6;
+  rsig = sigma/r;
+  rsig6 = POW6(rsig);
 
-  return ((A/(r6*r6))-(B/r6)-(0.0163*epsilon));
+  return ((24*epsilon/r) * ((2*rsig6*rsig6) - rsig6));
 }

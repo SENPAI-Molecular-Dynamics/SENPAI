@@ -20,7 +20,7 @@
 /* English */
 #if LANG == EN
 #define TEXT_FAILURE                      "[" COLOUR_RED "FAILURE" COLOUR_RESET "] "
-#define TEXT_SIMSTART                     "Simulation started (%ld particles, dt=%.12lf s)\n"
+#define TEXT_SIMSTART                     "Simulation started (%ld particles, dt=%.15lf s)\n"
 #define TEXT_SIMEND                       "Simulation ended (runtime: %ld seconds)\n"
 #define TEXT_UNIVERSE_INIT_FAILURE        TEXT_FAILURE "universe_init: Failed to initialize the universe"
 #define TEXT_ARGS_INIT_FAILURE            TEXT_FAILURE "args_init: Argument initialisation failed"
@@ -39,7 +39,7 @@
 /* French */
 #if LANG == FR
 #define TEXT_FAILURE                      "[" COLOUR_RED "ERREUR" COLOUR_RESET "] "
-#define TEXT_SIMSTART                     "Simulation lancée (%ld particles, dt=%.12lf)\n"
+#define TEXT_SIMSTART                     "Simulation lancée (%ld particles, dt=%.15lf)\n"
 #define TEXT_SIMEND                       "Simulation terminée (durée: %ld secondes)\n"
 #define TEXT_UNIVERSE_INIT_FAILURE        TEXT_FAILURE "universe_init: Erreur d'initialisation de l'univers"
 #define TEXT_ARGS_INIT_FAILURE            TEXT_FAILURE "args_init: Erreur d'initialisation des arguments"
@@ -58,7 +58,7 @@
 /* German */
 #if LANG == DE
 #define TEXT_FAILURE                      "[" COLOUR_RED "FEHLER" COLOUR_RESET "] "
-#define TEXT_SIMSTART                     "Simulation gestartet (%ld Partikel, dt=%.12lf s)\n"
+#define TEXT_SIMSTART                     "Simulation gestartet (%ld Partikel, dt=%.15lf s)\n"
 #define TEXT_SIMEND                       "Simulation beendet (runtime: %ld seconds)\n"
 #define TEXT_UNIVERSE_INIT_FAILURE        TEXT_FAILURE "universe_init: Konnte Universum nicht initialisieren"
 #define TEXT_ARGS_INIT_FAILURE            TEXT_FAILURE "args_init: Argument initialisierung fehlgeschlagen"
