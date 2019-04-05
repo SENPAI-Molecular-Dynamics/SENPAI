@@ -31,8 +31,7 @@ t_args *args_parse(t_args *args, int argc, char **argv)
 {
   int64_t i;
 
-  i = 1;
-  while (i<argc)
+  for (i=1; i<argc; ++i)
   {
     if ((!strcmp(argv[i], "--in") || !strcmp(argv[i], "-i")) && (i+1)<argc)
       args->path = argv[++i];
@@ -43,10 +42,9 @@ t_args *args_parse(t_args *args, int argc, char **argv)
     else if ((!strcmp(argv[i], "--elec") || !strcmp(argv[i], "-e")) && (i+1)<argc)
       args->cnst_elec = atof(argv[++i]);
     else if ((!strcmp(argv[i], "--time") || !strcmp(argv[i], "-t")) && (i+1)<argc)
-      args->max_time = atof(argv[++i]);
+      args->max_time = atof(argv[++i])*1E-12; /* The value is again give in ps */
     else if ((!strcmp(argv[i], "--dt") && (i+1)<argc))
-      args->cnst_time = atof(argv[++i]);
-    ++i;
+      args->cnst_time = atof(argv[++i])*1E-12; /* The value is given in ps */
   }
 
   if (args->path == NULL || args->csv_path == NULL)

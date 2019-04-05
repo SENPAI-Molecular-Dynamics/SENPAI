@@ -82,6 +82,9 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
                &(temp->frc.y),
                &(temp->frc.z)) < 0)
       return (retstr(NULL, TEXT_INPUTFILE_FAILURE, __FILE__, __LINE__));
+    temp->mass *= 1.66053904020E-27; /* We converts the values from atomic mass units to kg */
+    if (vec3d_mul(&(temp->pos), &(temp->pos), 1E-12) == NULL) /* We convert the position vector from m to pm */
+      return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
   }
   fclose(input_file);
   return (universe);
@@ -141,15 +144,15 @@ t_universe *universe_printstate(t_universe *universe)
   {
     p = &(universe->particle[i]);
     fprintf(universe->output_file[i],
-            "\"%s\",%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf\n",
+            "\"%s\",%.3lf,%.3lf,%.3lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf\n",
             p->element,
-            universe->time,
-            p->mass,
+            universe->time*1E12,
+            p->mass*6.0229552894949E26,
             p->charge,
             vec3d_mag(&(p->frc)),
             vec3d_mag(&(p->acc)),
             vec3d_mag(&(p->spd)),
-            vec3d_mag(&(p->pos)),
+            vec3d_mag(&(p->pos))*1E12,
             p->frc.x,
             p->frc.y,
             p->frc.z,
@@ -159,9 +162,9 @@ t_universe *universe_printstate(t_universe *universe)
             p->spd.x,
             p->spd.y,
             p->spd.z,
-            p->pos.x,
-            p->pos.y,
-            p->pos.z);
+            p->pos.x*1E12,
+            p->pos.y*1E12,
+            p->pos.z*1E12);
   }
   return (universe);
 }

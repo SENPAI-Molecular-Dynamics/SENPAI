@@ -28,7 +28,7 @@ int main(int argc, char **argv)
   if (universe_init(&universe, &args) == NULL)
     return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));
 
-  fprintf(stdout, TEXT_SIMSTART, universe.part_nb, universe.c_time);
+  fprintf(stdout, TEXT_SIMSTART, universe.part_nb, args.max_time*1E12, universe.c_time*1E12); /* We multiply by 10e12 to give the value in ps */
   start_time = time(NULL);
   exit_state = universe_simulate(&universe, &args);
   end_time = time(NULL);
