@@ -47,7 +47,7 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
     sprintf(outpath, "%s%zu.csv", args->csv_path, i);
     if ((universe->output_file[i] = fopen(outpath, "w")) == NULL)
       return (retstr(NULL, TEXT_OUTPUTFILE_FAILURE, __FILE__, __LINE__));
-    fprintf(universe->output_file[i], "Element,t,m,q,F,a,v,r,Fx,Fy,Fz,ax,ay,az,vx,vy,vz,x,y,z\n");
+    fprintf(universe->output_file[i], "t,m,q,F,a,v,r,Fx,Fy,Fz,ax,ay,az,vx,vy,vz,x,y,z\n");
   }
 
 
@@ -144,8 +144,7 @@ t_universe *universe_printstate(t_universe *universe)
   {
     p = &(universe->particle[i]);
     fprintf(universe->output_file[i],
-            "\"%s\",%.3lf,%.3lf,%.3lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf\n",
-            p->element,
+            "%.3lf,%.3lf,%.3lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf\n",
             universe->time*1E12,
             p->mass*6.0229552894949E26,
             p->charge,
