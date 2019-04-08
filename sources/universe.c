@@ -47,7 +47,7 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
     sprintf(outpath, "%s%zu.csv", args->csv_path, i);
     if ((universe->output_file[i] = fopen(outpath, "w")) == NULL)
       return (retstr(NULL, TEXT_OUTPUTFILE_FAILURE, __FILE__, __LINE__));
-    fprintf(universe->output_file[i], "t,m,q,F,a,v,r,Fx,Fy,Fz,ax,ay,az,vx,vy,vz,x,y,z\n");
+    fprintf(universe->output_file[i], "t (ps),m (amu),q (e),F (N),a (m.s-2),v (m.s-1),r (pm),Fx,Fy,Fz,ax,ay,az,vx,vy,vz,x,y,z\n");
   }
 
 
@@ -82,8 +82,9 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
                &(temp->frc.y),
                &(temp->frc.z)) < 0)
       return (retstr(NULL, TEXT_INPUTFILE_FAILURE, __FILE__, __LINE__));
-    temp->mass *= 1.66053904020E-27; /* We converts the values from atomic mass units to kg */
-    if (vec3d_mul(&(temp->pos), &(temp->pos), 1E-12) == NULL) /* We convert the position vector from m to pm */
+    temp->mass *= 1.66053904020E-27; /* We convert the values from atomic mass units to kg */
+    temp->charge *= 1.602176634E-19; /* Same with charge, from e to C */
+    if (vec3d_mul(&(temp->pos), &(temp->pos), 1E-12) == NULL) /* We convert the position vector from pm to m */
       return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
   }
   fclose(input_file);
@@ -126,9 +127,9 @@ int universe_simulate(t_universe *universe, t_args *args)
 {
   while (universe->time < args->max_time)
   {
-    if (universe_iterate(universe) == NULL)
-      return (retstri(EXIT_FAILURE, TEXT_UNIVERSE_SIMULATE_FAILURE, __FILE__, __LINE__));
     if (universe_printstate(universe) == NULL)
+      return (retstri(EXIT_FAILURE, TEXT_UNIVERSE_SIMULATE_FAILURE, __FILE__, __LINE__));
+    if (universe_iterate(universe) == NULL)
       return (retstri(EXIT_FAILURE, TEXT_UNIVERSE_SIMULATE_FAILURE, __FILE__, __LINE__));
     universe->time += universe->c_time;
   }
@@ -147,7 +148,7 @@ t_universe *universe_printstate(t_universe *universe)
             "%.3lf,%.3lf,%.3lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf\n",
             universe->time*1E12,
             p->mass*6.0229552894949E26,
-            p->charge,
+            p->charge6.2415093414E18,
             vec3d_mag(&(p->frc)),
             vec3d_mag(&(p->acc)),
             vec3d_mag(&(p->spd)),

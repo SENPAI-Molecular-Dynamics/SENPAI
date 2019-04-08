@@ -10,6 +10,7 @@
 #include <vec3d.h>
 #include <universe.h>
 #include <lennard-jones.h>
+#include <stdio.h>
 
 #define POW6(x) (x*x*x*x*x*x)
 
@@ -18,7 +19,7 @@ double lj_epsilon(const t_particle *p1, const t_particle *p2)
   (void)p1;
   (void)p2;
   /* return the value for helium */
-  return (1.4110228e-22);
+  return (1.4110228E-22);
 }
 
 double lj_sigma(const t_particle *p1, const t_particle *p2)
@@ -26,7 +27,7 @@ double lj_sigma(const t_particle *p1, const t_particle *p2)
   (void)p1;
   (void)p2;
   /* return the value for helium */
-  return (256*10e-12);
+  return (256E-12);
 }
 
 double lennardjones(const t_particle *p1, const t_particle *p2)
@@ -48,6 +49,7 @@ double lennardjones(const t_particle *p1, const t_particle *p2)
   epsilon = lj_epsilon(p1, p2);
   rsig = sigma/r;
   rsig6 = POW6(rsig);
-
-  return ((24*epsilon/r) * ((2*rsig6*rsig6) - rsig6));
+  
+  printf("r=%.50lf\n", r);
+  return (-(24*epsilon/r) * ((2*rsig6*rsig6) - rsig6));
 }
