@@ -9,7 +9,7 @@
 #include <util.h>
 #include <vec3d.h>
 #include <universe.h>
-#include <lennard-jones.h>
+#include <bond.h>
 #include <stdio.h>
 
 #define POW6(x) (x*x*x*x*x*x)
@@ -50,6 +50,25 @@ double lennardjones(const t_particle *p1, const t_particle *p2)
   rsig = sigma/r;
   rsig6 = POW6(rsig);
   
-  printf("r=%.50lf\n", r);
   return (-(24*epsilon/r) * ((2*rsig6*rsig6) - rsig6));
+}
+
+double bond_force(const size_t bond_id, const t_particle *p1, const t_particle *p2)
+{
+  double r;
+  double displacement;
+  t_vec3d temp;
+
+  /* If not bonded */
+  if (p1->bond[bond_id] == NULL)
+    return (0.0);
+
+  /* Get the distance between the two particles */
+  if (vec3d_sub(&temp, &(p1->pos), &(p2->pos)) == NULL)
+    return (retstri(0, TEXT_CANTMATH, __FILE__, __LINE__));
+  if ((r = vec3d_mag(&temp)) < 0.0)
+    return (retstri(0, TEXT_CANTMATH, __FILE__, __LINE__));
+
+  displacement = (p1->bond_length[bond_id]) + r;
+  return (-(p1->bond_strength[bond_id])*displacement);
 }

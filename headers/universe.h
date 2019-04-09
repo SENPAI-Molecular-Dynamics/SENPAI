@@ -23,6 +23,10 @@ struct s_particle
   double mass;
   double charge;
 
+  t_particle *bond[7]; /* Points to the bonded particles (max. 7) */
+  double bond_strength[7]; /* Strength of each bond (spring constant) */
+  double bond_length[7]; /* Length of the bond */
+
   t_vec3d pos;
   t_vec3d spd;
   t_vec3d acc;

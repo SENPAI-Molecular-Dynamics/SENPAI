@@ -14,11 +14,13 @@
 #include <vec3d.h>
 #include <util.h>
 #include <universe.h>
-#include <lennard-jones.h>
+#include <bond.h>
 
 t_universe *universe_init(t_universe *universe, const t_args *args)
 {
   size_t i;
+  size_t ii;
+  int bond_id[7];
   char c;
   char outpath[strlen(args->csv_path)+32];
   FILE *input_file;
@@ -47,7 +49,7 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
     sprintf(outpath, "%s%zu.csv", args->csv_path, i);
     if ((universe->output_file[i] = fopen(outpath, "w")) == NULL)
       return (retstr(NULL, TEXT_OUTPUTFILE_FAILURE, __FILE__, __LINE__));
-    fprintf(universe->output_file[i], "t (ps),m (amu),q (e),F (N),a (m.s-2),v (m.s-1),r (pm),Fx,Fy,Fz,ax,ay,az,vx,vy,vz,x,y,z\n");
+    fprintf(universe->output_file[i], "t (ps),F (N),a (m.s-2),v (m.s-1),r (pm),Fx,Fy,Fz,ax,ay,az,vx,vy,vz,x,y,z\n");
   }
 
 
@@ -65,10 +67,31 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
   for (i=0; i<(universe->part_nb); ++i)
   {
     temp = &(universe->particle[i]);
-    if (fscanf(input_file, "%2s,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
+    if (fscanf(input_file, "%2s,%lf,%lf,%d,%d,%d,%d,%d,%d,%d,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
                temp->element,
                &(temp->mass),
                &(temp->charge),
+               &(bond_id[0]),
+               &(bond_id[1]),
+               &(bond_id[2]),
+               &(bond_id[3]),
+               &(bond_id[4]),
+               &(bond_id[5]),
+               &(bond_id[6]),
+               &(temp->bond_strength[0]),
+               &(temp->bond_strength[1]),
+               &(temp->bond_strength[2]),
+               &(temp->bond_strength[3]),
+               &(temp->bond_strength[4]),
+               &(temp->bond_strength[5]),
+               &(temp->bond_strength[6]),
+               &(temp->bond_length[0]),
+               &(temp->bond_length[1]),
+               &(temp->bond_length[2]),
+               &(temp->bond_length[3]),
+               &(temp->bond_length[4]),
+               &(temp->bond_length[5]),
+               &(temp->bond_length[6]),
                &(temp->pos.x),
                &(temp->pos.y),
                &(temp->pos.z),
@@ -86,6 +109,15 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
     temp->charge *= 1.602176634E-19; /* Same with charge, from e to C */
     if (vec3d_mul(&(temp->pos), &(temp->pos), 1E-12) == NULL) /* We convert the position vector from pm to m */
       return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
+
+    /* Set up the bonds */
+    for (ii=0; ii<7; ++ii)
+    {
+      if (bond_id[ii] < 0)
+        temp->bond[ii] = NULL;
+      else
+        temp->bond[ii] = &(universe->particle[bond_id[ii]]);
+    }
   }
   fclose(input_file);
   return (universe);
@@ -145,10 +177,8 @@ t_universe *universe_printstate(t_universe *universe)
   {
     p = &(universe->particle[i]);
     fprintf(universe->output_file[i],
-            "%.3lf,%.3lf,%.3lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf\n",
+            "%.3lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf\n",
             universe->time*1E12,
-            p->mass*6.0229552894949E26,
-            p->charge6.2415093414E18,
             vec3d_mag(&(p->frc)),
             vec3d_mag(&(p->acc)),
             vec3d_mag(&(p->spd)),
@@ -186,11 +216,14 @@ t_universe *particle_update_frc(t_universe *universe, const uint64_t part_id)
 {
   t_particle *current;
   t_vec3d temp;
-  uint64_t i;
+  size_t i;
+  size_t ii;
   double dst;
   double frc_grav;
   double frc_elec;
   double frc_lj;
+  double frc_bond[7];
+  double frc_sum;
 
   current = &(universe->particle[part_id]);
   for (i=0; i<(universe->part_nb); ++i)
@@ -210,8 +243,13 @@ t_universe *particle_update_frc(t_universe *universe, const uint64_t part_id)
       frc_grav = (universe->c_grav)*(current->mass)*(universe->particle[i].mass)/(dst*dst);
       frc_elec = (universe->c_elec)*(current->charge)*(universe->particle[i].charge)/(dst*dst);
       frc_lj = lennardjones(current, &(universe->particle[i]));
+      for (ii=0; ii<7; ++ii)
+        frc_bond[ii] = bond_force(ii, current, &(universe->particle[i]));
       /* Apply them to the particle */
-      if (vec3d_mul(&(current->frc), &temp, frc_grav+frc_elec+frc_lj) == NULL)
+      frc_sum = frc_grav + frc_elec + frc_lj;
+      for (ii=0; ii<7; ++ii)
+        frc_sum += frc_bond[ii];
+      if (vec3d_mul(&(current->frc), &temp, frc_sum) == NULL)
     	  return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
     }
   }
