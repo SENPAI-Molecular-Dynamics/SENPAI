@@ -31,7 +31,7 @@ int main(int argc, char **argv)
   fprintf(stdout, TEXT_SIMSTART, universe.part_nb, args.max_time*1E12, universe.c_time*1E12); /* We multiply by 10e12 to give the value in ps */
   start_time = time(NULL);
   exit_state = universe_simulate(&universe, &args);
-  end_time = time(NULL);
+  end_time = time(NULL)+1;
   fprintf(stdout, TEXT_SIMEND, universe.iterations, end_time-start_time, (double)(universe.iterations/(end_time-start_time)));
 
   universe_clean(&universe);

@@ -113,6 +113,7 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
     /* Set up the bonds */
     for (ii=0; ii<7; ++ii)
     {
+      temp->bond_length[ii] *= 1E-12;
       if (bond_id[ii] < 0)
         temp->bond[ii] = NULL;
       else
@@ -244,7 +245,7 @@ t_universe *particle_update_frc(t_universe *universe, const uint64_t part_id)
       frc_elec = (universe->c_elec)*(current->charge)*(universe->particle[i].charge)/(dst*dst);
       frc_lj = lennardjones(current, &(universe->particle[i]));
       for (ii=0; ii<7; ++ii)
-        frc_bond[ii] = bond_force(ii, current, &(universe->particle[i]));
+        frc_bond[ii] = bond_force(ii, current);
       /* Apply them to the particle */
       frc_sum = frc_grav + frc_elec + frc_lj;
       for (ii=0; ii<7; ++ii)
