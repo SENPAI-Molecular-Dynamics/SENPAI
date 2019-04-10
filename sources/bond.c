@@ -32,12 +32,18 @@ double lj_sigma(const t_particle *p1, const t_particle *p2)
 
 double lennardjones(const t_particle *p1, const t_particle *p2)
 {
+  size_t i;
   double r; /* Distance betwen the two particles */
   double sigma;
   double epsilon;
   double rsig; /* Reduced sigma (=sigma/r) */
   double rsig6; /* Above value raised to the sixth power */
   t_vec3d temp;
+
+  /* If the two particles are bonded, don't compute the VDW forces */
+  for (i=0; i<7; ++i)
+    if (p1->bond[i] == p2)
+      return (0.0);
 
   /* Get the distance between the two particles */
   if (vec3d_sub(&temp, &(p1->pos), &(p2->pos)) == NULL)

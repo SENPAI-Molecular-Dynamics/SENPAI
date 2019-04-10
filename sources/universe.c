@@ -67,7 +67,7 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
   for (i=0; i<(universe->part_nb); ++i)
   {
     temp = &(universe->particle[i]);
-    if (fscanf(input_file, "%2s,%lf,%lf,%d,%d,%d,%d,%d,%d,%d,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
+    if (fscanf(input_file, "%2s,%lf,%lf,%d,%d,%d,%d,%d,%d,%d,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
                temp->element,
                &(temp->mass),
                &(temp->charge),
@@ -94,16 +94,7 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
                &(temp->bond_length[6]),
                &(temp->pos.x),
                &(temp->pos.y),
-               &(temp->pos.z),
-               &(temp->spd.x),
-               &(temp->spd.y),
-               &(temp->spd.z),
-               &(temp->acc.x),
-               &(temp->acc.y),
-               &(temp->acc.z),
-               &(temp->frc.x),
-               &(temp->frc.y),
-               &(temp->frc.z)) < 0)
+               &(temp->pos.z)) < 0)
       return (retstr(NULL, TEXT_INPUTFILE_FAILURE, __FILE__, __LINE__));
     temp->mass *= 1.66053904020E-27; /* We convert the values from atomic mass units to kg */
     temp->charge *= 1.602176634E-19; /* Same with charge, from e to C */
@@ -217,14 +208,12 @@ t_universe *particle_update_frc(t_universe *universe, const uint64_t part_id)
 {
   t_particle *current;
   t_vec3d temp;
+  t_vec3d frc_bond_vec[7]; /* Force vector for each bond */
   size_t i;
   size_t ii;
   double dst;
-  double frc_grav;
   double frc_elec;
   double frc_lj;
-  double frc_bond[7];
-  double frc_sum;
 
   current = &(universe->particle[part_id]);
   for (i=0; i<(universe->part_nb); ++i)
@@ -240,18 +229,32 @@ t_universe *particle_update_frc(t_universe *universe, const uint64_t part_id)
       /* Turn it into its unit vector */
       if (vec3d_unit(&temp, &temp) == NULL)
     	  return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
-      /* Compute the forces */
-      frc_grav = (universe->c_grav)*(current->mass)*(universe->particle[i].mass)/(dst*dst);
+      /* Compute the forces colinear forces */
       frc_elec = (universe->c_elec)*(current->charge)*(universe->particle[i].charge)/(dst*dst);
       frc_lj = lennardjones(current, &(universe->particle[i]));
+
+      /* Compute the bond forces */
       for (ii=0; ii<7; ++ii)
-        frc_bond[ii] = bond_force(ii, current);
-      /* Apply them to the particle */
-      frc_sum = frc_grav + frc_elec + frc_lj;
-      for (ii=0; ii<7; ++ii)
-        frc_sum += frc_bond[ii];
-      if (vec3d_mul(&(current->frc), &temp, frc_sum) == NULL)
+      {
+        if ((current->bond[ii]) != NULL)
+        {
+          if (vec3d_sub(&(frc_bond_vec[ii]), &((current->bond[ii])->pos), &(current->pos)) == NULL)
+            return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
+          if (vec3d_unit(&(frc_bond_vec[ii]), &(frc_bond_vec[ii])) == NULL)
+            return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
+          if (vec3d_mul(&(frc_bond_vec[ii]), &(frc_bond_vec[ii]), bond_force(ii, current)) == NULL)
+            return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
+        }
+        else
+          frc_bond_vec[ii] = e_0;
+      }
+
+      /* Apply the forces */
+      if (vec3d_mul(&(current->frc), &temp, frc_elec+frc_lj) == NULL)
     	  return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
+      for (ii=0; ii<7; ++ii)
+        if (vec3d_add(&(current->frc), &(current->frc), &(frc_bond_vec[ii])) == NULL)
+          return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
     }
   }
   
