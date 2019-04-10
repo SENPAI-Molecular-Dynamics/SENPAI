@@ -16,8 +16,6 @@ Options:
 
 - `-o | --out` Required. Specifies the name prefix for the output file. using `-o out` with two particles would tell Ammonium to create `out0.csv` and `out1.csv`.
 
-- `--grav nb` Specifies the value for the gravitational coupling constant, in SI units
-
 - `--elec nb` Specifies the value for the electromagnetic coupling constant, in SI units
 
 - `--time t` Specifies the simulation duration, in picoseconds

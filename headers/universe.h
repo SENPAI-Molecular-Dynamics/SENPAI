@@ -40,7 +40,6 @@ struct s_universe
   uint64_t iterations;
 
   /* Universe constants */
-  double  c_grav;
   double  c_elec;
   double  c_time;
 

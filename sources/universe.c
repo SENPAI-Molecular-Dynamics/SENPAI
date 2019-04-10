@@ -53,7 +53,6 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
   }
 
 
-  universe->c_grav = args->cnst_grav;
   universe->c_elec = args->cnst_elec;
   universe->c_time = args->cnst_time;
   universe->time = 0.0;

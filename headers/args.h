@@ -10,7 +10,6 @@
 
 #include <stdint.h>
 
-#define ARGS_CNST_GRAV_DEFAULT (double)(6.67408*10E-11)
 #define ARGS_CNST_ELEC_DEFAULT (double)(8.98755*10E9)
 #define ARGS_CNST_TIME_DEFAULT (double)1E-12 /* Use 1 picosecond steps */
 #define ARGS_MAX_TIME_DEFAULT  (double)1E-6 /* Simulate 1 microsecond */
@@ -21,7 +20,6 @@ struct s_args
   char *path;
   char *csv_path;
 
-  double cnst_grav;
   double cnst_elec;
   double cnst_time;
   
