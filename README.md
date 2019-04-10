@@ -23,3 +23,11 @@ Options:
 - `--time t` Specifies the simulation duration, in picoseconds
 
 - `--dt t` Specifies the timestep, in picoseconds
+
+#Introduction
+
+Ammonium will simulate its provided system in a classical way. Particles are charged point-masses, covalent bonds are springs, and Van der Waals interactions are approximated with the Lennard-Jones potential. After each timestep, each particle's file will be appended with the current particle's state, which consists of its vector components and magnitude. The files are formatted in `.csv` format, allowing data processing and plotting either via UNIX commands or dedicated software.
+
+The simulation's initial state is read from a `.nh4` file, which is just a posh renaming of the `.csv` format, allowing again the use of dedicated software to initiate a simulation.
+
+Ammonium generates tremendous amounts of data, and will put even the most powerful computing systems on their knees.
