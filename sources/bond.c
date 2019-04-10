@@ -79,6 +79,7 @@ double bond_force(const size_t bond_id, const t_particle *p)
   if ((r = vec3d_mag(&temp)) < 0.0)
     return (retstri(0, TEXT_CANTMATH, __FILE__, __LINE__));
 
+  r *= -1;
   displacement = (p->bond_length[bond_id]) + r;
   return ((p->bond_strength[bond_id])*displacement);
 }
