@@ -18,7 +18,7 @@ typedef struct s_args t_args;
 struct s_args
 {
   char *path;
-  char *csv_path;
+  char *out_path;
 
   double cnst_elec;
   double cnst_time;

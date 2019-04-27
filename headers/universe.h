@@ -45,7 +45,8 @@ struct s_universe
 
   double time; /* Current time */
   t_particle *particle;
-  FILE **output_file;
+  FILE **output_file_csv;
+  FILE  *output_file_xyz;
 };
 
 t_particle *particle_init(t_particle *particle);

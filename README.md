@@ -12,7 +12,7 @@ Ammonium requires the C standard library. No additional software is required. Co
 
 Options:
 
-- `-i | --in` Required. Specifies the path to the input file.
+- `-i | --in` Required. Specifies the path to the input file (`.nh4`).
 
 - `-o | --out` Required. Specifies the name prefix for the output file. using `-o out` with two particles would tell Ammonium to create `out0.csv` and `out1.csv`.
 
@@ -24,8 +24,6 @@ Options:
 
 #Introduction
 
-Ammonium will simulate its provided system in a classical way. Particles are charged point-masses, covalent bonds are springs, and Van der Waals interactions are approximated with the Lennard-Jones potential. After each timestep, each particle's file will be appended with the current particle's state, which consists of its vector components and magnitude. The files are formatted in `.csv` format, allowing data processing and plotting either via UNIX commands or dedicated software.
+Ammonium will simulate its provided system in a classical way. Particles are charged point-masses, covalent bonds are springs, and Van der Waals interactions are approximated with the Lennard-Jones potential. After each timestep, each particle's file will be appended with the current particle's state, which consists of its vector components and magnitude. The files are formatted in `.xyz` and `.csv` format, allowing data processing and plotting either via UNIX commands or dedicated software.
 
-The simulation's initial state is read from a `.nh4` file, which is just a posh renaming of the `.csv` format, allowing again the use of dedicated software to initiate a simulation.
-
-Ammonium generates tremendous amounts of data, and will put even the most powerful computing systems on their knees.
+The simulation's initial state is read from a `.nh4` file. It is a format similar to `xyz`, but with extra bond information.

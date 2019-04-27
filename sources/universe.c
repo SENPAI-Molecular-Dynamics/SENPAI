@@ -22,11 +22,9 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
   size_t ii;
   int bond_id[7];
   char c;
-  char outpath[strlen(args->csv_path)+32];
+  char outpath[strlen(args->out_path)+32];
   FILE *input_file;
   t_particle *temp;
-
-  universe->iterations = 0;
 
   /* Count the lines in the input file to get the nb of particles */
   if ((input_file = fopen(args->path, "r")) == NULL)
@@ -37,25 +35,40 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
        ++(universe->part_nb);
   fclose(input_file);
 
-  /* Use the number of lines to allocate memory for the particles */
+  /* Use the number of lines in the input file to allocate memory for the particles */
   if ((universe->particle = malloc((universe->part_nb)*sizeof(t_particle))) == NULL)
     return (retstr(NULL, TEXT_MALLOC_FAILURE, __FILE__, __LINE__));
 
-  /* Create an output file for each particle */
-  if ((universe->output_file = malloc((universe->part_nb)*sizeof(FILE*))) == NULL)
+  /* Allocate memory for .csv file pointers */
+  if ((universe->output_file_csv = malloc((universe->part_nb)*sizeof(FILE*))) == NULL)
     return (retstr(NULL, TEXT_MALLOC_FAILURE, __FILE__, __LINE__));
+
+  /* Allocate memory for .xyz file pointers */
+  if ((universe->output_file_xyz = malloc((universe->part_nb)*sizeof(FILE*))) == NULL)
+    return (retstr(NULL, TEXT_MALLOC_FAILURE, __FILE__, __LINE__));
+  
   for (i=0; i<(universe->part_nb); ++i)
   {
-    sprintf(outpath, "%s%zu.csv", args->csv_path, i);
-    if ((universe->output_file[i] = fopen(outpath, "w")) == NULL)
+    /* Initialize the .csv files */
+    sprintf(outpath, "%s%zu.csv", args->out_path, i);
+    if ((universe->output_file_csv[i] = fopen(outpath, "w")) == NULL)
       return (retstr(NULL, TEXT_OUTPUTFILE_FAILURE, __FILE__, __LINE__));
-    fprintf(universe->output_file[i], "t (ps),F (N),a (m.s-2),v (m.s-1),r (pm),Fx,Fy,Fz,ax,ay,az,vx,vy,vz,x,y,z\n");
+    /* Write the .csv header */
+    fprintf(universe->output_file_csv[i], "t (ps),x,y,z\n");
   }
 
+  /* Initialize the .xyz file pointer */
+  sprintf(outpath, "%s.xyz", args->out_path);
+  if ((universe->output_file_xyz = fopen(outpath, "w")) == NULL)
+    return (retstr(NULL, TEXT_OUTPUTFILE_FAILURE, __FILE__, __LINE__));
 
+  /* Initialize the constants */
   universe->c_elec = args->cnst_elec;
   universe->c_time = args->cnst_time;
   universe->time = 0.0;
+  universe->iterations = 0;
+
+  /* Initialize the particles */
   for (i=0; i<(universe->part_nb); ++i)
     if (particle_init(&(universe->particle[i])) == NULL)
       return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
@@ -95,21 +108,25 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
                &(temp->pos.y),
                &(temp->pos.z)) < 0)
       return (retstr(NULL, TEXT_INPUTFILE_FAILURE, __FILE__, __LINE__));
+
     temp->mass *= 1.66053904020E-27; /* We convert the values from atomic mass units to kg */
     temp->charge *= 1.602176634E-19; /* Same with charge, from e to C */
-    if (vec3d_mul(&(temp->pos), &(temp->pos), 1E-12) == NULL) /* We convert the position vector from pm to m */
+
+    /* We convert the position vector from Angstroms to m */
+    if (vec3d_mul(&(temp->pos), &(temp->pos), 1E-10) == NULL)
       return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
 
     /* Set up the bonds */
     for (ii=0; ii<7; ++ii)
     {
-      temp->bond_length[ii] *= 1E-12;
+      temp->bond_length[ii] *= 1E-10; /* Bond lengths are given in Angstroms */
       if (bond_id[ii] < 0)
         temp->bond[ii] = NULL;
       else
         temp->bond[ii] = &(universe->particle[bond_id[ii]]);
     }
   }
+
   fclose(input_file);
   return (universe);
 }
@@ -118,26 +135,39 @@ void universe_clean(t_universe *universe)
 {
   size_t i;
 
+  /* Close the file pointers */
+  fclose(universe->output_file_xyz);
   for (i=0; i<(universe->part_nb); ++i)
-    fclose(universe->output_file[i]);
+  {
+    fclose(universe->output_file_csv[i]);
+  }
+
+  /* Free allocated memory */
   free(universe->particle);
-  free(universe->output_file);
+  free(universe->output_file_csv);
+  free(universe->output_file_xyz);
 }
 
 t_universe *universe_iterate(t_universe *universe)
 {
   uint64_t i;
 
-  /* Holy shit this is so computationally expensive, thinking about OpenCL */
+  /* Update the force vectors */
   for (i=0; i<(universe->part_nb); ++i)
     if (particle_update_frc(universe, i) == NULL)
       return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+
+  /* Update the acceleration vectors */
   for (i=0; i<(universe->part_nb); ++i)
     if (particle_update_acc(universe, i) == NULL)
       return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+
+  /* Update the speed vectors */
   for (i=0; i<(universe->part_nb); ++i)
     if (particle_update_spd(universe, i) == NULL)
       return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+
+  /* Update the position vectors */
   for (i=0; i<(universe->part_nb); ++i)
     if (particle_update_pos(universe, i) == NULL)
       return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
@@ -155,6 +185,7 @@ int universe_simulate(t_universe *universe, t_args *args)
     if (universe_iterate(universe) == NULL)
       return (retstri(EXIT_FAILURE, TEXT_UNIVERSE_SIMULATE_FAILURE, __FILE__, __LINE__));
     universe->time += universe->c_time;
+    ++(universe->iterations);
   }
   return (EXIT_SUCCESS);
 }
@@ -167,25 +198,27 @@ t_universe *universe_printstate(t_universe *universe)
   for (i=0; i<(universe->part_nb); ++i)
   {
     p = &(universe->particle[i]);
-    fprintf(universe->output_file[i],
-            "%.6lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf,%.15lf\n",
+
+    /* Print in the .csv */
+    fprintf(universe->output_file_csv[i],
+            "%.6lf,%.15lf,%.15lf,%.15lf\n",
             universe->time*1E12,
-            vec3d_mag(&(p->frc)),
-            vec3d_mag(&(p->acc)),
-            vec3d_mag(&(p->spd)),
-            vec3d_mag(&(p->pos))*1E12,
-            p->frc.x,
-            p->frc.y,
-            p->frc.z,
-            p->acc.x,
-            p->acc.y,
-            p->acc.z,
-            p->spd.x,
-            p->spd.y,
-            p->spd.z,
-            p->pos.x*1E12,
-            p->pos.y*1E12,
-            p->pos.z*1E12);
+            p->pos.x*1E10,
+            p->pos.y*1E10,
+            p->pos.z*1E10);
+  }
+
+  /* Print in the .xyz */
+  fprintf(universe->output_file_xyz, "%ld\n%ld\n", universe->part_nb, universe->iterations);
+  for (i=0; i<(universe->part_nb); ++i)
+  {
+    p = &(universe->particle[i]);
+    fprintf(universe->output_file_xyz,
+            "%s\t%.15lf\t%.15lf\t%.15lf\n",
+            p->element,
+            p->pos.x*1E10,
+            p->pos.y*1E10,
+            p->pos.z*1E10);
   }
   return (universe);
 }
