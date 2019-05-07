@@ -26,10 +26,15 @@ double lj_sigma(const t_particle *p1, const t_particle *p2)
 {
   (void)p1;
   (void)p2;
-  /* return the value for helium */
+  /* rReturn the value for helium */
   return (256E-12);
 }
 
+/*
+ *   NOTE /!\
+ *
+ *   The Lennard-Jones potential currently only works for helium.
+ *
 double lennardjones(const t_particle *p1, const t_particle *p2)
 {
   size_t i;
