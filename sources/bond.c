@@ -35,6 +35,9 @@ double lj_sigma(const t_particle *p1, const t_particle *p2)
  *
  *   The Lennard-Jones potential currently only works for helium.
  *
+ *
+ */
+
 double lennardjones(const t_particle *p1, const t_particle *p2)
 {
   size_t i;
