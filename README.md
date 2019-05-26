@@ -1,12 +1,12 @@
 # Ammonium
 
-Ammonium is a MD simulator based on classical approximations aiming to simulate large systems on devices ranging from a laptop to a peta-scale parallel computing cluster.
+Ammonium is a MD simulator based on classical approximations aiming to simulate large systems on devices ranging from a laptop to a peta-scale parallel computing cluster. **But for now, just laptops.**
 
-#Compilation
+## Compilation
 
 Ammonium requires the C standard library. No additional software is required. Compilation is achieved using the provided makefile.
 
-#Usage
+## Usage
 
 `ammonium -i input_file -o output_file [options]`
 
@@ -22,7 +22,7 @@ Options:
 
 - `--dt t` Specifies the timestep, in picoseconds
 
-#Introduction
+## Introduction
 
 Ammonium will simulate its provided system in a classical way. Particles are charged point-masses, covalent bonds are springs, and Van der Waals interactions are approximated with the Lennard-Jones potential. After each timestep, each particle's file will be appended with the current particle's state, which consists of its vector components and magnitude. The files are formatted in `.xyz` and `.csv` format, allowing data processing and plotting either via UNIX commands or dedicated software.
 
