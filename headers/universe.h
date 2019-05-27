@@ -8,13 +8,14 @@
 #ifndef UNIVERSE_H
 #define UNIVERSE_H
 
-#include <universe.h>
-#include <vec3d.h>
-#include <text.h>
-#include <args.h>
-
 #include <stdint.h>
 #include <stdio.h>
+
+#include "vec3d.h"
+#include "text.h"
+#include "args.h"
+
+#define COUPLING_CNST_ELEC (double)(8.98755*10E9)
 
 typedef struct s_particle t_particle;
 struct s_particle
@@ -39,26 +40,27 @@ struct s_universe
   uint64_t part_nb;
   uint64_t iterations;
 
-  /* Universe constants */
-  double  c_elec;
-  double  c_time;
-
   double time; /* Current time */
   t_particle *particle;
   FILE **output_file_csv;
   FILE  *output_file_xyz;
+
+  char *input_file_buffer; /* A memory copy of input_file */
+
+  double temp_initial;
 };
 
 t_particle *particle_init(t_particle *particle);
 t_universe *particle_update_frc(t_universe *universe, const uint64_t part_id);
 t_universe *particle_update_acc(t_universe *universe, const uint64_t part_id);
-t_universe *particle_update_spd(t_universe *universe, const uint64_t part_id);
-t_universe *particle_update_pos(t_universe *universe, const uint64_t part_id);
+t_universe *particle_update_spd(t_universe *universe, const t_args *args, const uint64_t part_id);
+t_universe *particle_update_pos(t_universe *universe, const t_args *args, uint64_t part_id);
 
+t_universe *universe_load(t_universe *universe);
 t_universe *universe_printstate(t_universe *universe);
-int         universe_simulate(t_universe *universe, t_args *args);
+int         universe_simulate(t_universe *universe, const t_args *args);
 t_universe *universe_init(t_universe *universe, const t_args *args);
 void        universe_clean(t_universe *universe);
-t_universe *universe_iterate(t_universe *universe);
+t_universe *universe_iterate(t_universe *universe, const t_args *args);
 
 #endif

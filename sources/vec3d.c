@@ -5,12 +5,12 @@
  *
  */
 
-#include <vec3d.h>
-#include <util.h>
-#include <text.h>
-
 #include <math.h>
 #include <stdio.h>
+
+#include "vec3d.h"
+#include "util.h"
+#include "text.h"
 
 t_vec3d *vec3d_add(t_vec3d *dest, const t_vec3d *v1, const t_vec3d *v2)
 {
@@ -103,8 +103,3 @@ t_vec3d *vec3d_unit(t_vec3d *dest, const t_vec3d *v)
 
   return (res);
 }
-
-t_vec3d e_0 = {0.0, 0.0, 0.0};
-t_vec3d e_x = {1.0, 0.0, 0.0};
-t_vec3d e_y = {0.0, 1.0, 0.0};
-t_vec3d e_z = {0.0, 0.0, 1.0};

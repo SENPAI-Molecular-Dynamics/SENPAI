@@ -6,7 +6,8 @@
  */
 
 #include <stdio.h>
-#include <util.h>
+
+#include "util.h"
 
 void *retstr(void *ret, const char *str, const char *file, const int line)
 {

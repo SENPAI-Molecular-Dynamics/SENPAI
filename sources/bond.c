@@ -5,12 +5,13 @@
  *
  */
 
-#include <text.h>
-#include <util.h>
-#include <vec3d.h>
-#include <universe.h>
-#include <bond.h>
 #include <stdio.h>
+
+#include "text.h"
+#include "util.h"
+#include "vec3d.h"
+#include "universe.h"
+#include "bond.h"
 
 #define POW6(x) (x*x*x*x*x*x)
 
