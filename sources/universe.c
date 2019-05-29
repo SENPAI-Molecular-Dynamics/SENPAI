@@ -77,10 +77,8 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
     /* Initialize the .csv files */
     sprintf(outpath, "%s%zu.csv", args->out_path, i);
     if ((universe->output_file_csv[i] = fopen(outpath, "w")) == NULL)
-    {
-      free(outpath);
       return (retstr(NULL, TEXT_OUTPUTFILE_FAILURE, __FILE__, __LINE__));
-    }
+
     /* Write the .csv header */
     fprintf(universe->output_file_csv[i], "t (ps),x,y,z\n");
   }
@@ -88,10 +86,7 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
   /* Initialize the .xyz file pointer */
   sprintf(outpath, "%s.xyz", args->out_path);
   if ((universe->output_file_xyz = fopen(outpath, "w")) == NULL)
-  {
-    free(outpath);
     return (retstr(NULL, TEXT_OUTPUTFILE_FAILURE, __FILE__, __LINE__));
-  }
 
   /* Initialize the remaining variables */
   universe->time = 0.0;
@@ -110,9 +105,7 @@ void universe_clean(t_universe *universe)
   /* Close the file pointers */
   fclose(universe->output_file_xyz);
   for (i=0; i<(universe->part_nb); ++i)
-  {
     fclose(universe->output_file_csv[i]);
-  }
 
   /* Free allocated memory */
   free(universe->input_file_buffer);
@@ -121,9 +114,15 @@ void universe_clean(t_universe *universe)
   free(universe->output_file_xyz);
 }
 
+/* We update the position vector first, as part of the Velocity-Verley integration */
 t_universe *universe_iterate(t_universe *universe, const t_args *args)
 {
   uint64_t i;
+
+  /* Update the position vectors */
+  for (i=0; i<(universe->part_nb); ++i)
+    if (particle_update_pos(universe, args, i) == NULL)
+      return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
 
   /* Update the force vectors */
   for (i=0; i<(universe->part_nb); ++i)
@@ -138,11 +137,6 @@ t_universe *universe_iterate(t_universe *universe, const t_args *args)
   /* Update the speed vectors */
   for (i=0; i<(universe->part_nb); ++i)
     if (particle_update_spd(universe, args, i) == NULL)
-      return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
-
-  /* Update the position vectors */
-  for (i=0; i<(universe->part_nb); ++i)
-    if (particle_update_pos(universe, args, i) == NULL)
       return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
 
   universe->iterations++;

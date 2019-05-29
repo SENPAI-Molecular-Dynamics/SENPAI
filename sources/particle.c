@@ -80,8 +80,8 @@ t_universe *particle_update_frc(t_universe *universe, const uint64_t part_id)
         else
         {
           frc_bond_vec[ii].x = 0.0;
-          frc_bond_vec[ii].x = 0.0;
-          frc_bond_vec[ii].x = 0.0;
+          frc_bond_vec[ii].y = 0.0;
+          frc_bond_vec[ii].z = 0.0;
         }
       }
 
@@ -97,6 +97,7 @@ t_universe *particle_update_frc(t_universe *universe, const uint64_t part_id)
   return (universe);
 }
 
+/* Velocity-Verlet integrator */
 t_universe *particle_update_acc(t_universe *universe, const uint64_t part_id)
 {
   t_particle *current;
@@ -108,28 +109,46 @@ t_universe *particle_update_acc(t_universe *universe, const uint64_t part_id)
   return (universe);
 }
 
+/* Velocity-Verlet integrator */
 t_universe *particle_update_spd(t_universe *universe, const t_args *args, const uint64_t part_id)
 {
   t_particle *current;
   t_vec3d temp;
 
   current = &(universe->particle[part_id]);
-  if (vec3d_mul(&temp, &(current->acc), args->timestep) == NULL)
+
+  /* new_spd = acc*dt*0.5 */
+  if (vec3d_mul(&temp, &(current->acc), args->timestep * 0.5) == NULL)
     return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
+
+  /* spd += new_spd */
   if (vec3d_add(&(current->spd), &(current->spd), &temp) == NULL)
     return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
 
   return (universe);
 }
 
+/* Velocity-Verlet integrator */
 t_universe *particle_update_pos(t_universe *universe, const t_args *args, const uint64_t part_id)
 {
   t_particle *current;
   t_vec3d temp;
 
   current = &(universe->particle[part_id]);
-  if (vec3d_mul(&temp, &(current->spd), args->timestep) == NULL)
+
+  /* new_pos = acc*dt*0.5 */
+  if (vec3d_mul(&temp, &(current->acc), args->timestep * 0.5) == NULL)
     return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
+
+  /* new_pos += spd */
+  if (vec3d_add(&temp, &temp, &(current->spd)) == NULL)
+    return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
+
+  /* new_pos *= dt */
+  if (vec3d_mul(&temp, &temp, args->timestep) == NULL)
+    return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
+
+  /* pos += new_pos */
   if (vec3d_add(&(current->pos), &(current->pos), &temp) == NULL)
     return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
 
