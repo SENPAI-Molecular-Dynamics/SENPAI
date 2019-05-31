@@ -24,7 +24,6 @@ t_universe *universe_load(t_universe *universe)
 t_universe *universe_init(t_universe *universe, const t_args *args)
 {
   size_t i;
-  char *outpath;
   size_t file_len;
   FILE *input_file;
 
@@ -67,9 +66,6 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
   /* Initialize the remaining variables */
   universe->time = 0.0;
   universe->iterations = 0;
-
-  /* Free dynamic memory */
-  free(outpath);
 
   return (universe);
 }
