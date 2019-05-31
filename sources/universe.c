@@ -60,10 +60,6 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
   if (universe_load(universe) == NULL)
     return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
 
-  /* Allocate memory for .csv file pointers */
-  if ((universe->output_file_csv = malloc((universe->part_nb)*sizeof(FILE*))) == NULL)
-    return (retstr(NULL, TEXT_MALLOC_FAILURE, __FILE__, __LINE__));
-
   /* Allocate memory for .xyz file pointers */
   if ((universe->output_file_xyz = malloc((universe->part_nb)*sizeof(FILE*))) == NULL)
     return (retstr(NULL, TEXT_MALLOC_FAILURE, __FILE__, __LINE__));
@@ -71,17 +67,6 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
   /* Initialize output path */
   if ((outpath = (char*)malloc(strlen(args->out_path)+32)) == NULL)
     return (retstr(NULL, TEXT_MALLOC_FAILURE, __FILE__, __LINE__));
-
-  for (i=0; i<(universe->part_nb); ++i)
-  {
-    /* Initialize the .csv files */
-    sprintf(outpath, "%s%zu.csv", args->out_path, i);
-    if ((universe->output_file_csv[i] = fopen(outpath, "w")) == NULL)
-      return (retstr(NULL, TEXT_OUTPUTFILE_FAILURE, __FILE__, __LINE__));
-
-    /* Write the .csv header */
-    fprintf(universe->output_file_csv[i], "t (ps),x,y,z\n");
-  }
 
   /* Initialize the .xyz file pointer */
   sprintf(outpath, "%s.xyz", args->out_path);
@@ -100,19 +85,12 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
 
 void universe_clean(t_universe *universe)
 {
-  size_t i;
-
   /* Close the file pointers */
   fclose(universe->output_file_xyz);
-  for (i=0; i<(universe->part_nb); ++i)
-    fclose(universe->output_file_csv[i]);
 
   /* Free allocated memory */
   free(universe->input_file_buffer);
-  free(universe->particle);
-  free(universe->output_file_csv);
-  free(universe->output_file_xyz);
-}
+  free(universe->particle);}
 
 /* We update the position vector first, as part of the Velocity-Verley integration */
 t_universe *universe_iterate(t_universe *universe, const t_args *args)
@@ -162,20 +140,6 @@ t_universe *universe_printstate(t_universe *universe)
 {
   size_t i;
   t_particle *p;
-
-  /* Append the .csv files */
-  for (i=0; i<(universe->part_nb); ++i)
-  {
-    p = &(universe->particle[i]);
-
-    /* Print in the .csv */
-    fprintf(universe->output_file_csv[i],
-            "%.6lf,%.15lf,%.15lf,%.15lf\n",
-            universe->time*1E12,
-            p->pos.x*1E10,
-            p->pos.y*1E10,
-            p->pos.z*1E10);
-  }
 
   /* Print in the .xyz */
   fprintf(universe->output_file_xyz, "%ld\n%ld\n", universe->part_nb, universe->iterations);

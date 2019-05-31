@@ -42,7 +42,6 @@ struct s_universe
 
   double time; /* Current time */
   t_particle *particle;
-  FILE **output_file_csv;
   FILE  *output_file_xyz;
 
   char *input_file_buffer; /* A memory copy of input_file */
