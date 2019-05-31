@@ -60,17 +60,8 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
   if (universe_load(universe) == NULL)
     return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
 
-  /* Allocate memory for .xyz file pointers */
-  if ((universe->output_file_xyz = malloc((universe->part_nb)*sizeof(FILE*))) == NULL)
-    return (retstr(NULL, TEXT_MALLOC_FAILURE, __FILE__, __LINE__));
-  
-  /* Initialize output path */
-  if ((outpath = (char*)malloc(strlen(args->out_path)+32)) == NULL)
-    return (retstr(NULL, TEXT_MALLOC_FAILURE, __FILE__, __LINE__));
-
   /* Initialize the .xyz file pointer */
-  sprintf(outpath, "%s.xyz", args->out_path);
-  if ((universe->output_file_xyz = fopen(outpath, "w")) == NULL)
+  if ((universe->output_file_xyz = fopen(args->out_path, "w")) == NULL)
     return (retstr(NULL, TEXT_OUTPUTFILE_FAILURE, __FILE__, __LINE__));
 
   /* Initialize the remaining variables */

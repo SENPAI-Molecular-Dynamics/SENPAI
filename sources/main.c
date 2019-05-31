@@ -28,7 +28,7 @@ int main(int argc, char **argv)
 
   printf(TEXT_SIMSTART, universe.part_nb, args.max_time*1E12, args.timestep*1E12);
   exit_state = universe_simulate(&universe, &args);
-  puts(TEXT_SIMEND);
+  puts(TEXT_SIMEND, universe.iterations);
 
   universe_clean(&universe);
   return (exit_state);

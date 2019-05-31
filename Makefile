@@ -6,6 +6,8 @@
 
 .PHONY: all clean fclean re
 
+$(CC) := gcc
+
 SRC_DIR := ./sources
 HDR_DIR := ./headers
 
@@ -17,7 +19,7 @@ WARNINGS := -Wall -Wextra -Werror -Wshadow -Wpointer-arith -Wcast-align -Wwrite-
 CFLAGS := -std=c89 -lm -s -O2 -I$(HDR_DIR) $(WARNINGS) -o $(NAME).bin
 
 all:
-	gcc $(SRCS) $(CFLAGS)
+	$(CC) $(SRCS) $(CFLAGS)
 
 clean:
 	$(RM) $(OBJS)
