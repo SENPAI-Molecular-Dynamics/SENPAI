@@ -12,13 +12,15 @@ Compilation is achieved using the provided makefile. No additional software is r
 
 Options:
 
-- `-i | --in` Required. Specifies the path to the input file (`.nh4`).
+- `--in` Required. Specifies the path to the input file (`.nh4` format).
 
-- `-o | --out` Required. Specifies the name prefix for the output file. using `-o out` with two particles would tell Ammonium to create `out0.csv` and `out1.csv`.
+- `--out` Required. Specifies the output file (`.xyz` format)
 
 - `--time t` Specifies the simulation duration, in picoseconds
 
 - `--dt t` Specifies the timestep, in picoseconds
+
+- `--temp` Specifies the thermodynamic temperature of the system, in Kelvin
 
 ## Introduction
 

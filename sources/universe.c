@@ -91,6 +91,7 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
   universe->part_nb = 0;
   universe->time = 0.0;
   universe->iterations = 0;
+  universe->temperature = args->temperature;
 
   /* Open the input file */
   if ((input_file = fopen(args->path, "r")) == NULL)
@@ -146,24 +147,24 @@ t_universe *universe_setvelocity(t_universe *universe)
 {
   double kinetic_avg;
   double velocity;
-  t_vec3d spd_vec;
+  t_vec3d vec;
   size_t i;
   
   /* Get the average kinetic energy from temperature */
-  kinetic_avg = (3/2)*(C_IDEALGAS/C_AVOGADRO)*universe->temp;
+  kinetic_avg = (3/2)*(C_IDEALGAS/C_AVOGADRO)*universe->temperature;
 
   for (i=0; i<(universe->part_nb); ++i)
   {
     /* Generate a random unit vector */
-    spd_vec.x = rand();
-    spd_vec.y = rand();
-    spd_vec.z = rand();
-    if (vec3d_div(&spd_vec, &spd_vec, vec3d_mag(&spd_vec)) == NULL)
+    vec.x = rand();
+    vec.y = rand();
+    vec.z = rand();
+    if (vec3d_unit(&vec, &vec) == NULL)
       return (retstr(NULL, TEXT_UNIVERSE_SETVELOCITY_FAILURE, __FILE__, __LINE__));
     
     /* Apply an average speed from the average kinetic energy */
     velocity = sqrt(2*kinetic_avg/(universe->particle[i].mass));
-    if (vec3d_mul(&(universe->particle[i].spd), &spd_vec, velocity) == NULL)
+    if (vec3d_mul(&(universe->particle[i].spd), &vec, velocity) == NULL)
       return (retstr(NULL, TEXT_UNIVERSE_SETVELOCITY_FAILURE, __FILE__, __LINE__));
   }
   

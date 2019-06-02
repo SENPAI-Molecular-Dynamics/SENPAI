@@ -46,7 +46,7 @@ struct s_universe
   FILE *output_file_xyz;
   char *input_file_buffer; /* A memory copy of input_file */
 
-  double temp;
+  double temperature;
 };
 
 t_particle *particle_init(t_particle *particle);
