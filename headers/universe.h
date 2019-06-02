@@ -46,7 +46,7 @@ struct s_universe
   FILE *output_file_xyz;
   char *input_file_buffer; /* A memory copy of input_file */
 
-  double temp_initial;
+  double temp;
 };
 
 t_particle *particle_init(t_particle *particle);
@@ -55,6 +55,7 @@ t_universe *particle_update_acc(t_universe *universe, const uint64_t part_id);
 t_universe *particle_update_spd(t_universe *universe, const t_args *args, const uint64_t part_id);
 t_universe *particle_update_pos(t_universe *universe, const t_args *args, uint64_t part_id);
 
+t_universe *universe_setvelocity(t_universe *universe);
 t_universe *universe_load(t_universe *universe);
 t_universe *universe_printstate(t_universe *universe);
 int         universe_simulate(t_universe *universe, const t_args *args);

@@ -1,6 +1,6 @@
 # Ammonium
 
-Ammonium is a molecular dynamics (MD) simulation software.
+Ammonium is a molecular dynamics (MD) simulation software. It handles electrostatic, Van der Waals, and covalent interactions.
 
 ## Compilation
 
@@ -15,8 +15,6 @@ Options:
 - `-i | --in` Required. Specifies the path to the input file (`.nh4`).
 
 - `-o | --out` Required. Specifies the name prefix for the output file. using `-o out` with two particles would tell Ammonium to create `out0.csv` and `out1.csv`.
-
-- `--elec nb` Specifies the value for the electromagnetic coupling constant, in SI units
 
 - `--time t` Specifies the simulation duration, in picoseconds
 

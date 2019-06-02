@@ -20,6 +20,7 @@ int main(int argc, char **argv)
   t_args args;
   int exit_state;
 
+  srand(time(NULL));
   args_init(&args);
   if (args_parse(&args, argc, argv) == NULL)
     return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));

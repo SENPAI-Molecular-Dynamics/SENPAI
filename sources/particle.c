@@ -55,12 +55,15 @@ t_universe *particle_update_frc(t_universe *universe, const uint64_t part_id)
       /* Get the vector going to the target particle */
       if (vec3d_sub(&temp, &(universe->particle[i].pos), &(current->pos)) == NULL)
     	  return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
+
       /* Get its magnitude */
       if ((dst = vec3d_mag(&temp)) < 0.0)
     	  return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
+
       /* Turn it into its unit vector */
       if (vec3d_unit(&temp, &temp) == NULL)
     	  return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
+
       /* Compute the electrostatic and LJ forces */
       frc_elec = COUPLING_CNST_ELEC*(current->charge)*(universe->particle[i].charge)/(dst*dst);
       frc_lj = lennardjones(current, &(universe->particle[i]));
