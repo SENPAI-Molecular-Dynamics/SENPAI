@@ -43,13 +43,13 @@ struct s_universe
   uint64_t mol_size;
   uint64_t iterations;
 
-  double time; /* Current time */
+  double size;
+  double time;          /* Current time */
+  double temperature;
   t_particle *particle;
 
   FILE *output_file_xyz;
   char *input_file_buffer; /* A memory copy of input_file */
-
-  double temperature;
 };
 
 t_particle *particle_init(t_particle *particle);

@@ -17,6 +17,78 @@
 #include "universe.h"
 #include "bond.h"
 
+t_universe *universe_init(t_universe *universe, const t_args *args)
+{
+  char c;
+  size_t i;
+  size_t file_len;
+  FILE *input_file;
+
+  /* Initialize the variables */
+  universe->part_nb = 0;
+  universe->mol_size = 0;
+  universe->time = 0.0;
+  universe->size = args->size;
+  universe->iterations = 0;
+  universe->temperature = args->temperature;
+  universe->mol_nb = args->molecules;
+
+  /* Open the input file */
+  if ((input_file = fopen(args->path, "r")) == NULL)
+    return (retstr(NULL, TEXT_INPUTFILE_FAILURE, __FILE__, __LINE__));
+
+  /* Count the lines in the input file to get the molecule size */
+  while ((c = getc(input_file)) != EOF)
+     if (c == '\n')
+       ++(universe->mol_size);
+   universe->part_nb = (universe->mol_nb)*(universe->mol_size);
+
+  /* Get the file's size */
+  fseek(input_file, 0, SEEK_END);
+  file_len = ftell(input_file);
+  rewind(input_file);
+  
+  /* Initialize the memory buffer for the file */
+  if ((universe->input_file_buffer = (char*)malloc(file_len+1)) == NULL)
+    return (retstr(NULL, TEXT_MALLOC_FAILURE, __FILE__, __LINE__));
+
+  /* Load it in the buffer, terminate the string */
+  if (fread(universe->input_file_buffer, sizeof(char), file_len, input_file) != file_len)
+    return (retstr(NULL, TEXT_INPUTFILE_FAILURE, __FILE__, __LINE__));
+  universe->input_file_buffer[file_len] = '\0';
+
+  /* Close the file, we're done */
+  fclose(input_file);
+
+  /* Allocate memory for the particles */
+  if ((universe->particle = malloc((universe->part_nb)*sizeof(t_particle))) == NULL)
+    return (retstr(NULL, TEXT_MALLOC_FAILURE, __FILE__, __LINE__));
+
+  /* Initialize the particle memory */
+  memset(universe->particle, 0, (universe->part_nb)*sizeof(t_particle));
+  for (i=0; i<(universe->part_nb); ++i)
+    if (particle_init(&(universe->particle[i])) == NULL)
+      return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
+
+  /* Load the initial state from the input file */
+  if (universe_load(universe) == NULL)
+    return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
+  
+  /* Populate the universe with extra molecules */
+  if (universe_populate(universe) == NULL)
+    return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
+
+  /* Apply initial velocities */
+  if (universe_setvelocity(universe) == NULL)
+    return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
+
+  /* Initialize the .xyz file pointer */
+  if ((universe->output_file_xyz = fopen(args->out_path, "w")) == NULL)
+    return (retstr(NULL, TEXT_OUTPUTFILE_FAILURE, __FILE__, __LINE__));
+
+  return (universe);
+}
+
 t_universe *universe_load(t_universe *universe)
 {
   size_t i;
@@ -83,76 +155,6 @@ t_universe *universe_load(t_universe *universe)
   return (universe);
 }
 
-t_universe *universe_init(t_universe *universe, const t_args *args)
-{
-  char c;
-  size_t i;
-  size_t file_len;
-  FILE *input_file;
-
-  /* Initialize the variables */
-  universe->part_nb = 0;
-  universe->mol_size = 0;
-  universe->time = 0.0;
-  universe->iterations = 0;
-  universe->temperature = args->temperature;
-  universe->mol_nb = args->molecules;
-
-  /* Open the input file */
-  if ((input_file = fopen(args->path, "r")) == NULL)
-    return (retstr(NULL, TEXT_INPUTFILE_FAILURE, __FILE__, __LINE__));
-
-  /* Count the lines in the input file to get the molecule size */
-  while ((c = getc(input_file)) != EOF)
-     if (c == '\n')
-       ++(universe->mol_size);
-   universe->part_nb = (universe->mol_nb)*(universe->mol_size);
-
-  /* Get the file's size */
-  fseek(input_file, 0, SEEK_END);
-  file_len = ftell(input_file);
-  rewind(input_file);
-  
-  /* Initialize the memory buffer for the file */
-  if ((universe->input_file_buffer = (char*)malloc(file_len+1)) == NULL)
-    return (retstr(NULL, TEXT_MALLOC_FAILURE, __FILE__, __LINE__));
-
-  /* Load it in the buffer, terminate the string */
-  if (fread(universe->input_file_buffer, sizeof(char), file_len, input_file) != file_len)
-    return (retstr(NULL, TEXT_INPUTFILE_FAILURE, __FILE__, __LINE__));
-  universe->input_file_buffer[file_len] = '\0';
-
-  /* Close the file, we're done */
-  fclose(input_file);
-
-  /* Allocate memory for the particles */
-  if ((universe->particle = malloc((universe->part_nb)*sizeof(t_particle))) == NULL)
-    return (retstr(NULL, TEXT_MALLOC_FAILURE, __FILE__, __LINE__));
-
-  /* Initialize the particle memory */
-  for (i=0; i<(universe->part_nb); ++i)
-    if (particle_init(&(universe->particle[i])) == NULL)
-      return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
-
-  /* Load the initial state from the input file */
-  if (universe_load(universe) == NULL)
-    return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
-  
-  /* Populate the universe with extra molecules */
-  if (universe_populate(universe) == NULL)
-    return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
-
-  /* Apply initial velocities */
-  if (universe_setvelocity(universe) == NULL)
-    return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
-
-  /* Initialize the .xyz file pointer */
-  if ((universe->output_file_xyz = fopen(args->out_path, "w")) == NULL)
-    return (retstr(NULL, TEXT_OUTPUTFILE_FAILURE, __FILE__, __LINE__));
-
-  return (universe);
-}
-
 /* Duplicates the loaded molecule at a random location */
 t_universe *universe_populate(t_universe *universe)
 {
@@ -169,17 +171,17 @@ t_universe *universe_populate(t_universe *universe)
   { 
     id_offset = (universe->mol_size)*i;
     
-    /* Generate a random 50 Angstrom max. vector */
+    /* Generate a random vector */
     pos_offset.x = cos(rand());
     pos_offset.y = cos(rand());
     pos_offset.z = cos(rand());
     if (vec3d_unit(&pos_offset, &pos_offset) == NULL)
       return (retstr(NULL, TEXT_UNIVERSE_POPULATE_FAILURE, __FILE__, __LINE__));
-    if (vec3d_mul(&pos_offset, &pos_offset, 30E-10*cos(rand())) == NULL)
+    if (vec3d_mul(&pos_offset, &pos_offset, 0.6*(universe->size)*cos(rand())) == NULL)
       return (retstr(NULL, TEXT_UNIVERSE_POPULATE_FAILURE, __FILE__, __LINE__));
-    pos_offset.x += 20E-10;
-    pos_offset.y += 20E-10;
-    pos_offset.z += 20E-10;
+    pos_offset.x += 0.4*(universe->size);
+    pos_offset.y += 0.4*(universe->size);
+    pos_offset.z += 0.4*(universe->size);
     
     /* For every atom in the molecule */
     for (ii=0; ii<(universe->mol_size); ++ii)
@@ -302,19 +304,17 @@ int universe_simulate(t_universe *universe, const t_args *args)
 t_universe *universe_printstate(t_universe *universe)
 {
   size_t i;
-  t_particle *p;
 
   /* Print in the .xyz */
   fprintf(universe->output_file_xyz, "%ld\n%ld\n", universe->part_nb, universe->iterations);
   for (i=0; i<(universe->part_nb); ++i)
   {
-    p = &(universe->particle[i]);
     fprintf(universe->output_file_xyz,
             "%s\t%.15lf\t%.15lf\t%.15lf\n",
-            p->element,
-            p->pos.x*1E10,
-            p->pos.y*1E10,
-            p->pos.z*1E10);
+            universe->particle[i].element,
+            universe->particle[i].pos.x*1E10,
+            universe->particle[i].pos.y*1E10,
+            universe->particle[i].pos.z*1E10);
   }
   return (universe);
 }

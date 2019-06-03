@@ -40,9 +40,11 @@ t_universe *particle_update_frc(t_universe *universe, const uint64_t part_id)
 {
   t_particle *current;
   t_vec3d temp;
+  t_vec3d callback;
   t_vec3d frc_bond_vec[7]; /* Force vector for each bond */
   size_t i;
   size_t ii;
+  double mag;
   double dst;
   double frc_elec;
   double frc_lj;
@@ -87,13 +89,23 @@ t_universe *particle_update_frc(t_universe *universe, const uint64_t part_id)
           frc_bond_vec[ii].z = 0.0;
         }
       }
-
+      
+      /* Get the particle's distance from the origin */
+      if ((mag = vec3d_mag(&(current->pos))) < 1E-50)
+        return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
+      
+      /* Calculate the callback vector */
+      if ((vec3d_mul(&callback, &(current->pos), -1E-5/mag) == NULL))
+        return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
+      
       /* Apply the forces */
       if (vec3d_mul(&(current->frc), &temp, frc_elec+frc_lj) == NULL)
     	  return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
       for (ii=0; ii<7; ++ii)
         if (vec3d_add(&(current->frc), &(current->frc), &(frc_bond_vec[ii])) == NULL)
           return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
+      if ((vec3d_add(&(current->frc), &(current->frc), &callback)) == NULL)
+        return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
     }
   }
   

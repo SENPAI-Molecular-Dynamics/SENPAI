@@ -24,6 +24,7 @@ t_args *args_init(t_args *args)
   args->max_time = ARGS_MAX_TIME_DEFAULT;
   args->temperature = ARGS_TEMPERATURE_DEFAULT;
   args->molecules = ARGS_MOLECULES_DEFAULT;
+  args->size = ARGS_SIZE_DEFAULT;
   return (args);
 }
 
@@ -45,6 +46,8 @@ t_args *args_parse(t_args *args, int argc, char **argv)
       args->temperature = atof(argv[++i]);
     else if (!strcmp(argv[i], FLAG_MOL) && (i+1)<argc)
       args->molecules = atoi(argv[++i]);
+    else if (!strcmp(argv[i], FLAG_SIZE) && (i+1)<argc)
+      args->size = atof(argv[++i])*1E-10; /* Scale from angstroms */
   }
 
   if (args->path == NULL || args->out_path == NULL || args->molecules < 1)
