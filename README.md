@@ -22,6 +22,8 @@ Options:
 
 - `--temp` Specifies the thermodynamic temperature of the system, in Kelvin
 
+- `--mol` Specifies the number of molecules to be inserted in the simulation
+
 ## Introduction
 
 Ammonium will simulate its provided system in a classical way. Particles are charged point-masses, covalent bonds are springs, and Van der Waals interactions are approximated with the Lennard-Jones potential. After each timestep, each particle's file will be appended with the current particle's state, which consists of its vector components and magnitude. The files are formatted in `.xyz` and `.csv`, allowing easy data processing.

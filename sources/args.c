@@ -23,6 +23,7 @@ t_args *args_init(t_args *args)
   args->timestep = ARGS_TIMESTEP_DEFAULT;
   args->max_time = ARGS_MAX_TIME_DEFAULT;
   args->temperature = ARGS_TEMPERATURE_DEFAULT;
+  args->molecules = ARGS_MOLECULES_DEFAULT;
   return (args);
 }
 
@@ -42,9 +43,11 @@ t_args *args_parse(t_args *args, int argc, char **argv)
       args->timestep = atof(argv[++i])*1E-12; /* Scale from picoseconds */
     else if (!strcmp(argv[i], FLAG_TEMP) && (i+1)<argc)
       args->temperature = atof(argv[++i]);
+    else if (!strcmp(argv[i], FLAG_MOL) && (i+1)<argc)
+      args->molecules = atoi(argv[++i]);
   }
 
-  if (args->path == NULL || args->out_path == NULL)
+  if (args->path == NULL || args->out_path == NULL || args->molecules < 1)
     return (retstr(NULL, TEXT_ARGS_PARSE_FAILURE, __FILE__, __LINE__));
   return (args);
 }

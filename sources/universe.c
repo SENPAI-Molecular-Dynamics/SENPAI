@@ -27,7 +27,7 @@ t_universe *universe_load(t_universe *universe)
   
   /* Load the initial state from the input file */
   tok = strtok(universe->input_file_buffer, "\n");
-  for (i=0; i<(universe->part_nb); ++i)
+  for (i=0; i<(universe->mol_size); ++i)
   {
     temp = &(universe->particle[i]);
     if (sscanf(tok,
@@ -69,10 +69,13 @@ t_universe *universe_load(t_universe *universe)
     for (ii=0; ii<7; ++ii)
     {
       temp->bond_length[ii] *= 1E-12;
+      temp->bond_id[ii] = bond_id[ii];
       if (bond_id[ii] < 0)
         temp->bond[ii] = NULL;
       else
+      {
         temp->bond[ii] = &(universe->particle[bond_id[ii]]);
+      }
     }
     
     tok = strtok(NULL, "\n");
@@ -89,36 +92,40 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
 
   /* Initialize the variables */
   universe->part_nb = 0;
+  universe->mol_size = 0;
   universe->time = 0.0;
   universe->iterations = 0;
   universe->temperature = args->temperature;
+  universe->mol_nb = args->molecules;
 
   /* Open the input file */
   if ((input_file = fopen(args->path, "r")) == NULL)
     return (retstr(NULL, TEXT_INPUTFILE_FAILURE, __FILE__, __LINE__));
 
-  /* Count the lines in the input file to get the nb of particles */
+  /* Count the lines in the input file to get the molecule size */
   while ((c = getc(input_file)) != EOF)
      if (c == '\n')
-       ++(universe->part_nb);
+       ++(universe->mol_size);
+   universe->part_nb = (universe->mol_nb)*(universe->mol_size);
 
   /* Get the file's size */
   fseek(input_file, 0, SEEK_END);
   file_len = ftell(input_file);
   rewind(input_file);
+  
+  /* Initialize the memory buffer for the file */
   if ((universe->input_file_buffer = (char*)malloc(file_len+1)) == NULL)
     return (retstr(NULL, TEXT_MALLOC_FAILURE, __FILE__, __LINE__));
 
-  /* Load it in memory, terminate the string */
+  /* Load it in the buffer, terminate the string */
   if (fread(universe->input_file_buffer, sizeof(char), file_len, input_file) != file_len)
     return (retstr(NULL, TEXT_INPUTFILE_FAILURE, __FILE__, __LINE__));
   universe->input_file_buffer[file_len] = '\0';
 
-  /* Close it, we're done */
+  /* Close the file, we're done */
   fclose(input_file);
 
   /* Allocate memory for the particles */
-  sscanf(universe->input_file_buffer, "ATOMS=%ld\n", &(universe->part_nb));
   if ((universe->particle = malloc((universe->part_nb)*sizeof(t_particle))) == NULL)
     return (retstr(NULL, TEXT_MALLOC_FAILURE, __FILE__, __LINE__));
 
@@ -130,6 +137,10 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
   /* Load the initial state from the input file */
   if (universe_load(universe) == NULL)
     return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
+  
+  /* Populate the universe with extra molecules */
+  if (universe_populate(universe) == NULL)
+    return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
 
   /* Apply initial velocities */
   if (universe_setvelocity(universe) == NULL)
@@ -139,7 +150,60 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
   if ((universe->output_file_xyz = fopen(args->out_path, "w")) == NULL)
     return (retstr(NULL, TEXT_OUTPUTFILE_FAILURE, __FILE__, __LINE__));
 
-  printf("Loaded %ld particles\n", universe->part_nb);
+  return (universe);
+}
+
+/* Duplicates the loaded molecule at a random location */
+t_universe *universe_populate(t_universe *universe)
+{
+  size_t i;
+  size_t ii;
+  size_t iii;
+  size_t id_offset;
+  t_vec3d pos_offset;
+  t_particle *reference;
+  t_particle *current;
+  
+  /* For every molecule */
+  for (i=1; i<(universe->mol_nb); ++i) /* i=1 because we already have a molecule loaded at particle[0] */
+  { 
+    id_offset = (universe->mol_size)*i;
+    
+    /* Generate a random 50 Angstrom max. vector */
+    pos_offset.x = cos(rand());
+    pos_offset.y = cos(rand());
+    pos_offset.z = cos(rand());
+    if (vec3d_unit(&pos_offset, &pos_offset) == NULL)
+      return (retstr(NULL, TEXT_UNIVERSE_POPULATE_FAILURE, __FILE__, __LINE__));
+    if (vec3d_mul(&pos_offset, &pos_offset, 50E-10*cos(rand())) == NULL)
+      return (retstr(NULL, TEXT_UNIVERSE_POPULATE_FAILURE, __FILE__, __LINE__));
+    
+    /* For every atom in the molecule */
+    for (ii=0; ii<(universe->mol_size); ++ii)
+    {
+      /* Clone the reference atom */
+      reference = &(universe->particle[ii]);
+      current = &(universe->particle[ii+id_offset]);
+      *current = *reference;
+      
+      /* Displace the atom to the random vector */
+      if (vec3d_add(&(current->pos), &(current->pos), &pos_offset) == NULL)
+        return (retstr(NULL, TEXT_UNIVERSE_POPULATE_FAILURE, __FILE__, __LINE__));
+      
+      /* For every bond in the displaced atom */
+      for (iii=0; iii<7; ++iii)
+      {
+        if (current->bond_id[iii] < 0)
+          current->bond[iii] = NULL;
+        else
+        {
+          current->bond_id[iii] += id_offset;
+          current->bond[iii] = &(universe->particle[iii]);
+        }
+      }
+    }
+  }
+    
   return (universe);
 }
 

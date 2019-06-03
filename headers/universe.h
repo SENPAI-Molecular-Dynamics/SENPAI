@@ -25,6 +25,7 @@ struct s_particle
   double charge;
 
   t_particle *bond[7]; /* Points to the bonded particles (max. 7) */
+  int8_t bond_id[7]; /* ID of the particle located at bond[ID] */
   double bond_strength[7]; /* Strength of each bond (spring constant) */
   double bond_length[7]; /* Length of the bond */
 
@@ -38,6 +39,8 @@ typedef struct s_universe t_universe;
 struct s_universe
 {
   uint64_t part_nb;
+  uint64_t mol_nb;
+  uint64_t mol_size;
   uint64_t iterations;
 
   double time; /* Current time */
@@ -50,11 +53,12 @@ struct s_universe
 };
 
 t_particle *particle_init(t_particle *particle);
+
 t_universe *particle_update_frc(t_universe *universe, const uint64_t part_id);
 t_universe *particle_update_acc(t_universe *universe, const uint64_t part_id);
 t_universe *particle_update_spd(t_universe *universe, const t_args *args, const uint64_t part_id);
 t_universe *particle_update_pos(t_universe *universe, const t_args *args, uint64_t part_id);
-
+t_universe *universe_populate(t_universe *universe);
 t_universe *universe_setvelocity(t_universe *universe);
 t_universe *universe_load(t_universe *universe);
 t_universe *universe_printstate(t_universe *universe);

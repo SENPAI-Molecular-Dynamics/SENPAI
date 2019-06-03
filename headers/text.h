@@ -28,6 +28,7 @@
 #define TEXT_UNIVERSE_SETVELOCITY_FAILURE TEXT_FAILURE "universe_setvelocity: Failed to set initial velocities"
 #define TEXT_UNIVERSE_SIMULATE_FAILURE    TEXT_FAILURE "universe_simulate: Simulation failed"
 #define TEXT_UNIVERSE_ITERATE_FAILURE     TEXT_FAILURE "universe_iterate: Iteration failed"
+#define TEXT_UNIVERSE_POPULATE_FAILURE    TEXT_FAILURE "universe_populate: Failed to populate universe"
 #define TEXT_INPUTFILE_FAILURE            TEXT_FAILURE "Failed to open the input file"
 #define TEXT_OUTPUTFILE_FAILURE           TEXT_FAILURE "Failed to open the output file"
 #define TEXT_CANTMATH                     TEXT_FAILURE "Failed to perform calculations "
