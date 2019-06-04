@@ -98,14 +98,18 @@ t_universe *particle_update_frc(t_universe *universe, const uint64_t part_id)
       if ((vec3d_mul(&callback, &(current->pos), -1E-5/mag) == NULL))
         return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
       
-      /* Apply the forces */
+      /* Apply the electrostatic and LJ forces */
       if (vec3d_mul(&(current->frc), &temp, frc_elec+frc_lj) == NULL)
     	  return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
+      
+      /* Apply the bond forces */
       for (ii=0; ii<7; ++ii)
         if (vec3d_add(&(current->frc), &(current->frc), &(frc_bond_vec[ii])) == NULL)
           return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
+      
+      /* Apply the callback force
       if ((vec3d_add(&(current->frc), &(current->frc), &callback)) == NULL)
-        return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
+        return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__)); */
     }
   }
   

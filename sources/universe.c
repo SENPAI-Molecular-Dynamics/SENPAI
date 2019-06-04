@@ -282,7 +282,6 @@ t_universe *universe_iterate(t_universe *universe, const t_args *args)
     if (particle_update_spd(universe, args, i) == NULL)
       return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
 
-  universe->iterations++;
   return (universe);
 }
 
