@@ -45,7 +45,7 @@ t_args *args_parse(t_args *args, int argc, char **argv)
     else if (!strcmp(argv[i], FLAG_TEMP) && (i+1)<argc)
       args->temperature = atof(argv[++i]);
     else if (!strcmp(argv[i], FLAG_MOL) && (i+1)<argc)
-      args->molecules = atoi(argv[++i]);
+      args->molecules = strtoul(argv[++i], NULL, 10);
     else if (!strcmp(argv[i], FLAG_SIZE) && (i+1)<argc)
       args->size = atof(argv[++i])*1E-10; /* Scale from angstroms */
   }

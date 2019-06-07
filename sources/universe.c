@@ -19,9 +19,9 @@
 
 t_universe *universe_init(t_universe *universe, const t_args *args)
 {
-  char c;
-  size_t i;
+  int32_t c;
   size_t file_len;
+  size_t i;
   FILE *input_file;
 
   /* Initialize the variables */
@@ -172,12 +172,12 @@ t_universe *universe_populate(t_universe *universe)
     id_offset = (universe->mol_size)*i;
     
     /* Generate a random vector */
-    pos_offset.x = cos(rand());
-    pos_offset.y = cos(rand());
-    pos_offset.z = cos(rand());
+    pos_offset.x = rand()-rand();
+    pos_offset.y = rand()-rand();
+    pos_offset.z = rand()-rand();
     if (vec3d_unit(&pos_offset, &pos_offset) == NULL)
       return (retstr(NULL, TEXT_UNIVERSE_POPULATE_FAILURE, __FILE__, __LINE__));
-    if (vec3d_mul(&pos_offset, &pos_offset, 0.6*(universe->size)*cos(rand())) == NULL)
+    if (vec3d_mul(&pos_offset, &pos_offset, 0.4*(universe->size)*cos(rand())) == NULL)
       return (retstr(NULL, TEXT_UNIVERSE_POPULATE_FAILURE, __FILE__, __LINE__));
     pos_offset.x += 0.4*(universe->size);
     pos_offset.y += 0.4*(universe->size);
@@ -294,6 +294,8 @@ int universe_simulate(t_universe *universe, const t_args *args)
       return (retstri(EXIT_FAILURE, TEXT_UNIVERSE_SIMULATE_FAILURE, __FILE__, __LINE__));
     if (universe_iterate(universe, args) == NULL)
       return (retstri(EXIT_FAILURE, TEXT_UNIVERSE_SIMULATE_FAILURE, __FILE__, __LINE__));
+    
+    printf(TEXT_ITERATION, universe->iterations);
     universe->time += args->timestep;
     ++(universe->iterations);
   }

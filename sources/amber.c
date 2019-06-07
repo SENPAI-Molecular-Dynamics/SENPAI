@@ -1,0 +1,69 @@
+/*
+ * m4.c
+ *
+ * Licensed under MIT license
+ *
+ */
+
+#include "amber.h"
+
+const char *amber_name[69] =
+{
+  "H",
+  "HC",
+  "HO",
+  "HS",
+  "HW",
+  "H2",
+  "H3",
+  "C",
+  "CA",
+  "CB",
+  "CC",
+  "CK",
+  "CM",
+  "CN",
+  "CQ",
+  "CR",
+  "CT",
+  "CV",
+  "CW",
+  "C*",
+  "CD",
+  "CE",
+  "CF",
+  "CG",
+  "CH",
+  "CI",
+  "CJ",
+  "CP",
+  "C2",
+  "C3",
+  "N",
+  "NA",
+  "NB",
+  "NC",
+  "NT",
+  "N2",
+  "N3",
+  "N*",
+  "O",
+  "OH",
+  "OS",
+  "OW",
+  "O2",
+  "S",
+  "SH",
+  "P",
+  "CU",
+  "CØ",
+  "I",
+  "IM",
+  "MG",
+  "QC",
+  "QK",
+  "QL",
+  "QN",
+  "QR",
+  "LP"
+};

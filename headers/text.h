@@ -21,6 +21,7 @@
 #if LANG == EN
 #define TEXT_FAILURE                      "[" COLOUR_RED "FAILURE" COLOUR_RESET "] "
 #define TEXT_SIMSTART                     "Simulation started (%ld particles, %.3lf ps with %.3lf ps steps)\n"
+#define TEXT_ITERATION                    "Rendered iteration %ld\n"
 #define TEXT_SIMEND                       "Simulation ended (%ld iterations)\n"
 #define TEXT_ARGS_INIT_FAILURE            TEXT_FAILURE "args_init: Argument initialisation failed"
 #define TEXT_ARGS_PARSE_FAILURE           TEXT_FAILURE "argse_parse: Arguments couldn't be parsed"
