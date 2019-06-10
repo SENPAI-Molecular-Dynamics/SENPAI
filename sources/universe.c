@@ -15,9 +15,9 @@
 #include "vec3d.h"
 #include "util.h"
 #include "universe.h"
-#include "bond.h"
+#include "potential.h"
 
-t_universe *universe_init(t_universe *universe, const t_args *args)
+universe_t *universe_init(universe_t *universe, const args_t *args)
 {
   int32_t c;
   size_t file_len;
@@ -35,7 +35,7 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
 
   /* Open the input file */
   if ((input_file = fopen(args->path, "r")) == NULL)
-    return (retstr(NULL, TEXT_INPUTFILE_FAILURE, __FILE__, __LINE__));
+    return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
 
   /* Count the lines in the input file to get the molecule size */
   while ((c = getc(input_file)) != EOF)
@@ -50,22 +50,22 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
   
   /* Initialize the memory buffer for the file */
   if ((universe->input_file_buffer = (char*)malloc(file_len+1)) == NULL)
-    return (retstr(NULL, TEXT_MALLOC_FAILURE, __FILE__, __LINE__));
+    return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
 
   /* Load it in the buffer, terminate the string */
   if (fread(universe->input_file_buffer, sizeof(char), file_len, input_file) != file_len)
-    return (retstr(NULL, TEXT_INPUTFILE_FAILURE, __FILE__, __LINE__));
+    return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
   universe->input_file_buffer[file_len] = '\0';
 
   /* Close the file, we're done */
   fclose(input_file);
 
   /* Allocate memory for the particles */
-  if ((universe->particle = malloc((universe->part_nb)*sizeof(t_particle))) == NULL)
-    return (retstr(NULL, TEXT_MALLOC_FAILURE, __FILE__, __LINE__));
+  if ((universe->particle = malloc((universe->part_nb)*sizeof(particle_t))) == NULL)
+    return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
 
   /* Initialize the particle memory */
-  memset(universe->particle, 0, (universe->part_nb)*sizeof(t_particle));
+  memset(universe->particle, 0, (universe->part_nb)*sizeof(particle_t));
   for (i=0; i<(universe->part_nb); ++i)
     if (particle_init(&(universe->particle[i])) == NULL)
       return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
@@ -84,18 +84,18 @@ t_universe *universe_init(t_universe *universe, const t_args *args)
 
   /* Initialize the .xyz file pointer */
   if ((universe->output_file_xyz = fopen(args->out_path, "w")) == NULL)
-    return (retstr(NULL, TEXT_OUTPUTFILE_FAILURE, __FILE__, __LINE__));
+    return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
 
   return (universe);
 }
 
-t_universe *universe_load(t_universe *universe)
+universe_t *universe_load(universe_t *universe)
 {
   size_t i;
   size_t ii;
   int bond_id[7];
   char *tok;
-  t_particle *temp;
+  particle_t *temp;
   
   /* Load the initial state from the input file */
   tok = strtok(universe->input_file_buffer, "\n");
@@ -131,11 +131,11 @@ t_universe *universe_load(t_universe *universe)
                &(temp->pos.x),
                &(temp->pos.y),
                &(temp->pos.z)) < 0)
-      return (retstr(NULL, TEXT_INPUTFILE_FAILURE, __FILE__, __LINE__));
+      return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
     temp->mass *= 1.66053904020E-27; /* We convert the values from atomic mass units to kg */
     temp->charge *= 1.602176634E-19; /* Same with charge, from e to C */
     if (vec3d_mul(&(temp->pos), &(temp->pos), 1E-12) == NULL) /* We convert the position vector from pm to m */
-      return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
+      return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
 
     /* Set up the bonds */
     for (ii=0; ii<7; ++ii)
@@ -155,16 +155,15 @@ t_universe *universe_load(t_universe *universe)
   return (universe);
 }
 
-/* Duplicates the loaded molecule at a random location */
-t_universe *universe_populate(t_universe *universe)
+universe_t *universe_populate(universe_t *universe)
 {
   size_t i;
   size_t ii;
   size_t iii;
   size_t id_offset;
   vec3d_t pos_offset;
-  t_particle *reference;
-  t_particle *current;
+  particle_t *reference;
+  particle_t *current;
   
   /* For every molecule */
   for (i=1; i<(universe->mol_nb); ++i) /* i=1 because we already have a molecule loaded at particle[0] */
@@ -212,7 +211,7 @@ t_universe *universe_populate(t_universe *universe)
   return (universe);
 }
 
-t_universe *universe_setvelocity(t_universe *universe)
+universe_t *universe_setvelocity(universe_t *universe)
 {
   double mass_mol;
   double kinetic_avg;
@@ -249,7 +248,7 @@ t_universe *universe_setvelocity(t_universe *universe)
   return (universe);
 }
 
-void universe_clean(t_universe *universe)
+void universe_clean(universe_t *universe)
 {
   /* Close the file pointers */
   fclose(universe->output_file_xyz);
@@ -258,7 +257,7 @@ void universe_clean(t_universe *universe)
   free(universe->input_file_buffer);
   free(universe->particle);}
 
-t_universe *universe_iterate(t_universe *universe, const t_args *args)
+universe_t *universe_iterate(universe_t *universe, const args_t *args)
 {
   uint64_t i;
 
@@ -285,7 +284,7 @@ t_universe *universe_iterate(t_universe *universe, const t_args *args)
   return (universe);
 }
 
-int universe_simulate(t_universe *universe, const t_args *args)
+int universe_simulate(universe_t *universe, const args_t *args)
 {
   /* While we haven't reached the target time, we iterate the universe */
   while (universe->time < args->max_time)
@@ -302,7 +301,7 @@ int universe_simulate(t_universe *universe, const t_args *args)
   return (EXIT_SUCCESS);
 }
 
-t_universe *universe_printstate(t_universe *universe)
+universe_t *universe_printstate(universe_t *universe)
 {
   size_t i;
 

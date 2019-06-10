@@ -8,74 +8,51 @@
 #ifndef TEXT_H
 #define TEXT_H
 
-/* Set to EN FR or DE to change the language */
-#define EN   0
-#define FR   1
-#define DE   2
-#define LANG EN
-
 #define COLOUR_RESET "\x1B[0m"
 #define COLOUR_RED   "\x1B[31m"
 
-/* English */
-#if LANG == EN
+/* Misc. text */
 #define TEXT_FAILURE                      "[" COLOUR_RED "FAILURE" COLOUR_RESET "] "
 #define TEXT_SIMSTART                     "Simulation started (%ld particles, %.3lf ps with %.3lf ps steps)\n"
 #define TEXT_ITERATION                    "Rendered iteration %ld\n"
 #define TEXT_SIMEND                       "Simulation ended (%ld iterations)\n"
+
+/* args.c */
 #define TEXT_ARGS_INIT_FAILURE            TEXT_FAILURE "args_init: Argument initialisation failed"
 #define TEXT_ARGS_PARSE_FAILURE           TEXT_FAILURE "argse_parse: Arguments couldn't be parsed"
+
+/* main.c */
+#define TEXT_MAIN_FAILURE                 TEXT_FAILURE "Ammonium failed to execute properly"
+
+/* particle.c */
+#define TEXT_PARTICLE_UPDATE_FRC_FAILURE  TEXT_FAILURE "particle_update_frc: Failed to update a particle's force"
+#define TEXT_PARTICLE_UPDATE_ACC_FAILURE  TEXT_FAILURE "particle_update_acc: Failed to update a particle's acceleration"
+#define TEXT_PARTICLE_UPDATE_SPD_FAILURE  TEXT_FAILURE "particle_update_spd: Failed to update a particle's velocity"
+#define TEXT_PARTICLE_UPDATE_POS_FAILURE  TEXT_FAILURE "particle_update_pos: Failed to update a particle's position"
+
+/* potential.c */
+#define TEXT_POTENTIAL_CALLBACK_FAILURE   TEXT_FAILURE "potential_callback: Failed to compute callback potential"
+#define TEXT_POTENTIAL_BOND_FAILURE       TEXT_FAILURE "potential_bond: Failed to compute bond potential"
+#define TEXT_POTENTIAL_ELEC_FAILURE       TEXT_FAILURE "potential_electrostatic: Failed to compute electrostatic potential"
+#define TEXT_POTENTIAL_LJ_FAILURE         TEXT_FAILURE "potential_lennardjones: Failed to compute Lennard-Jones potential"
+#define TEXT_POTENTIAL_TORSION_FAILURE    TEXT_FAILURE "potential_torsion: Failed to compute bond torsion potential"
+
+/* universe.c */
 #define TEXT_UNIVERSE_INIT_FAILURE        TEXT_FAILURE "universe_init: Failed to initialize the universe"
+#define TEXT_UNIVERSE_LOAD_FAILURE        TEXT_FAILURE "universe_load: Failed to load initial state"
+#define TEXT_UNIVERSE_POPULATE_FAILURE    TEXT_FAILURE "universe_populate: Failed to populate universe"
 #define TEXT_UNIVERSE_SETVELOCITY_FAILURE TEXT_FAILURE "universe_setvelocity: Failed to set initial velocities"
 #define TEXT_UNIVERSE_SIMULATE_FAILURE    TEXT_FAILURE "universe_simulate: Simulation failed"
 #define TEXT_UNIVERSE_ITERATE_FAILURE     TEXT_FAILURE "universe_iterate: Iteration failed"
-#define TEXT_UNIVERSE_POPULATE_FAILURE    TEXT_FAILURE "universe_populate: Failed to populate universe"
-#define TEXT_INPUTFILE_FAILURE            TEXT_FAILURE "Failed to open the input file"
-#define TEXT_OUTPUTFILE_FAILURE           TEXT_FAILURE "Failed to open the output file"
-#define TEXT_CANTMATH                     TEXT_FAILURE "Failed to perform calculations "
-#define TEXT_MALLOC_FAILURE               TEXT_FAILURE "Memory allocation failed!"
-#define TEXT_MAIN_FAILURE                 TEXT_FAILURE "Ammonium failed to start properly"
-#define TEXT_FORCE_ELECTROSTATIC_FAILURE  TEXT_FAILURE "Failed to compute electrostatic interaction"
-#define TEXT_FORCE_BOND_FAILURE           TEXT_FAILURE "Failed to compute covalent interaction"
-#define TEXT_PARTICLE_UPDATE_FRC_FAILURE  TEXT_FAILURE "Failed to update a particle's force"
-#endif
 
-
-
-/* French */
-#if LANG == FR
-#define TEXT_FAILURE                      "[" COLOUR_RED "ERREUR" COLOUR_RESET "] "
-#define TEXT_SIMSTART                     "Simulation lancée (%ld particles, %.3lf ps avec un pas de %.3lf ps)\n"
-#define TEXT_SIMEND                       "Simulation terminée (%ld iterations)\n"
-#define TEXT_UNIVERSE_INIT_FAILURE        TEXT_FAILURE "universe_init: Erreur d'initialisation de l'univers"
-#define TEXT_ARGS_INIT_FAILURE            TEXT_FAILURE "args_init: Erreur d'initialisation des arguments"
-#define TEXT_ARGS_PARSE_FAILURE           TEXT_FAILURE "argse_parse: Erreur d'analyse des arguments"
-#define TEXT_UNIVERSE_SIMULATE_FAILURE    TEXT_FAILURE "universe_simulate: Erreur de simulation"
-#define TEXT_UNIVERSE_ITERATE_FAILURE     TEXT_FAILURE "universe_iterate: Erreur d'itération"
-#define TEXT_INPUTFILE_FAILURE            TEXT_FAILURE "Erreur d'ouverture du fichier source"
-#define TEXT_OUTPUTFILE_FAILURE           TEXT_FAILURE "Erreur d'ouverture du fichier résultat"
-#define TEXT_CANTMATH                     TEXT_FAILURE "Erreur de calcul"
-#define TEXT_MALLOC_FAILURE               TEXT_FAILURE "Erreur d'allocation mémoire"
-#define TEXT_MAIN_FAILURE                 TEXT_FAILURE "Erreur lors du démarage d'Ammonium"
-#endif
-
-
-
-/* German */
-#if LANG == DE
-#define TEXT_FAILURE                      "[" COLOUR_RED "FEHLER" COLOUR_RESET "] "
-#define TEXT_SIMSTART                     "Simulation gestartet (%ld Partikel, %.3lf ps mitt %.3lf ps Schritten)\n"
-#define TEXT_SIMEND                       "Simulation beendet (%ld iterations)\n"
-#define TEXT_UNIVERSE_INIT_FAILURE        TEXT_FAILURE "universe_init: Konnte Universum nicht initialisieren"
-#define TEXT_ARGS_INIT_FAILURE            TEXT_FAILURE "args_init: Argument initialisierung fehlgeschlagen"
-#define TEXT_ARGS_PARSE_FAILURE           TEXT_FAILURE "argse_parse: Argumente konnten nicht analisiert werden"
-#define TEXT_UNIVERSE_SIMULATE_FAILURE    TEXT_FAILURE "universe_simulate: Simulation fehlgeschlagen"
-#define TEXT_UNIVERSE_ITERATE_FAILURE     TEXT_FAILURE "universe_iterate: Iteration fehlgeschlagen"
-#define TEXT_INPUTFILE_FAILURE            TEXT_FAILURE "Konnte Eingabedatei nicht öffnen"
-#define TEXT_OUTPUTFILE_FAILURE           TEXT_FAILURE "Konnte Ausgabedatei nicht öffnen"
-#define TEXT_CANTMATH                     TEXT_FAILURE "Konnte Berechnung nicht ausführen"
-#define TEXT_MALLOC_FAILURE               TEXT_FAILURE "RAM Zuweisung fehlgeschlagen!"
-#define TEXT_MAIN_FAILURE                 TEXT_FAILURE "Ammonium konnte nicht richtig starten."
-#endif
+/* vec3d.c */
+#define TEXT_VEC3D_ADD_FAILURE            TEXT_FAILURE "vec3d_add: Failed to perform vector addition"
+#define TEXT_VEC3D_SUB_FAILURE            TEXT_FAILURE "vec3d_sub: Failed to perform vector substraction"
+#define TEXT_VEC3D_MUL_FAILURE            TEXT_FAILURE "vec3d_mul: Failed to perform vector multiplication"
+#define TEXT_VEC3D_DIV_FAILURE            TEXT_FAILURE "vec3d_div: Failed to perform vector division"
+#define TEXT_VEC3D_DOT_FAILURE            TEXT_FAILURE "vec3d_dot: Failed to perform dot product"
+#define TEXT_VEC3D_MAG_FAILURE            TEXT_FAILURE "vec3d_mag: Failed to compute vector magnitude"
+#define TEXT_VEC3D_CROSS_FAILURE          TEXT_FAILURE "vec3d_cross: Failed to perform cross product"
+#define TEXT_VEC3D_UNIT_FAILURE           TEXT_FAILURE "vec3d_unit: Failed to compute unit vector"
 
 #endif

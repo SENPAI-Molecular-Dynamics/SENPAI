@@ -20,3 +20,9 @@ int retstri(int ret, const char *str, const char *file, const int line)
   fprintf(stderr, "%s (%s:%d)\n", str, file, line);
   return (ret);
 }
+
+double retstrf(double ret, const char *str, const char *file, const int line)
+{
+  fprintf(stderr, "%s (%s:%d)\n", str, file, line);
+  return (ret);
+}

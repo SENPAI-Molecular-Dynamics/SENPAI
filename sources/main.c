@@ -16,8 +16,8 @@
 
 int main(int argc, char **argv)
 {
-  t_universe universe;
-  t_args args;
+  universe_t universe;
+  args_t args;
   int exit_state;
 
   srand((unsigned int)time(NULL));

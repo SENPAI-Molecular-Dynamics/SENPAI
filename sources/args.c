@@ -13,7 +13,7 @@
 #include "util.h"
 #include "text.h"
 
-t_args *args_init(t_args *args)
+args_t *args_init(args_t *args)
 {
   if (args == NULL)
     return (retstr(NULL, TEXT_ARGS_INIT_FAILURE, __FILE__, __LINE__));
@@ -28,7 +28,7 @@ t_args *args_init(t_args *args)
   return (args);
 }
 
-t_args *args_parse(t_args *args, int argc, char **argv)
+args_t *args_parse(args_t *args, int argc, char **argv)
 {
   int64_t i;
 

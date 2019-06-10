@@ -24,8 +24,8 @@
 #define FLAG_MOL      "--mol"
 #define FLAG_SIZE     "--size"
 
-typedef struct s_args t_args;
-struct s_args
+typedef struct args_s args_t;
+struct args_s
 {
   char *path;
   char *out_path;
@@ -37,7 +37,7 @@ struct s_args
   uint64_t molecules;
 };
 
-t_args *args_init(t_args *args);
-t_args *args_parse(t_args *args, int argc, char **argv);
+args_t *args_init(args_t *args);
+args_t *args_parse(args_t *args, int argc, char **argv);
 
 #endif

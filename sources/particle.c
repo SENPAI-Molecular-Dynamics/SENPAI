@@ -10,9 +10,9 @@
 #include "universe.h"
 #include "vec3d.h"
 #include "util.h"
-#include "bond.h"
+#include "potential.h"
 
-t_particle *particle_init(t_particle *particle)
+particle_t *particle_init(particle_t *particle)
 {
   particle->pos.x = 0.0;
   particle->pos.y = 0.0;
@@ -36,129 +36,93 @@ t_particle *particle_init(t_particle *particle)
   return (particle);
 }
 
-t_universe *particle_update_frc(t_universe *universe, const uint64_t part_id)
+universe_t *particle_update_frc(universe_t *universe, const uint64_t part_id)
 {
   double dst;
-  vec3d_t frc_callback; /* Force applied to the particle as it tries to leave the universe */
-  vec3d_t frc_bond;
-  vec3d_t frc_elec;
-  vec3d_t frc_lennardjones;
-  vec3d_t frc_torsion;
+  double potential;
+  uint8_t err_flag;
 
-  /* Zero out the vectors */
+  /* Zero out the force vector */
   universe->particle[part_id].frc.x = 0.0;
   universe->particle[part_id].frc.y = 0.0;
   universe->particle[part_id].frc.z = 0.0;
+
+  potential = 0.0;
+  err_flag = 0;
 
   /* Get the particle's distance from the origin to check if it's leaving the universe */
   if ((dst = vec3d_mag(&(universe->particle[part_id].pos))) < 0.0)
     return (retstr(NULL, TEXT_PARTICLE_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
 
-  /* If the particle is leaving the universe */
+  /* Compute the potentials */
+  potential += potential_bond(universe, part_id, &err_flag);
+  potential += potential_electrostatic(universe, part_id, &err_flag);
+  potential += potential_lennardjones(universe, part_id, &err_flag);
+  potential += potential_torsion(universe, part_id, &err_flag);
+  /* If the particle is leaving the universe, compute the callback */
   if (dst >(universe->size))
-  {
-    /* Compute the callback force */
-    if (force_callback(&frc_callback, universe, part_id) == NULL)
-      return (retstr(NULL, TEXT_PARTICLE_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
+    potential += potential_callback(universe, part_id, &err_flag);
 
-    /* Apply the callback force */
-    if (vec3d_add(&(universe->particle[part_id].frc), &(universe->particle[part_id].frc), &frc_callback) == NULL)
-      return (retstr(NULL, TEXT_PARTICLE_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
-  }
-
-  /* COMPUTE THE APPLIED FORCES */
-
-  /* Compute the bond forces */
-  if (force_bond(&frc_elec, universe, part_id) == NULL)
-    return (retstr(NULL, TEXT_PARTICLE_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
-
-  /* Compute the electrostatic force */
-  if (force_electrostatic(&frc_elec, universe, part_id) == NULL)
-    return (retstr(NULL, TEXT_PARTICLE_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
-
-  /* Compute the 12-6 LJ force */
-  if (force_lennardjones(&frc_lennardjones, universe, part_id) == NULL)
-    return (retstr(NULL, TEXT_PARTICLE_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
-
-  /* Compute the torsion force */
-  if (force_torsion(&frc_elec, universe, part_id) == NULL)
-    return (retstr(NULL, TEXT_PARTICLE_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
-
-  /* APPLY THE COMPUTED FORCES */
-
-  /* Apply the bond force */
-  if (vec3d_add(&(universe->particle[part_id].frc), &(universe->particle[part_id].frc), &frc_bond) == NULL)
-    return (retstr(NULL, TEXT_PARTICLE_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
-
-  /* Apply the electrostatic force */
-  if (vec3d_add(&(universe->particle[part_id].frc), &(universe->particle[part_id].frc), &frc_elec) == NULL)
-    return (retstr(NULL, TEXT_PARTICLE_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
-
-  /* Apply the 12-6 LJ force */
-  if (vec3d_add(&(universe->particle[part_id].frc), &(universe->particle[part_id].frc), &frc_lennardjones) == NULL)
-    return (retstr(NULL, TEXT_PARTICLE_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
-
-  /* Apply the torsion force */
-  if (vec3d_add(&(universe->particle[part_id].frc), &(universe->particle[part_id].frc), &frc_torsion) == NULL)
+  if (err_flag)
     return (retstr(NULL, TEXT_PARTICLE_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
 
   return (universe);
 }
 
 /* Velocity-Verlet integrator */
-t_universe *particle_update_acc(t_universe *universe, const uint64_t part_id)
+universe_t *particle_update_acc(universe_t *universe, const uint64_t part_id)
 {
-  t_particle *current;
+  particle_t *current;
 
   current = &(universe->particle[part_id]);
   if (vec3d_div(&(current->acc), &(current->frc), current->mass) == NULL)
-    return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
+    return (retstr(NULL, TEXT_PARTICLE_UPDATE_ACC_FAILURE, __FILE__, __LINE__));
 
   return (universe);
 }
 
 /* Velocity-Verlet integrator */
-t_universe *particle_update_spd(t_universe *universe, const t_args *args, const uint64_t part_id)
+universe_t *particle_update_spd(universe_t *universe, const args_t *args, const uint64_t part_id)
 {
-  t_particle *current;
+  particle_t *current;
   vec3d_t temp;
 
   current = &(universe->particle[part_id]);
 
   /* new_spd = acc*dt*0.5 */
   if (vec3d_mul(&temp, &(current->acc), args->timestep * 0.5) == NULL)
-    return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
+    return (retstr(NULL, TEXT_PARTICLE_UPDATE_SPD_FAILURE, __FILE__, __LINE__));
 
   /* spd += new_spd */
   if (vec3d_add(&(current->spd), &(current->spd), &temp) == NULL)
-    return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
+    return (retstr(NULL, TEXT_PARTICLE_UPDATE_SPD_FAILURE, __FILE__, __LINE__));
 
   return (universe);
 }
 
 /* Velocity-Verlet integrator */
-t_universe *particle_update_pos(t_universe *universe, const t_args *args, const uint64_t part_id)
+universe_t *particle_update_pos(universe_t *universe, const args_t *args, const uint64_t part_id)
 {
-  t_particle *current;
+  particle_t *current;
   vec3d_t temp;
 
   current = &(universe->particle[part_id]);
 
   /* new_pos = acc*dt*0.5 */
   if (vec3d_mul(&temp, &(current->acc), args->timestep * 0.5) == NULL)
-    return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
+    return (retstr(NULL, TEXT_PARTICLE_UPDATE_POS_FAILURE, __FILE__, __LINE__));
 
   /* new_pos += spd */
   if (vec3d_add(&temp, &temp, &(current->spd)) == NULL)
-    return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
+    return (retstr(NULL, TEXT_PARTICLE_UPDATE_POS_FAILURE, __FILE__, __LINE__));
 
   /* new_pos *= dt */
   if (vec3d_mul(&temp, &temp, args->timestep) == NULL)
-    return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
+    return (retstr(NULL, TEXT_PARTICLE_UPDATE_POS_FAILURE, __FILE__, __LINE__));
 
   /* pos += new_pos */
   if (vec3d_add(&(current->pos), &(current->pos), &temp) == NULL)
-    return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
+    return (retstr(NULL, TEXT_PARTICLE_UPDATE_POS_FAILURE, __FILE__, __LINE__));
 
   return (universe);
 }
