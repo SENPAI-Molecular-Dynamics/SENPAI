@@ -26,7 +26,9 @@ double potential_callback(universe_t *universe, const size_t part_id, uint8_t *e
   }
 
   /* Return the potential U=0.5*k*x^2 */
-  return (0.5*1E4*((dst - universe->size)/(universe->size))*((dst - universe->size)/(universe->size)));
+  if (dst > (universe->size))
+    return (0.5*1E4*((dst - universe->size)/(universe->size))*((dst - universe->size)/(universe->size)));
+  return (0.0);
 }
 
 /* Covalent bonds */
@@ -153,4 +155,29 @@ double potential_torsion(universe_t *universe, const size_t part_id, uint8_t *er
   (void)part_id;
   (void)err_flag;
   return (0.0);
+}
+
+/* Total potential energy of the particle */
+double potential_total(universe_t *universe, const size_t part_id, uint8_t *err_flag)
+{
+  double potential;
+  uint8_t err_flag_local;
+  
+  potential = 0.0;
+  err_flag_local = 0;
+
+  /* Compute the potentials */
+  potential += potential_callback(universe, part_id, &err_flag_local);
+  potential += potential_bond(universe, part_id, &err_flag_local);
+  potential += potential_electrostatic(universe, part_id, &err_flag_local);
+  potential += potential_lennardjones(universe, part_id, &err_flag_local);
+  potential += potential_torsion(universe, part_id, &err_flag_local);
+
+  /* We check if an error happened during potential energy computation */
+  if (err_flag_local)
+  {
+    *err_flag = 1;
+    return (retstrf(0.0, TEXT_POTENTIAL_TOTAL_FAILURE, __FILE__, __LINE__));
+  }
+  return (potential);
 }

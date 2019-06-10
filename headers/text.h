@@ -36,6 +36,7 @@
 #define TEXT_POTENTIAL_ELEC_FAILURE       TEXT_FAILURE "potential_electrostatic: Failed to compute electrostatic potential"
 #define TEXT_POTENTIAL_LJ_FAILURE         TEXT_FAILURE "potential_lennardjones: Failed to compute Lennard-Jones potential"
 #define TEXT_POTENTIAL_TORSION_FAILURE    TEXT_FAILURE "potential_torsion: Failed to compute bond torsion potential"
+#define TEXT_POTENTIAL_TOTAL_FAILURE      TEXT_FAILURE "potential_total: Failed to compute total potential energy"
 
 /* universe.c */
 #define TEXT_UNIVERSE_INIT_FAILURE        TEXT_FAILURE "universe_init: Failed to initialize the universe"

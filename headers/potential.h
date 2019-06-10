@@ -18,4 +18,6 @@ double potential_electrostatic(universe_t *universe, const size_t part_id, uint8
 double potential_lennardjones(universe_t *universe, const size_t part_id, uint8_t *err_flag);
 double potential_torsion(universe_t *universe, const size_t part_id, uint8_t *err_flag);
 
+double potential_total(universe_t *universe, const size_t part_id, uint8_t *err_flag_local);
+
 #endif

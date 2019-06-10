@@ -38,33 +38,35 @@ particle_t *particle_init(particle_t *particle)
 
 universe_t *particle_update_frc(universe_t *universe, const uint64_t part_id)
 {
-  double dst;
-  double potential;
   uint8_t err_flag;
+  double h; /* Numerical differenciation constant */
+  double potential;
 
-  /* Zero out the force vector */
-  universe->particle[part_id].frc.x = 0.0;
-  universe->particle[part_id].frc.y = 0.0;
-  universe->particle[part_id].frc.z = 0.0;
-
-  potential = 0.0;
   err_flag = 0;
 
-  /* Get the particle's distance from the origin to check if it's leaving the universe */
-  if ((dst = vec3d_mag(&(universe->particle[part_id].pos))) < 0.0)
-    return (retstr(NULL, TEXT_PARTICLE_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
+  potential = potential_total(universe, part_id, &err_flag);
 
-  /* Compute the potentials */
-  potential += potential_bond(universe, part_id, &err_flag);
-  potential += potential_electrostatic(universe, part_id, &err_flag);
-  potential += potential_lennardjones(universe, part_id, &err_flag);
-  potential += potential_torsion(universe, part_id, &err_flag);
-  /* If the particle is leaving the universe, compute the callback */
-  if (dst >(universe->size))
-    potential += potential_callback(universe, part_id, &err_flag);
+  /* Differentiate potential over x axis */
+  h = ROOT_MACHINE_EPSILON * (universe->particle[part_id].pos.x);
+  universe->particle[part_id].pos.x += h;
+  universe->particle[part_id].frc.x = -(potential_total(universe, part_id, &err_flag) - potential)/h;
+  universe->particle[part_id].pos.x -= h;
+  
+  /* Differentiate potential over y axis */
+  h = ROOT_MACHINE_EPSILON * (universe->particle[part_id].pos.y);
+  universe->particle[part_id].pos.y += h;
+  universe->particle[part_id].frc.y = -(potential_total(universe, part_id, &err_flag) - potential)/h;
+  universe->particle[part_id].pos.y -= h;
 
+  /* Differentiate potential over z axis */
+  h = ROOT_MACHINE_EPSILON * (universe->particle[part_id].pos.z);
+  universe->particle[part_id].pos.z += h;
+  universe->particle[part_id].frc.z = -(potential_total(universe, part_id, &err_flag) - potential)/h;
+  universe->particle[part_id].pos.z -= h;
+  
+  /* We check if an error happened during potential energy computation */
   if (err_flag)
-    return (retstr(NULL, TEXT_PARTICLE_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
+    return (retstr(NULL, TEXT_POTENTIAL_TOTAL_FAILURE, __FILE__, __LINE__));
 
   return (universe);
 }
