@@ -13,81 +13,97 @@
 #include "universe.h"
 #include "bond.h"
 
-#define POW6(x) (x*x*x*x*x*x)
-
-double lj_epsilon(const t_particle *p1, const t_particle *p2)
+/* Universe boundaries reaction force */
+vec3d_t *force_callback(vec3d_t *frc, t_universe *universe, const size_t part_id)
 {
-  (void)p1;
-  (void)p2;
-  /* return the value for helium */
-  return (1.4110228E-22);
 }
 
-double lj_sigma(const t_particle *p1, const t_particle *p2)
-{
-  (void)p1;
-  (void)p2;
-  /* rReturn the value for helium */
-  return (256E-12);
-}
-
-/*
- *   NOTE /!\
- *
- *   The Lennard-Jones potential currently only works for helium.
- *
- *
- */
-
-double lennardjones(const t_particle *p1, const t_particle *p2)
+/* Covalent interaction */
+vec3d_t *force_bond(vec3d_t *frc, t_universe *universe, const size_t part_id)
 {
   size_t i;
-  double r; /* Distance betwen the two particles */
-  double sigma;
-  double epsilon;
-  double rsig; /* Reduced sigma (=sigma/r) */
-  double rsig6; /* Above value raised to the sixth power */
-  t_vec3d temp;
+  double dst_mag;
+  double displacement;
+  vec3d_t dst;
 
-  /* If the two particles are bonded, don't compute the VDW forces */
+  frc->x = 0.0;
+  frc->y = 0.0;
+  frc->z = 0.0;
+
   for (i=0; i<7; ++i)
-    if (p1->bond[i] == p2)
-      return (0.0);
+  {
+    if (universe->particle[part_id].bond[i] != NULL)
+    {
+      /* Get the position difference vector */
+      if (vec3d_sub(&dst, &(universe->particle[part_id].pos), &(universe->particle[i].pos)) == NULL)
+        return (retstr(NULL, TEXT_FORCE_BOND_FAILURE, __FILE__, __LINE__));
 
-  /* Get the distance between the two particles */
-  if (vec3d_sub(&temp, &(p1->pos), &(p2->pos)) == NULL)
-    return (retstri(0, TEXT_CANTMATH, __FILE__, __LINE__));
-  if ((r = vec3d_mag(&temp)) < 0.0)
-    return (retstri(0, TEXT_CANTMATH, __FILE__, __LINE__));
+      /* Get the distance between the two particles */
+      if ((dst_mag = vec3d_mag(&dst)) < 0.0)
+        return (retstr(NULL, TEXT_FORCE_BOND_FAILURE, __FILE__, __LINE__));
 
-  sigma = lj_sigma(p1, p2);
-
-  if (r > 2.5*sigma)
-    return (0.0); /* cutoff */
-
-  epsilon = lj_epsilon(p1, p2);
-  rsig = sigma/r;
-  rsig6 = POW6(rsig);
+      /* Compute the bond force */
+      displacement = (dst_mag - universe->particle[part_id].bond_length[i])/dst_mag;
+      if (vec3d_mul(&dst, &dst, (universe->particle[part_id].bond_strength[i])*displacement) == NULL)
+        return (retstr(NULL, TEXT_FORCE_BOND_FAILURE, __FILE__, __LINE__));
+      
+      /* Sum it */
+      if (vec3d_add(frc, frc, &dst) == NULL)
+        return (retstr(NULL, TEXT_FORCE_BOND_FAILURE, __FILE__, __LINE__));
+    }
+  }
   
-  return (-(24*epsilon/r) * ((2*rsig6*rsig6) - rsig6));
+  return (frc);
 }
 
-double bond_force(const size_t bond_id, const t_particle *p)
+/* Electrostatic interaction */
+vec3d_t *force_electrostatic(vec3d_t *frc, t_universe *universe, const size_t part_id)
 {
-  double r;
-  double displacement;
-  t_vec3d temp;
+  size_t i;
+  double dst_mag;
+  vec3d_t dst;
 
-  /* If not bonded */
-  if (p->bond[bond_id] == NULL)
-    return (0.0);
+  frc->x = 0.0;
+  frc->y = 0.0;
+  frc->z = 0.0;
 
-  /* Get the distance between the two particles */
-  if (vec3d_sub(&temp, &(p->pos), &(p->bond[bond_id]->pos)) == NULL)
-    return (retstri(0, TEXT_CANTMATH, __FILE__, __LINE__));
-  if ((r = vec3d_mag(&temp)) < 0.0)
-    return (retstri(0, TEXT_CANTMATH, __FILE__, __LINE__));
+  for (i=0; i<(universe->part_nb); ++i)
+  {
+    if (i != part_id)
+    {
+      /* Get the position difference vector */
+      if (vec3d_sub(&dst, &(universe->particle[part_id].pos), &(universe->particle[i].pos)) == NULL)
+        return (retstr(NULL, TEXT_FORCE_ELECTROSTATIC_FAILURE, __FILE__, __LINE__));
 
-  displacement = r - (p->bond_length[bond_id]);
-  return ((p->bond_strength[bond_id])*displacement);
+      /* Get the distance between the two particles */
+      if ((dst_mag = vec3d_mag(&dst)) < 0.0)
+        return (retstr(NULL, TEXT_FORCE_ELECTROSTATIC_FAILURE, __FILE__, __LINE__));
+
+      /* Compute the force */
+      if (vec3d_mul(&dst, &dst, C_ELEC*(universe->particle[part_id].charge)*(universe->particle[i].charge)/(dst_mag*dst_mag*dst_mag)) == NULL)
+        return (retstr(NULL, TEXT_FORCE_ELECTROSTATIC_FAILURE, __FILE__, __LINE__));
+
+      /* Sum it */
+      if (vec3d_add(frc, frc, &dst) == NULL)
+        return (retstr(NULL, TEXT_FORCE_ELECTROSTATIC_FAILURE, __FILE__, __LINE__));
+    }
+  }
+  
+  return (frc);
+}
+
+/* Van der Waals interaction */
+vec3d_t *force_lennardjones(vec3d_t *frc, t_universe *universe, const size_t part_id)
+{
+  frc->x = 0.0;
+  frc->y = 0.0;
+  frc->z = 0.0;
+}
+
+/* Bond torsion interaction */
+vec3d_t *force_torsion(vec3d_t *frc, t_universe *universe, const size_t part_id)
+{
+  frc->x = 0.0;
+  frc->y = 0.0;
+  frc->z = 0.0;
 }

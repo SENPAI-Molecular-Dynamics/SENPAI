@@ -10,10 +10,10 @@
 
 #include "universe.h"
 
-double lj_epsilon(const t_particle *p1, const t_particle *p2);
-double lj_sigma(const t_particle *p1, const t_particle *p2);
-double lennardjones(const t_particle *p1, const t_particle *p2);
-
-double bond_force(const size_t bond_id, const t_particle *p);
+vec3d_t *force_callback(vec3d_t *frc, t_universe *universe, const size_t part_id);
+vec3d_t *force_bond(vec3d_t *frc, t_universe *universe, const size_t part_id);
+vec3d_t *force_electrostatic(vec3d_t *frc, t_universe *universe, const size_t part_id);
+vec3d_t *force_lennardjones(vec3d_t *frc, t_universe *universe, const size_t part_id);
+vec3d_t *force_torsion(vec3d_t *frc, t_universe *universe, const size_t part_id);
 
 #endif

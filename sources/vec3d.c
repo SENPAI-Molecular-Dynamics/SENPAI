@@ -12,7 +12,7 @@
 #include "util.h"
 #include "text.h"
 
-t_vec3d *vec3d_add(t_vec3d *dest, const t_vec3d *v1, const t_vec3d *v2)
+vec3d_t *vec3d_add(vec3d_t *dest, const vec3d_t *v1, const vec3d_t *v2)
 {
   if (dest == NULL || v1 == NULL || v2 == NULL)
     return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
@@ -23,7 +23,7 @@ t_vec3d *vec3d_add(t_vec3d *dest, const t_vec3d *v1, const t_vec3d *v2)
   return (dest);
 }
 
-t_vec3d *vec3d_sub(t_vec3d *dest, const t_vec3d *v1, const t_vec3d *v2)
+vec3d_t *vec3d_sub(vec3d_t *dest, const vec3d_t *v1, const vec3d_t *v2)
 {
   if (dest == NULL || v1 == NULL || v2 == NULL)
     return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
@@ -34,7 +34,7 @@ t_vec3d *vec3d_sub(t_vec3d *dest, const t_vec3d *v1, const t_vec3d *v2)
   return (dest);
 }
 
-t_vec3d *vec3d_mul(t_vec3d *dest, const t_vec3d *v, const double lambda)
+vec3d_t *vec3d_mul(vec3d_t *dest, const vec3d_t *v, const double lambda)
 {
   if (dest == NULL || v == NULL)
     return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
@@ -45,7 +45,7 @@ t_vec3d *vec3d_mul(t_vec3d *dest, const t_vec3d *v, const double lambda)
   return (dest);
 }
 
-t_vec3d *vec3d_div(t_vec3d *dest, const t_vec3d *v, const double lambda)
+vec3d_t *vec3d_div(vec3d_t *dest, const vec3d_t *v, const double lambda)
 {
   if (dest == NULL || v == NULL)
     return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
@@ -58,7 +58,7 @@ t_vec3d *vec3d_div(t_vec3d *dest, const t_vec3d *v, const double lambda)
   return (dest);
 }
 
-double vec3d_dot(const t_vec3d *v1, const t_vec3d *v2)
+double vec3d_dot(const vec3d_t *v1, const vec3d_t *v2)
 {
   if (v1 == NULL || v2 == NULL)
     return (retstri(-1.0, TEXT_CANTMATH, __FILE__, __LINE__));
@@ -66,7 +66,7 @@ double vec3d_dot(const t_vec3d *v1, const t_vec3d *v2)
   return ((v1->x * v2->x) + (v1->y * v2->y) + (v1->z * v2->z));
 }
 
-double vec3d_mag(const t_vec3d *v)
+double vec3d_mag(const vec3d_t *v)
 {
   if (v == NULL)
     return (retstri(-1.0, TEXT_CANTMATH, __FILE__, __LINE__));
@@ -74,7 +74,7 @@ double vec3d_mag(const t_vec3d *v)
   return (sqrt((v->x * v->x)+(v->y * v->y)+(v->z * v->z)));
 }
 
-t_vec3d *vec3d_cross(t_vec3d *dest, const t_vec3d *v1, const t_vec3d *v2)
+vec3d_t *vec3d_cross(vec3d_t *dest, const vec3d_t *v1, const vec3d_t *v2)
 {
   if (dest == NULL || v1 == NULL || v2 == NULL)
     return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
@@ -85,10 +85,10 @@ t_vec3d *vec3d_cross(t_vec3d *dest, const t_vec3d *v1, const t_vec3d *v2)
   return (dest);
 }
 
-t_vec3d *vec3d_unit(t_vec3d *dest, const t_vec3d *v)
+vec3d_t *vec3d_unit(vec3d_t *dest, const vec3d_t *v)
 {
   double mag;
-  t_vec3d *res;
+  vec3d_t *res;
 
   if (dest == NULL || v == NULL)
     return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));

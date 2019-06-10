@@ -162,7 +162,7 @@ t_universe *universe_populate(t_universe *universe)
   size_t ii;
   size_t iii;
   size_t id_offset;
-  t_vec3d pos_offset;
+  vec3d_t pos_offset;
   t_particle *reference;
   t_particle *current;
   
@@ -217,7 +217,7 @@ t_universe *universe_setvelocity(t_universe *universe)
   double mass_mol;
   double kinetic_avg;
   double velocity;
-  t_vec3d vec;
+  vec3d_t vec;
   size_t i;
   
   /* Get the average kinetic energy from temperature */

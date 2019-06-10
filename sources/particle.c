@@ -38,85 +38,70 @@ t_particle *particle_init(t_particle *particle)
 
 t_universe *particle_update_frc(t_universe *universe, const uint64_t part_id)
 {
-  t_particle *current;
-  t_vec3d temp;
-  t_vec3d callback;
-  t_vec3d frc_bond_vec[7]; /* Force vector for each bond */
-  size_t i;
-  size_t ii;
-  double mag;
   double dst;
-  double frc_elec;
-  double frc_lj;
+  vec3d_t frc_callback; /* Force applied to the particle as it tries to leave the universe */
+  vec3d_t frc_bond;
+  vec3d_t frc_elec;
+  vec3d_t frc_lennardjones;
+  vec3d_t frc_torsion;
 
-  current = &(universe->particle[part_id]);
-  for (i=0; i<(universe->part_nb); ++i)
+  /* Zero out the vectors */
+  universe->particle[part_id].frc.x = 0.0;
+  universe->particle[part_id].frc.y = 0.0;
+  universe->particle[part_id].frc.z = 0.0;
+
+  /* Get the particle's distance from the origin to check if it's leaving the universe */
+  if ((dst = vec3d_mag(&(universe->particle[part_id].pos))) < 0.0)
+    return (retstr(NULL, TEXT_PARTICLE_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
+
+  /* If the particle is leaving the universe */
+  if (dst >(universe->size))
   {
-    if (i != part_id)
-    {
-      /* Get the vector going to the target particle */
-      if (vec3d_sub(&temp, &(universe->particle[i].pos), &(current->pos)) == NULL)
-    	  return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
+    /* Compute the callback force */
+    if (force_callback(&frc_callback, universe, part_id) == NULL)
+      return (retstr(NULL, TEXT_PARTICLE_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
 
-      /* Get its magnitude */
-      if ((dst = vec3d_mag(&temp)) < 0.0)
-    	  return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
-
-      /* Turn it into its unit vector */
-      if (vec3d_unit(&temp, &temp) == NULL)
-    	  return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
-
-      /* Compute the electrostatic and LJ forces */
-      frc_elec = COUPLING_CNST_ELEC*(current->charge)*(universe->particle[i].charge)/(dst*dst);
-      frc_lj = lennardjones(current, &(universe->particle[i]));
-
-      /* Compute the bond forces */
-      for (ii=0; ii<7; ++ii)
-      {
-        if ((current->bond[ii]) != NULL)
-        {
-          if (vec3d_sub(&(frc_bond_vec[ii]), &((current->bond[ii])->pos), &(current->pos)) == NULL)
-            return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
-          if (vec3d_unit(&(frc_bond_vec[ii]), &(frc_bond_vec[ii])) == NULL)
-            return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
-          if (vec3d_mul(&(frc_bond_vec[ii]), &(frc_bond_vec[ii]), bond_force(ii, current)) == NULL)
-            return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
-        }
-        else
-        {
-          frc_bond_vec[ii].x = 0.0;
-          frc_bond_vec[ii].y = 0.0;
-          frc_bond_vec[ii].z = 0.0;
-        }
-      }
-      
-      /* Apply the electrostatic and LJ forces */
-      if (vec3d_mul(&(current->frc), &temp, frc_elec+frc_lj) == NULL)
-    	  return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
-      
-      /* Apply the bond forces */
-      for (ii=0; ii<7; ++ii)
-        if (vec3d_add(&(current->frc), &(current->frc), &(frc_bond_vec[ii])) == NULL)
-          return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
-
-      /* Get the particle's distance from the origin */
-      if ((mag = vec3d_mag(&(current->pos))) < 1E-50)
-        return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
-
-      /* Callback */
-      if (mag>(universe->size))
-      {
-        /* Calculate the callback vector */
-        if ((vec3d_mul(&callback, &(current->pos), -1E4*(mag - universe->size)/(universe->size))) == NULL)
-          return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
-        
-        /* Apply the callback force, if needed */
-        if ((vec3d_add(&(current->frc), &(current->frc), &callback)) == NULL)
-          return (retstr(NULL, TEXT_CANTMATH, __FILE__, __LINE__));
-      }
-    }
+    /* Apply the callback force */
+    if (vec3d_add(&(universe->particle[part_id].frc), &(universe->particle[part_id].frc), &frc_callback) == NULL)
+      return (retstr(NULL, TEXT_PARTICLE_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
   }
-  
+
+  /* COMPUTE THE APPLIED FORCES */
+
+  /* Compute the bond forces */
+  if (force_bond(&frc_elec, universe, part_id) == NULL)
+    return (retstr(NULL, TEXT_PARTICLE_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
+
+  /* Compute the electrostatic force */
+  if (force_electrostatic(&frc_elec, universe, part_id) == NULL)
+    return (retstr(NULL, TEXT_PARTICLE_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
+
+  /* Compute the 12-6 LJ force */
+  if (force_lennardjones(&frc_lennardjones, universe, part_id) == NULL)
+    return (retstr(NULL, TEXT_PARTICLE_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
+
+  /* Compute the torsion force */
+  if (force_torsion(&frc_elec, universe, part_id) == NULL)
+    return (retstr(NULL, TEXT_PARTICLE_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
+
+  /* APPLY THE COMPUTED FORCES */
+
+  /* Apply the bond force */
+  if (vec3d_add(&(universe->particle[part_id].frc), &(universe->particle[part_id].frc), &frc_bond) == NULL)
+    return (retstr(NULL, TEXT_PARTICLE_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
+
+  /* Apply the electrostatic force */
+  if (vec3d_add(&(universe->particle[part_id].frc), &(universe->particle[part_id].frc), &frc_elec) == NULL)
+    return (retstr(NULL, TEXT_PARTICLE_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
+
+  /* Apply the 12-6 LJ force */
+  if (vec3d_add(&(universe->particle[part_id].frc), &(universe->particle[part_id].frc), &frc_lennardjones) == NULL)
+    return (retstr(NULL, TEXT_PARTICLE_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
+
+  /* Apply the torsion force */
+  if (vec3d_add(&(universe->particle[part_id].frc), &(universe->particle[part_id].frc), &frc_torsion) == NULL)
+    return (retstr(NULL, TEXT_PARTICLE_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
+
   return (universe);
 }
 
@@ -136,7 +121,7 @@ t_universe *particle_update_acc(t_universe *universe, const uint64_t part_id)
 t_universe *particle_update_spd(t_universe *universe, const t_args *args, const uint64_t part_id)
 {
   t_particle *current;
-  t_vec3d temp;
+  vec3d_t temp;
 
   current = &(universe->particle[part_id]);
 
@@ -155,7 +140,7 @@ t_universe *particle_update_spd(t_universe *universe, const t_args *args, const 
 t_universe *particle_update_pos(t_universe *universe, const t_args *args, const uint64_t part_id)
 {
   t_particle *current;
-  t_vec3d temp;
+  vec3d_t temp;
 
   current = &(universe->particle[part_id]);
 

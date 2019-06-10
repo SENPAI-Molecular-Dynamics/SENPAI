@@ -35,6 +35,9 @@
 #define TEXT_CANTMATH                     TEXT_FAILURE "Failed to perform calculations "
 #define TEXT_MALLOC_FAILURE               TEXT_FAILURE "Memory allocation failed!"
 #define TEXT_MAIN_FAILURE                 TEXT_FAILURE "Ammonium failed to start properly"
+#define TEXT_FORCE_ELECTROSTATIC_FAILURE  TEXT_FAILURE "Failed to compute electrostatic interaction"
+#define TEXT_FORCE_BOND_FAILURE           TEXT_FAILURE "Failed to compute covalent interaction"
+#define TEXT_PARTICLE_UPDATE_FRC_FAILURE  TEXT_FAILURE "Failed to update a particle's force"
 #endif
 
 

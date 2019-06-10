@@ -15,8 +15,6 @@
 #include "text.h"
 #include "args.h"
 
-#define COUPLING_CNST_ELEC (double)(8.98755*10E9)
-
 typedef struct s_particle t_particle;
 struct s_particle
 {
@@ -29,10 +27,10 @@ struct s_particle
   double bond_strength[7]; /* Strength of each bond (spring constant) */
   double bond_length[7]; /* Length of the bond */
 
-  t_vec3d pos;
-  t_vec3d spd;
-  t_vec3d acc;
-  t_vec3d frc;
+  vec3d_t pos;
+  vec3d_t spd;
+  vec3d_t acc;
+  vec3d_t frc;
 };
 
 typedef struct s_universe t_universe;
