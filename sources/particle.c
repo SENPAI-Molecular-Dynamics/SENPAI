@@ -39,29 +39,33 @@ particle_t *particle_init(particle_t *particle)
 universe_t *particle_update_frc(universe_t *universe, const uint64_t part_id)
 {
   uint8_t err_flag;
-  double h; /* Numerical differenciation constant */
   double potential;
+  double h; /* Numerical differenciation constant */
 
   err_flag = 0;
 
-  potential = potential_total(universe, part_id, &err_flag);
-
   /* Differentiate potential over x axis */
   h = ROOT_MACHINE_EPSILON * (universe->particle[part_id].pos.x);
-  universe->particle[part_id].pos.x += h;
-  universe->particle[part_id].frc.x = -(potential_total(universe, part_id, &err_flag) - potential)/h;
+  universe->particle[part_id].pos.x -= h;
+  potential = potential_total(universe, part_id, &err_flag);
+  universe->particle[part_id].pos.x += 2*h;
+  universe->particle[part_id].frc.x = -(potential_total(universe, part_id, &err_flag) - potential)/(2*h);
   universe->particle[part_id].pos.x -= h;
   
   /* Differentiate potential over y axis */
   h = ROOT_MACHINE_EPSILON * (universe->particle[part_id].pos.y);
-  universe->particle[part_id].pos.y += h;
-  universe->particle[part_id].frc.y = -(potential_total(universe, part_id, &err_flag) - potential)/h;
+  universe->particle[part_id].pos.y -= h;
+  potential = potential_total(universe, part_id, &err_flag);
+  universe->particle[part_id].pos.y += 2*h;
+  universe->particle[part_id].frc.y = -(potential_total(universe, part_id, &err_flag) - potential)/(2*h);
   universe->particle[part_id].pos.y -= h;
 
   /* Differentiate potential over z axis */
   h = ROOT_MACHINE_EPSILON * (universe->particle[part_id].pos.z);
-  universe->particle[part_id].pos.z += h;
-  universe->particle[part_id].frc.z = -(potential_total(universe, part_id, &err_flag) - potential)/h;
+  universe->particle[part_id].pos.z -= h;
+  potential = potential_total(universe, part_id, &err_flag);
+  universe->particle[part_id].pos.z += 2*h;
+  universe->particle[part_id].frc.z = -(potential_total(universe, part_id, &err_flag) - potential)/(2*h);
   universe->particle[part_id].pos.z -= h;
   
   /* We check if an error happened during potential energy computation */

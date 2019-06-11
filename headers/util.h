@@ -8,7 +8,7 @@
 #ifndef UTIL_H
 #define UTIL_H
 
-#define ROOT_MACHINE_EPSILON (double)1.48996644E-8
+#define ROOT_MACHINE_EPSILON (double) 1.48996644E-8
 
 #define C_AVOGADRO (double)(6.02214076E23)
 #define C_IDEALGAS (double)(8.31446261)

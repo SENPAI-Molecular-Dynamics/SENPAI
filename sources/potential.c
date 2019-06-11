@@ -25,9 +25,9 @@ double potential_callback(universe_t *universe, const size_t part_id, uint8_t *e
     return (retstrf(0.0, TEXT_POTENTIAL_CALLBACK_FAILURE, __FILE__, __LINE__));
   }
 
-  /* Return the potential U=0.5*k*x^2 */
+  /* Return the potential U=k*x^2 */
   if (dst > (universe->size))
-    return (0.5*1E4*((dst - universe->size)/(universe->size))*((dst - universe->size)/(universe->size)));
+    return (1E4*((dst - universe->size)/(universe->size))*((dst - universe->size)/(universe->size)));
   return (0.0);
 }
 
@@ -42,6 +42,7 @@ double potential_bond(universe_t *universe, const size_t part_id, uint8_t *err_f
 
   potential = 0.0;
 
+  /* Sum over all atom bonds */
   for (i=0; i<7; ++i)
   {
     if (universe->particle[part_id].bond[i] != NULL)
@@ -60,12 +61,12 @@ double potential_bond(universe_t *universe, const size_t part_id, uint8_t *err_f
         return (retstrf(0.0, TEXT_POTENTIAL_BOND_FAILURE, __FILE__, __LINE__));
       }
 
-      /* Compute the bond potential U=0.5*k*x^2 */
-      displacement = (dst_mag - universe->particle[part_id].bond_length[i])/dst_mag;
-      potential += 0.5*(universe->particle[part_id].bond_strength[i])*displacement*displacement;
+      /* Compute the bond potential U=kx^2 */
+      displacement = dst_mag - universe->particle[part_id].bond_length[i];
+      potential += (universe->particle[part_id].bond_strength[i])*displacement*displacement;
     }
   }
-  
+
   return (potential);
 }
 
@@ -179,5 +180,6 @@ double potential_total(universe_t *universe, const size_t part_id, uint8_t *err_
     *err_flag = 1;
     return (retstrf(0.0, TEXT_POTENTIAL_TOTAL_FAILURE, __FILE__, __LINE__));
   }
+
   return (potential);
 }
