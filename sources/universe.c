@@ -28,10 +28,13 @@ universe_t *universe_init(universe_t *universe, const args_t *args)
   universe->part_nb = 0;
   universe->mol_size = 0;
   universe->time = 0.0;
-  universe->size = args->size;
   universe->iterations = 0;
   universe->temperature = args->temperature;
   universe->mol_nb = args->molecules;
+  universe->force_computation_mode = args->numerical;
+
+  /* Initialize the universe size */
+  universe->size = cbrt(0.75*(universe->mol_nb/C_AVOGADRO)*(universe->temperature)*C_IDEALGAS/C_PI);
 
   /* Open the input file */
   if ((input_file = fopen(args->path, "r")) == NULL)
@@ -286,6 +289,9 @@ universe_t *universe_iterate(universe_t *universe, const args_t *args)
 
 int universe_simulate(universe_t *universe, const args_t *args)
 {
+  /* Print the message indicating which iteration has been rendered */
+  printf(TEXT_ITERATION, universe->iterations);
+
   /* While we haven't reached the target time, we iterate the universe */
   while (universe->time < args->max_time)
   {
@@ -293,8 +299,7 @@ int universe_simulate(universe_t *universe, const args_t *args)
       return (retstri(EXIT_FAILURE, TEXT_UNIVERSE_SIMULATE_FAILURE, __FILE__, __LINE__));
     if (universe_iterate(universe, args) == NULL)
       return (retstri(EXIT_FAILURE, TEXT_UNIVERSE_SIMULATE_FAILURE, __FILE__, __LINE__));
-    
-    printf(TEXT_ITERATION, universe->iterations);
+
     universe->time += args->timestep;
     ++(universe->iterations);
   }

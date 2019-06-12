@@ -46,6 +46,7 @@ struct universe_s
   double temperature;
   particle_t *particle;
 
+  uint8_t force_computation_mode;
   FILE *output_file_xyz;
   char *input_file_buffer; /* A memory copy of input_file */
 };

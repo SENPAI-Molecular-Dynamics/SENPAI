@@ -13,6 +13,7 @@
 #define C_AVOGADRO (double)(6.02214076E23)
 #define C_IDEALGAS (double)(8.31446261)
 #define C_ELEC     (double)(8.98755*10E9)
+#define C_PI       (double)(3.14159265359)
 
 #define POW3(x) (x*x*x)
 #define POW6(x) (POW3(x)*POW3(x))

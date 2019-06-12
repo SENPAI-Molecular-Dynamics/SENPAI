@@ -12,10 +12,20 @@
 #define COLOUR_RED   "\x1B[31m"
 
 /* Misc. text */
+#define TEXT_START  "                                                     _                     \n" \
+                    "     /\\                                             (_)                    \n" \
+                    "    /  \\     _ __ ___    _ __ ___     ___    _ __    _   _   _   _ __ ___  \n" \
+                    "   / /\\ \\   | '_ ` _ \\  | '_ ` _ \\   / _ \\  | '_ \\  | | | | | | | '_ ` _ \\ \n" \
+                    "  / ____ \\  | | | | | | | | | | | | | (_) | | | | | | | | |_| | | | | | | |\n" \
+                    " /_/    \\_\\ |_| |_| |_| |_| |_| |_|  \\___/  |_| |_| |_|  \\__,_| |_| |_| |_|\n\n" \
+					"<< 2018-2019 Murgia Thomas - Ammonium and its source code are licensed under the terms of the MIT license >>\n" \
+					"<< thomas.murgia@univ-tlse3.fr | https://github.com/Garuda1/ammonium >>\n"
+
+
 #define TEXT_FAILURE                      "[" COLOUR_RED "FAILURE" COLOUR_RESET "] "
-#define TEXT_SIMSTART                     "Simulation started (%ld particles, %.3lf ps with %.3lf ps steps)\n"
-#define TEXT_ITERATION                    "Rendered iteration %ld\n"
+#define TEXT_SIMSTART                     "Simulation started (%ld molecules, %ld particles, %.2lf Kelvin, %.2lf Pascal, %.3lf ps with %.3lf ps steps)\n"
 #define TEXT_SIMEND                       "Simulation ended (%ld iterations)\n"
+#define TEXT_ITERATION                    "Rendered iteration %ld\n"
 
 /* args.c */
 #define TEXT_ARGS_INIT_FAILURE            TEXT_FAILURE "args_init: Argument initialisation failed"

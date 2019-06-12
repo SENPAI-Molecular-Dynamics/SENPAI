@@ -20,11 +20,12 @@ args_t *args_init(args_t *args)
 
   args->path = NULL;
   args->out_path = NULL;
+  args->numerical = ARGS_NUMERICAL_DEFAULT;
   args->timestep = ARGS_TIMESTEP_DEFAULT;
   args->max_time = ARGS_MAX_TIME_DEFAULT;
   args->temperature = ARGS_TEMPERATURE_DEFAULT;
   args->molecules = ARGS_MOLECULES_DEFAULT;
-  args->size = ARGS_SIZE_DEFAULT;
+  args->pressure = ARGS_PRESSURE_DEFAULT;
   return (args);
 }
 
@@ -38,19 +39,26 @@ args_t *args_parse(args_t *args, int argc, char **argv)
       args->path = argv[++i];
     else if (!strcmp(argv[i], FLAG_OUTPUT) && (i+1)<argc)
       args->out_path = argv[++i];
+    else if (!strcmp(argv[i], FLAG_NUMERICAL))
+      args->numerical = MODE_NUMERICAL;
     else if (!strcmp(argv[i], FLAG_TIME) && (i+1)<argc)
       args->max_time = atof(argv[++i])*1E-12; /* Scale from picoseconds */
     else if (!strcmp(argv[i], FLAG_TIMESTEP) && (i+1)<argc)
-      args->timestep = atof(argv[++i])*1E-12; /* Scale from picoseconds */
+      args->timestep = atof(argv[++i])*1E-15; /* Scale from femtoseconds */
     else if (!strcmp(argv[i], FLAG_TEMP) && (i+1)<argc)
       args->temperature = atof(argv[++i]);
     else if (!strcmp(argv[i], FLAG_MOL) && (i+1)<argc)
       args->molecules = strtoul(argv[++i], NULL, 10);
-    else if (!strcmp(argv[i], FLAG_SIZE) && (i+1)<argc)
-      args->size = atof(argv[++i])*1E-10; /* Scale from angstroms */
+    else if (!strcmp(argv[i], FLAG_PRESSURE) && (i+1)<argc)
+      args->pressure = atof(argv[++i]);
   }
 
-  if (args->path == NULL || args->out_path == NULL || args->molecules < 1)
+  if (args->path == NULL ||
+      args->out_path == NULL ||
+      args->molecules < 1 ||
+      args->temperature < 0.0 ||
+      args->pressure < 0.0 ||
+      args->timestep < 0.0)
     return (retstr(NULL, TEXT_ARGS_PARSE_FAILURE, __FILE__, __LINE__));
   return (args);
 }
