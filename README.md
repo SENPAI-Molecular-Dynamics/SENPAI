@@ -1,6 +1,6 @@
 # Ammonium
 
-Ammonium is a molecular dynamics (MD) simulation software. It handles electrostatic, Van der Waals, and covalent interactions.
+Ammonium is a molecular dynamics (MD) simulation software. It handles electrostatic, Van der Waals, and covalent interactions. I'm not trying to change the world here, I'm just having a good time writing software.
 
 ## Compilation
 
