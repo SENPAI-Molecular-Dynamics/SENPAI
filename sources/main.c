@@ -35,7 +35,7 @@ int main(int argc, char **argv)
     return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));
 
   /* Let's roll */
-  printf(TEXT_SIMSTART, universe.mol_nb, universe.part_nb, universe.temperature, args.pressure, args.max_time*1E12, args.timestep*1E12);
+  printf(TEXT_SIMSTART, universe.mol_nb, universe.part_nb, universe.temperature, args.pressure, args.max_time*1E9, args.timestep*1E15);
   exit_state = universe_simulate(&universe, &args);
   printf(TEXT_SIMEND, universe.iterations);
 

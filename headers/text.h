@@ -18,18 +18,24 @@
                     "   / /\\ \\   | '_ ` _ \\  | '_ ` _ \\   / _ \\  | '_ \\  | | | | | | | '_ ` _ \\ \n" \
                     "  / ____ \\  | | | | | | | | | | | | | (_) | | | | | | | | |_| | | | | | | |\n" \
                     " /_/    \\_\\ |_| |_| |_| |_| |_| |_|  \\___/  |_| |_| |_|  \\__,_| |_| |_| |_|\n\n" \
-					"<< 2018-2019 Murgia Thomas - Ammonium and its source code are licensed under the terms of the MIT license >>\n" \
+					"<< 2018-2019 Thomas MURGIA - Ammonium and its source code are licensed under the terms of the MIT license >>\n" \
 					"<< thomas.murgia@univ-tlse3.fr | https://github.com/Garuda1/ammonium >>\n"
 
 
 #define TEXT_FAILURE                      "[" COLOUR_RED "FAILURE" COLOUR_RESET "] "
-#define TEXT_SIMSTART                     "Simulation started (%ld molecules, %ld particles, %.2lf Kelvin, %.2lf Pascal, %.3lf ps with %.3lf ps steps)\n"
+#define TEXT_SIMSTART                     "Simulation started (%ld molecules, %ld particles, %.2lf Kelvin, %.2lf Pascal, %.3lf ns with %.1lf fs steps)\n"
 #define TEXT_SIMEND                       "Simulation ended (%ld iterations)\n"
 #define TEXT_ITERATION                    "Rendered iteration %ld\n"
 
 /* args.c */
 #define TEXT_ARGS_INIT_FAILURE            TEXT_FAILURE "args_init: Argument initialisation failed"
 #define TEXT_ARGS_PARSE_FAILURE           TEXT_FAILURE "argse_parse: Arguments couldn't be parsed"
+
+/* force.c */
+#define TEXT_FORCE_CALLBACK_FAILURE       TEXT_FAILURE "force_callback: Failed to compute the callback force"
+#define TEXT_FORCE_BOND_FAILURE           TEXT_FAILURE "force_bond: Failed to compute the bond force"
+#define TEXT_FORCE_ELECTROSTATIC_FAILURE  TEXT_FAILURE "force_electrostatic: Failed to compute the electrostatic force"
+#define TEXT_FORCE_LENNARDJONES_FAILURE   TEXT_FAILURE "force_lennardjones: Failed to compute the Lennard-Jones force"
 
 /* main.c */
 #define TEXT_MAIN_FAILURE                 TEXT_FAILURE "Ammonium failed to execute properly"

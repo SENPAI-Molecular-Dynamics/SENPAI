@@ -7,10 +7,11 @@
 
 #include <string.h>
 
-#include "universe.h"
-#include "vec3d.h"
-#include "util.h"
+#include "force.h"
 #include "potential.h"
+#include "universe.h"
+#include "util.h"
+#include "vec3d.h"
 
 particle_t *particle_init(particle_t *particle)
 {
@@ -47,7 +48,7 @@ universe_t *particle_update_frc(universe_t *universe, const uint64_t part_id)
   vec3d_t vec_callback;
   vec3d_t vec_bond;
   vec3d_t vec_electrostatic;
-  vec3d_t vec_lennardjones
+  vec3d_t vec_lennardjones;
   vec3d_t vec_torsion;
 
   /* If we use numerical solving */
@@ -87,10 +88,25 @@ universe_t *particle_update_frc(universe_t *universe, const uint64_t part_id)
   /* If we use analytical solving */
   else
   {
-    /* Reset the force vector */
+    /* Reset the force vectors */
     universe->particle[part_id].frc.x = 0.0;
     universe->particle[part_id].frc.y = 0.0;
     universe->particle[part_id].frc.z = 0.0;
+    vec_callback.x = 0.0;
+    vec_callback.y = 0.0;
+    vec_callback.z = 0.0;
+    vec_bond.x = 0.0;
+    vec_bond.y = 0.0;
+    vec_bond.z = 0.0;
+    vec_electrostatic.x = 0.0;
+    vec_electrostatic.y = 0.0;
+    vec_electrostatic.z = 0.0;
+    vec_lennardjones.x = 0.0;
+    vec_lennardjones.y = 0.0;
+    vec_lennardjones.z = 0.0;
+    vec_torsion.x = 0.0;
+    vec_torsion.y = 0.0;
+    vec_torsion.z = 0.0;
 
     /* Compute the forces */
     if (force_callback(&vec_callback, universe, part_id) == NULL)

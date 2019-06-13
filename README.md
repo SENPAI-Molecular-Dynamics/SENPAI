@@ -18,7 +18,7 @@ Options:
 
 - `--numerical` Configures the simulation to use numerical differentiation of the potential energy (defaults to analytical solving)
 
-- `--time t` Specifies the simulation duration (ps) (defaults to `1µs`)
+- `--time t` Specifies the simulation duration (ps) (defaults to `1ns`)
 
 - `--dt t` Specifies the timestep (fs) (defaults to `1 fs`)
 

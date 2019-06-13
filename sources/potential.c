@@ -141,7 +141,7 @@ double potential_lennardjones(universe_t *universe, const size_t part_id, uint8_
       }
       
       /* Compute the potential if required */
-      if (dst_mag < 2.5*sigma)
+      if (dst_mag < LENNARDJONES_CUTOFF*sigma)
         potential += 4*epsilon*((POW12(sigma)/POW12(dst_mag))-(POW6(sigma)/POW6(dst_mag)));
     }
   }

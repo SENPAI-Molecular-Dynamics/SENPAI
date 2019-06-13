@@ -289,14 +289,18 @@ universe_t *universe_iterate(universe_t *universe, const args_t *args)
 
 int universe_simulate(universe_t *universe, const args_t *args)
 {
-  /* Print the message indicating which iteration has been rendered */
-  printf(TEXT_ITERATION, universe->iterations);
 
   /* While we haven't reached the target time, we iterate the universe */
   while (universe->time < args->max_time)
   {
+    /* Print the message indicating which iteration has been rendered */
+    printf(TEXT_ITERATION, universe->iterations);
+
+    /* We print the state to the .xyz file */
     if (universe_printstate(universe) == NULL)
       return (retstri(EXIT_FAILURE, TEXT_UNIVERSE_SIMULATE_FAILURE, __FILE__, __LINE__));
+
+    /* And we iterate */
     if (universe_iterate(universe, args) == NULL)
       return (retstri(EXIT_FAILURE, TEXT_UNIVERSE_SIMULATE_FAILURE, __FILE__, __LINE__));
 
