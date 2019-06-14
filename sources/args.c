@@ -42,7 +42,7 @@ args_t *args_parse(args_t *args, int argc, char **argv)
     else if (!strcmp(argv[i], FLAG_NUMERICAL))
       args->numerical = MODE_NUMERICAL;
     else if (!strcmp(argv[i], FLAG_TIME) && (i+1)<argc)
-      args->max_time = atof(argv[++i])*1E-12; /* Scale from picoseconds */
+      args->max_time = atof(argv[++i])*1E-9; /* Scale from nanoseconds */
     else if (!strcmp(argv[i], FLAG_TIMESTEP) && (i+1)<argc)
       args->timestep = atof(argv[++i])*1E-15; /* Scale from femtoseconds */
     else if (!strcmp(argv[i], FLAG_TEMP) && (i+1)<argc)
@@ -50,7 +50,7 @@ args_t *args_parse(args_t *args, int argc, char **argv)
     else if (!strcmp(argv[i], FLAG_MOL) && (i+1)<argc)
       args->molecules = strtoul(argv[++i], NULL, 10);
     else if (!strcmp(argv[i], FLAG_PRESSURE) && (i+1)<argc)
-      args->pressure = atof(argv[++i]);
+      args->pressure = atof(argv[++i])*1E2; /* Scale from Pascals */
   }
 
   if (args->path == NULL ||

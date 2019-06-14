@@ -18,13 +18,13 @@ Options:
 
 - `--numerical` Configures the simulation to use numerical differentiation of the potential energy (defaults to analytical solving)
 
-- `--time t` Specifies the simulation duration (ps) (defaults to `1ns`)
+- `--time t` Specifies the simulation duration (ns) (defaults to `1ns`)
 
 - `--dt t` Specifies the timestep (fs) (defaults to `1 fs`)
 
 - `--temp` Specifies the thermodynamic temperature of the system (K) (defaults to `273.15 K`)
 
-- `--pressure` Specifies the pressure of the system (Pa) (defaults to `100 kPa`)
+- `--pressure` Specifies the pressure of the system (hPa) (defaults to `1 atm`)
 
 - `--mol` Specifies the number of molecules to be inserted in the simulation
 

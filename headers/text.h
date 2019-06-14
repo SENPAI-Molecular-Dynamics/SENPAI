@@ -23,9 +23,8 @@
 
 
 #define TEXT_FAILURE                      "[" COLOUR_RED "FAILURE" COLOUR_RESET "] "
-#define TEXT_SIMSTART                     "Simulation started (%ld molecules, %ld particles, %.2lf Kelvin, %.2lf Pascal, %.3lf ns with %.1lf fs steps)\n"
+#define TEXT_SIMSTART                     "Simulation started (%ld molecules, %ld particles, %.2lf K, %.2lf hPa, %.3lf ns with %.1lf fs steps)\n"
 #define TEXT_SIMEND                       "Simulation ended (%ld iterations)\n"
-#define TEXT_ITERATION                    "Rendered iteration %ld\n"
 
 /* args.c */
 #define TEXT_ARGS_INIT_FAILURE            TEXT_FAILURE "args_init: Argument initialisation failed"

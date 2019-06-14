@@ -34,7 +34,7 @@ universe_t *universe_init(universe_t *universe, const args_t *args)
   universe->force_computation_mode = args->numerical;
 
   /* Initialize the universe size */
-  universe->size = cbrt(0.75*(universe->mol_nb/C_AVOGADRO)*(universe->temperature)*C_IDEALGAS/C_PI);
+  universe->size = cbrt(0.75*C_BOLTZMANN*(universe->mol_nb)*(universe->temperature)/((args->pressure)*C_PI));
 
   /* Open the input file */
   if ((input_file = fopen(args->path, "r")) == NULL)
@@ -293,9 +293,6 @@ int universe_simulate(universe_t *universe, const args_t *args)
   /* While we haven't reached the target time, we iterate the universe */
   while (universe->time < args->max_time)
   {
-    /* Print the message indicating which iteration has been rendered */
-    printf(TEXT_ITERATION, universe->iterations);
-
     /* We print the state to the .xyz file */
     if (universe_printstate(universe) == NULL)
       return (retstri(EXIT_FAILURE, TEXT_UNIVERSE_SIMULATE_FAILURE, __FILE__, __LINE__));

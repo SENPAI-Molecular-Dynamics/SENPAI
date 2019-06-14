@@ -44,7 +44,7 @@ universe_t *force_bond(vec3d_t *frc, universe_t *universe, const size_t part_id)
     if (universe->particle[part_id].bond[i] != NULL)
     {
       /* Get the difference vector */
-      if (vec3d_sub(&vec, &(universe->particle[part_id].pos), &(universe->particle[i].pos)) == NULL)
+      if (vec3d_sub(&vec, &(universe->particle[part_id].pos), &(universe->particle[part_id].bond[i]->pos)) == NULL)
         return (retstr(NULL, TEXT_FORCE_BOND_FAILURE, __FILE__, __LINE__));
 
       /* Get its magnitude */
@@ -52,8 +52,8 @@ universe_t *force_bond(vec3d_t *frc, universe_t *universe, const size_t part_id)
         return (retstr(NULL, TEXT_FORCE_BOND_FAILURE, __FILE__, __LINE__));
 
       /* Compute the force vector */
-      displacement = dst - (universe->particle[i].bond_length[i]);
-      if (vec3d_mul(frc, &vec, (displacement*(universe->particle[i].bond_strength[i]))/dst) == NULL)
+      displacement = dst - (universe->particle[part_id].bond_length[i]);
+      if (vec3d_mul(&vec, &vec, -(displacement*(universe->particle[part_id].bond_strength[i]))/dst) == NULL)
         return (retstr(NULL, TEXT_FORCE_BOND_FAILURE, __FILE__, __LINE__));
 
       /* Sum it */
@@ -133,7 +133,7 @@ universe_t *force_lennardjones(vec3d_t *frc, universe_t *universe, const size_t 
       if (dst > LENNARDJONES_CUTOFF*sigma)
 
       /* Compute the force vector */
-      if (vec3d_mul(frc, &vec, -(24*epsilon/dst)*((2*POW12(sigma/dst)) - POW6(sigma/dst))/dst) == NULL)
+      if (vec3d_mul(frc, &vec, -24*POW6(sigma)*epsilon*(POW6(dst)-2*POW6(sigma))/(dst*POW12(dst))) == NULL)
         return (retstr(NULL, TEXT_FORCE_LENNARDJONES_FAILURE, __FILE__, __LINE__));
 
       /* Sum it */
