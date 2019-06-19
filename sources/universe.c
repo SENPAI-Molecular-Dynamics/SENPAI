@@ -160,6 +160,8 @@ universe_t *universe_load(universe_t *universe)
 
 universe_t *universe_populate(universe_t *universe)
 {
+  double x1;
+  double x2;
   size_t i;
   size_t ii;
   size_t iii;
@@ -173,13 +175,19 @@ universe_t *universe_populate(universe_t *universe)
   { 
     id_offset = (universe->mol_size)*i;
     
-    /* Generate a random vector */
-    pos_offset.x = cos(rand());
-    pos_offset.y = cos(rand());
-    pos_offset.z = cos(rand());
-    if (vec3d_unit(&pos_offset, &pos_offset) == NULL)
-      return (retstr(NULL, TEXT_UNIVERSE_POPULATE_FAILURE, __FILE__, __LINE__));
-    if (vec3d_mul(&pos_offset, &pos_offset, 0.4*(universe->size)*cos(rand())) == NULL)
+    /* Generate a random vector in the unit sphere*/
+    /* Method from Marsaglia, 1972 */
+    do
+    {
+      x1 = cos(rand());
+      x2 = cos(rand());
+    } while ((x1*x1)+(x2*x2) > 1);
+    pos_offset.x = 2*x1*sqrt(1-(x1*x1)-(x2*x2));
+    pos_offset.y = 2*x2*sqrt(1-(x1*x1)-(x2*x2));
+    pos_offset.z = 1-2*((x1*x1)+(x2*x2));
+
+    /* Multiply the vector by a random value */
+    if (vec3d_mul(&pos_offset, &pos_offset, 0.5*(universe->size)*cos(rand())) == NULL)
       return (retstr(NULL, TEXT_UNIVERSE_POPULATE_FAILURE, __FILE__, __LINE__));
     
     /* For every atom in the molecule */
