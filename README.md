@@ -39,3 +39,7 @@ This will tell ammonium to simulate 512 benzene molecules at STP for one nanosec
 Ammonium will simulate its provided system in a classical way. Particles are charged point-masses, covalent bonds are springs, and Van der Waals interactions are approximated with the Lennard-Jones potential. After each timestep, each particle's file will be appended with a file formatted in `.xyz`.
 
 The simulation's initial state is read from a `.nh4` file. It is a format similar to `.xyz`, but with extra bond information.
+
+## Ammonium File Format
+
+Ammonium uses its own file format to load chemical systems and simulation parameters. An ammonium input file is structured the following way:

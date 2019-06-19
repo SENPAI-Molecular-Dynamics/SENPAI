@@ -174,16 +174,13 @@ universe_t *universe_populate(universe_t *universe)
     id_offset = (universe->mol_size)*i;
     
     /* Generate a random vector */
-    pos_offset.x = rand()-rand();
-    pos_offset.y = rand()-rand();
-    pos_offset.z = rand()-rand();
+    pos_offset.x = cos(rand());
+    pos_offset.y = cos(rand());
+    pos_offset.z = cos(rand());
     if (vec3d_unit(&pos_offset, &pos_offset) == NULL)
       return (retstr(NULL, TEXT_UNIVERSE_POPULATE_FAILURE, __FILE__, __LINE__));
     if (vec3d_mul(&pos_offset, &pos_offset, 0.4*(universe->size)*cos(rand())) == NULL)
       return (retstr(NULL, TEXT_UNIVERSE_POPULATE_FAILURE, __FILE__, __LINE__));
-    pos_offset.x += 0.4*(universe->size);
-    pos_offset.y += 0.4*(universe->size);
-    pos_offset.z += 0.4*(universe->size);
     
     /* For every atom in the molecule */
     for (ii=0; ii<(universe->mol_size); ++ii)
@@ -223,13 +220,13 @@ universe_t *universe_setvelocity(universe_t *universe)
   size_t i;
   
   /* Get the average kinetic energy from temperature */
-  kinetic_avg = (3/2)*(C_IDEALGAS/C_AVOGADRO)*universe->temperature;
-  
+  kinetic_avg = (3/2)*C_BOLTZMANN*(universe->temperature);
+
   /* Get the molecule's total mass */
   mass_mol = 0;
   for (i=0; i<(universe->mol_size); ++i)
     mass_mol += universe->particle[i].mass;
-  
+
   /* Get the molecule's velocity */
   velocity = sqrt(2*kinetic_avg/mass_mol);
 
@@ -242,12 +239,12 @@ universe_t *universe_setvelocity(universe_t *universe)
     vec.z = cos(rand());
     if (vec3d_unit(&vec, &vec) == NULL)
       return (retstr(NULL, TEXT_UNIVERSE_SETVELOCITY_FAILURE, __FILE__, __LINE__));
-    
-    /* Apply an average speed from the average kinetic energy */
+
+    /* Apply an average velocity from the average kinetic energy */
     if (vec3d_mul(&(universe->particle[i].spd), &vec, velocity) == NULL)
       return (retstr(NULL, TEXT_UNIVERSE_SETVELOCITY_FAILURE, __FILE__, __LINE__));
   }
-  
+
   return (universe);
 }
 

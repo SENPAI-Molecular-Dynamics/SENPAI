@@ -131,14 +131,15 @@ universe_t *force_lennardjones(vec3d_t *frc, universe_t *universe, const size_t 
 
       /* If the particle is beyond the cutoff distance */
       if (dst > LENNARDJONES_CUTOFF*sigma)
+      {
+        /* Compute the force vector */
+        if (vec3d_mul(frc, &vec, -24*POW6(sigma)*epsilon*(POW6(dst)-2*POW6(sigma))/(dst*POW12(dst))) == NULL)
+          return (retstr(NULL, TEXT_FORCE_LENNARDJONES_FAILURE, __FILE__, __LINE__));
 
-      /* Compute the force vector */
-      if (vec3d_mul(frc, &vec, -24*POW6(sigma)*epsilon*(POW6(dst)-2*POW6(sigma))/(dst*POW12(dst))) == NULL)
-        return (retstr(NULL, TEXT_FORCE_LENNARDJONES_FAILURE, __FILE__, __LINE__));
-
-      /* Sum it */
-      if (vec3d_add(frc, frc, &vec) == NULL)
-        return (retstr(NULL, TEXT_FORCE_LENNARDJONES_FAILURE, __FILE__, __LINE__));
+        /* Sum it */
+        if (vec3d_add(frc, frc, &vec) == NULL)
+          return (retstr(NULL, TEXT_FORCE_LENNARDJONES_FAILURE, __FILE__, __LINE__));
+      }
     }
   }
 
