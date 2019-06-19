@@ -8,7 +8,7 @@ Compilation is achieved using the provided makefile. No additional software is r
 
 ## Usage
 
-`ammonium -i input_file -o output_file [options]`
+`ammonium --i input_file --o output_file [options]`
 
 Options:
 
