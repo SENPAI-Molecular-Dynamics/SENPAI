@@ -294,13 +294,25 @@ universe_t *universe_iterate(universe_t *universe, const args_t *args)
 
 int universe_simulate(universe_t *universe, const args_t *args)
 {
+  uint64_t frame_nb;
+
+  frame_nb = 0;
 
   /* While we haven't reached the target time, we iterate the universe */
   while (universe->time < args->max_time)
   {
-    /* We print the state to the .xyz file */
-    if (universe_printstate(universe) == NULL)
-      return (retstri(EXIT_FAILURE, TEXT_UNIVERSE_SIMULATE_FAILURE, __FILE__, __LINE__));
+
+    if (!frame_nb)
+    {
+      frame_nb = (args->frameskip);
+
+      /* We print the state to the .xyz file */
+      if (universe_printstate(universe) == NULL)
+        return (retstri(EXIT_FAILURE, TEXT_UNIVERSE_SIMULATE_FAILURE, __FILE__, __LINE__));
+    }
+    
+    else
+      --frame_nb;
 
     /* And we iterate */
     if (universe_iterate(universe, args) == NULL)

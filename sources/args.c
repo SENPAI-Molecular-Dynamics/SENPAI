@@ -26,6 +26,7 @@ args_t *args_init(args_t *args)
   args->temperature = ARGS_TEMPERATURE_DEFAULT;
   args->molecules = ARGS_MOLECULES_DEFAULT;
   args->pressure = ARGS_PRESSURE_DEFAULT;
+  args->frameskip = ARGS_FRAMESKIP_DEFAULT;
   return (args);
 }
 
@@ -50,7 +51,9 @@ args_t *args_parse(args_t *args, int argc, char **argv)
     else if (!strcmp(argv[i], FLAG_MOL) && (i+1)<argc)
       args->molecules = strtoul(argv[++i], NULL, 10);
     else if (!strcmp(argv[i], FLAG_PRESSURE) && (i+1)<argc)
-      args->pressure = atof(argv[++i])*1E2; /* Scale from Pascals */
+      args->pressure = atof(argv[++i])*1E2; /* Scale from mbar */
+    else if (!strcmp(argv[i], FLAG_FRAMESKIP) && (i+1)<argc)
+      args->frameskip = strtoul(argv[++i], NULL, 10);
   }
 
   if (args->path == NULL ||

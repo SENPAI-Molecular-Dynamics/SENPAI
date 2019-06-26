@@ -30,6 +30,7 @@
 #define ARGS_MOLECULES_DEFAULT   (uint64_t)1          /* Number of molecules in the universe */
 #define ARGS_TEMPERATURE_DEFAULT (uint64_t)273.15     /* Temperature of the universe */
 #define ARGS_PRESSURE_DEFAULT    (double)1E5          /* Pressure of the universe */
+#define ARGS_FRAMESKIP_DEFAULT   (uint64_t)0          /* Frameskip */
 
 #define FLAG_NUMERICAL "--numerical"
 #define FLAG_INPUT     "--in"
@@ -39,6 +40,7 @@
 #define FLAG_MOL       "--mol"
 #define FLAG_TEMP      "--temp"
 #define FLAG_PRESSURE  "--pressure"
+#define FLAG_FRAMESKIP "--frameskip"
 
 void *retstr(void *ret, const char *str, const char *file, const int line);
 int retstri(int ret, const char *str, const char *file, const int line);

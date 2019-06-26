@@ -24,9 +24,11 @@ Options:
 
 - `--temp` Specifies the thermodynamic temperature of the system (K) (defaults to `273.15 K`)
 
-- `--pressure` Specifies the pressure of the system (hPa) (defaults to `1 atm`)
+- `--pressure` Specifies the pressure of the system (mbar) (defaults to `1 atm`)
 
 - `--mol` Specifies the number of molecules to be inserted in the simulation
+
+- `--frameskip` Sets a frameskip to reduce I/O usage. Disabled by default
 
 ## Example use
 
@@ -36,6 +38,8 @@ This will tell SENPAI to simulate 512 benzene molecules at STP for one nanosecon
 
 ## Introduction
 
-SENPAI will simulate its provided system in a classical way. Particles are charged point-masses, covalent bonds are springs, and Van der Waals interactions are approximated with the Lennard-Jones potential. After each timestep, each particle's file will be appended with a file formatted in `.xyz`.
+SENPAI will simulate its provided system in a classical way. Particles are charged point-masses, covalent bonds are springs, and Van der Waals interactions are approximated with the Lennard-Jones potential.
 
 The simulation's initial state is read from a `.nh4` file. It is a format similar to `.xyz`, but with extra bond information.
+
+The simulation, after being rendered, can be visualised using existing software like VMD or JMOL.

@@ -22,6 +22,7 @@ struct args_s
   uint8_t numerical;
   uint64_t part_nb;
   uint64_t molecules;
+  uint64_t frameskip;
 };
 
 args_t *args_init(args_t *args);

@@ -17,13 +17,13 @@
                     " | (___ | |__  |  \\| | |__) /  \\    | |  \n"\
                     "  \\___ \\|  __| | . ` |  ___/ /\\ \\   | |  \n"\
                     "  ____) | |____| |\\  | |  / ____ \\ _| |_ \n"\
-                    " |_____/|______|_| \\_|_| /_/    \\_\\_____|\n\n"\
+                    " |_____/|______|_| \\_|_| /_/    \\_\\_____|  Simplified Evolutive N-body Processing and Analytics for Integration\n\n"\
 					"<< 2018-2019 Thomas MURGIA - SENPAI and its source code are licensed under the terms of the MIT license >>\n" \
 					"<< thomas.murgia@univ-tlse3.fr | https://github.com/Garuda1/senpai >>\n"
 
 
 #define TEXT_FAILURE                      "[" COLOUR_RED "FAILURE" COLOUR_RESET "] "
-#define TEXT_SIMSTART                     "Simulation started (%ld molecules, %ld particles, %.2lf K, %.2lf hPa, %.3lf ns with %.1lf fs steps)\n"
+#define TEXT_SIMSTART                     "Simulation started (%ld molecules, %ld particles, %.2lf K, %.2lf hPa, %.3lf ns with %.1lf fs steps, frameskip set at %ld frames)\n"
 #define TEXT_SIMEND                       "Simulation ended (%ld iterations)\n"
 
 /* args.c */
