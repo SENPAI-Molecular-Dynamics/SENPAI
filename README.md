@@ -1,6 +1,6 @@
-# Ammonium
+# SENPAI - Simplified Evolutive N-body Processing and Analytics for Integration
 
-Ammonium is a molecular dynamics (MD) simulation software. It handles electrostatic, Van der Waals, and covalent interactions. I'm not trying to change the world here, I'm just having a good time writing software.
+SENPAI is a molecular dynamics (MD) simulation software aimed at simulating organic systems. It handles electrostatic, Van der Waals, and covalent interactions.
 
 ## Compilation
 
@@ -8,7 +8,7 @@ Compilation is achieved using the provided makefile. No additional software is r
 
 ## Usage
 
-`ammonium --i input_file --o output_file [options]`
+`senpai --i input_file --o output_file [options]`
 
 Options:
 
@@ -30,16 +30,12 @@ Options:
 
 ## Example use
 
-`./ammonium.bin --in examples/benzene.nh4 --out render.xyz --time 1000 --dt 2 --mol 512`
+`./senpai.bin --in examples/benzene.nh4 --out render.xyz --time 1000 --dt 2 --mol 512`
 
-This will tell ammonium to simulate 512 benzene molecules at STP for one nanosecond using a two femtosecond timestep. The rendered simulation will be saved in `render.xyz` for further analysis.
+This will tell SENPAI to simulate 512 benzene molecules at STP for one nanosecond using a two femtosecond timestep. The rendered simulation will be saved in `render.xyz` for further analysis.
 
 ## Introduction
 
-Ammonium will simulate its provided system in a classical way. Particles are charged point-masses, covalent bonds are springs, and Van der Waals interactions are approximated with the Lennard-Jones potential. After each timestep, each particle's file will be appended with a file formatted in `.xyz`.
+SENPAI will simulate its provided system in a classical way. Particles are charged point-masses, covalent bonds are springs, and Van der Waals interactions are approximated with the Lennard-Jones potential. After each timestep, each particle's file will be appended with a file formatted in `.xyz`.
 
 The simulation's initial state is read from a `.nh4` file. It is a format similar to `.xyz`, but with extra bond information.
-
-## Ammonium File Format
-
-Ammonium uses its own file format to load chemical systems and simulation parameters. An ammonium input file is structured the following way:

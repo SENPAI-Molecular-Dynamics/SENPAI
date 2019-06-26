@@ -34,7 +34,7 @@ universe_t *universe_init(universe_t *universe, const args_t *args)
   universe->force_computation_mode = args->numerical;
 
   /* Initialize the universe size */
-  universe->size = cbrt(0.75*C_BOLTZMANN*(universe->mol_nb)*(universe->temperature)/((args->pressure)*C_PI));
+  universe->size = cbrt(0.75*C_BOLTZMANN*(universe->mol_nb)*(universe->temperature)/((args->pressure)*M_PI));
 
   /* Open the input file */
   if ((input_file = fopen(args->path, "r")) == NULL)

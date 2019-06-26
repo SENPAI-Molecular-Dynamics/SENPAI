@@ -12,14 +12,14 @@
 #define COLOUR_RED   "\x1B[31m"
 
 /* Misc. text */
-#define TEXT_START  "                                                     _                     \n" \
-                    "     /\\                                             (_)                    \n" \
-                    "    /  \\     _ __ ___    _ __ ___     ___    _ __    _   _   _   _ __ ___  \n" \
-                    "   / /\\ \\   | '_ ` _ \\  | '_ ` _ \\   / _ \\  | '_ \\  | | | | | | | '_ ` _ \\ \n" \
-                    "  / ____ \\  | | | | | | | | | | | | | (_) | | | | | | | | |_| | | | | | | |\n" \
-                    " /_/    \\_\\ |_| |_| |_| |_| |_| |_|  \\___/  |_| |_| |_|  \\__,_| |_| |_| |_|\n\n" \
-					"<< 2018-2019 Thomas MURGIA - Ammonium and its source code are licensed under the terms of the MIT license >>\n" \
-					"<< thomas.murgia@univ-tlse3.fr | https://github.com/Garuda1/ammonium >>\n"
+#define TEXT_START  "   _____ ______ _   _ _____        _____ \n"\
+                    "  / ____|  ____| \\ | |  __ \\ /\\   |_   _|\n"\
+                    " | (___ | |__  |  \\| | |__) /  \\    | |  \n"\
+                    "  \\___ \\|  __| | . ` |  ___/ /\\ \\   | |  \n"\
+                    "  ____) | |____| |\\  | |  / ____ \\ _| |_ \n"\
+                    " |_____/|______|_| \\_|_| /_/    \\_\\_____|\n\n"\
+					"<< 2018-2019 Thomas MURGIA - SENPAI and its source code are licensed under the terms of the MIT license >>\n" \
+					"<< thomas.murgia@univ-tlse3.fr | https://github.com/Garuda1/senpai >>\n"
 
 
 #define TEXT_FAILURE                      "[" COLOUR_RED "FAILURE" COLOUR_RESET "] "
@@ -30,6 +30,10 @@
 #define TEXT_ARGS_INIT_FAILURE            TEXT_FAILURE "args_init: Argument initialisation failed"
 #define TEXT_ARGS_PARSE_FAILURE           TEXT_FAILURE "argse_parse: Arguments couldn't be parsed"
 
+/* atom.c */
+#define TEXT_ATOM_BOND_LENGTH_FAILURE     TEXT_FAILURE "atom_bond_strength: Couldn't find a matching bond"
+#define TEXT_ATOM_BOND_STRENGTH_FAILURE   TEXT_FAILURE "atom_bond_strength: Couldn't find a matching bond"
+
 /* force.c */
 #define TEXT_FORCE_CALLBACK_FAILURE       TEXT_FAILURE "force_callback: Failed to compute the callback force"
 #define TEXT_FORCE_BOND_FAILURE           TEXT_FAILURE "force_bond: Failed to compute the bond force"
@@ -37,7 +41,7 @@
 #define TEXT_FORCE_LENNARDJONES_FAILURE   TEXT_FAILURE "force_lennardjones: Failed to compute the Lennard-Jones force"
 
 /* main.c */
-#define TEXT_MAIN_FAILURE                 TEXT_FAILURE "Ammonium failed to execute properly"
+#define TEXT_MAIN_FAILURE                 TEXT_FAILURE "SENPAI failed to execute properly"
 
 /* particle.c */
 #define TEXT_PARTICLE_UPDATE_FRC_FAILURE  TEXT_FAILURE "particle_update_frc: Failed to update a particle's force"
