@@ -6,7 +6,7 @@
  */
 
 #include <math.h>
-#include <stdio.h>
+#include <stdlib.h>
 
 #include "vec3d.h"
 #include "util.h"
@@ -102,4 +102,28 @@ vec3d_t *vec3d_unit(vec3d_t *dest, const vec3d_t *v)
     return (retstr(NULL, TEXT_VEC3D_UNIT_FAILURE, __FILE__, __LINE__));
 
   return (res);
+}
+
+vec3d_t *vec3d_marsaglia(vec3d_t *v)
+{
+  double x1;
+  double x2;
+
+  if (v == NULL)
+    return (retstr(NULL, TEXT_VEC3D_MARSAGLIA_FAILURE, __FILE__, __LINE__));
+
+  /* Generate a random vector in the unit sphere*/
+  /* Method from Marsaglia, 1972 */
+
+  do
+  {
+    x1 = cos(rand());
+    x2 = cos(rand());
+  } while ((x1*x1)+(x2*x2) > 1);
+
+  v->x = 2*x1*sqrt(1-(x1*x1)-(x2*x2));
+  v->y = 2*x2*sqrt(1-(x1*x1)-(x2*x2));
+  v->z = 1-2*((x1*x1)+(x2*x2));
+
+  return (v);
 }

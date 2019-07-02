@@ -30,15 +30,11 @@
 #define TEXT_ARGS_INIT_FAILURE            TEXT_FAILURE "args_init: Argument initialisation failed"
 #define TEXT_ARGS_PARSE_FAILURE           TEXT_FAILURE "argse_parse: Arguments couldn't be parsed"
 
-/* atom.c */
-#define TEXT_ATOM_BOND_LENGTH_FAILURE     TEXT_FAILURE "atom_bond_strength: Couldn't find a matching bond"
-#define TEXT_ATOM_BOND_STRENGTH_FAILURE   TEXT_FAILURE "atom_bond_strength: Couldn't find a matching bond"
-
 /* force.c */
-#define TEXT_FORCE_CALLBACK_FAILURE       TEXT_FAILURE "force_callback: Failed to compute the callback force"
 #define TEXT_FORCE_BOND_FAILURE           TEXT_FAILURE "force_bond: Failed to compute the bond force"
 #define TEXT_FORCE_ELECTROSTATIC_FAILURE  TEXT_FAILURE "force_electrostatic: Failed to compute the electrostatic force"
 #define TEXT_FORCE_LENNARDJONES_FAILURE   TEXT_FAILURE "force_lennardjones: Failed to compute the Lennard-Jones force"
+#define TEXT_FORCE_TOTAL_FAILURE          TEXT_FAILURE "force_total: Failed to compute the force vector"
 
 /* main.c */
 #define TEXT_MAIN_FAILURE                 TEXT_FAILURE "SENPAI failed to execute properly"
@@ -74,5 +70,6 @@
 #define TEXT_VEC3D_MAG_FAILURE            TEXT_FAILURE "vec3d_mag: Failed to compute vector magnitude"
 #define TEXT_VEC3D_CROSS_FAILURE          TEXT_FAILURE "vec3d_cross: Failed to perform cross product"
 #define TEXT_VEC3D_UNIT_FAILURE           TEXT_FAILURE "vec3d_unit: Failed to compute unit vector"
+#define TEXT_VEC3D_MARSAGLIA_FAILURE      TEXT_FAILURE "vec3d_marsaglia: Failed to generate random unit vector"
 
 #endif

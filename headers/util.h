@@ -17,7 +17,8 @@
 #define C_IDEALGAS  (double)(8.31446261)
 #define C_ELEC      (double)(8.98755*10E9)
 
-#define POW3(x) (x*x*x)
+#define POW2(x) (x*x)
+#define POW3(x) (x*POW2(x))
 #define POW6(x) (POW3(x)*POW3(x))
 #define POW12(x) (POW6(x)*POW6(x))
 

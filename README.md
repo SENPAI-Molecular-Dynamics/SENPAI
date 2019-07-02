@@ -43,3 +43,5 @@ SENPAI will simulate its provided system in a classical way. Particles are charg
 The simulation's initial state is read from a `.nh4` file. It is a format similar to `.xyz`, but with extra bond information.
 
 The simulation, after being rendered, can be visualised using existing software like VMD or JMOL.
+
+## SENPAI file format 

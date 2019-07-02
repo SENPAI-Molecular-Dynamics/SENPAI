@@ -44,13 +44,6 @@ universe_t *particle_update_frc(universe_t *universe, const uint64_t part_id)
   double potential;
   double h;
 
-  /* Used in the analytical method */
-  vec3d_t vec_callback;
-  vec3d_t vec_bond;
-  vec3d_t vec_electrostatic;
-  vec3d_t vec_lennardjones;
-  vec3d_t vec_torsion;
-
   /* If we use numerical solving */
   if (universe->force_computation_mode == MODE_NUMERICAL)
   {
@@ -92,45 +85,11 @@ universe_t *particle_update_frc(universe_t *universe, const uint64_t part_id)
     universe->particle[part_id].frc.x = 0.0;
     universe->particle[part_id].frc.y = 0.0;
     universe->particle[part_id].frc.z = 0.0;
-    vec_callback.x = 0.0;
-    vec_callback.y = 0.0;
-    vec_callback.z = 0.0;
-    vec_bond.x = 0.0;
-    vec_bond.y = 0.0;
-    vec_bond.z = 0.0;
-    vec_electrostatic.x = 0.0;
-    vec_electrostatic.y = 0.0;
-    vec_electrostatic.z = 0.0;
-    vec_lennardjones.x = 0.0;
-    vec_lennardjones.y = 0.0;
-    vec_lennardjones.z = 0.0;
-    vec_torsion.x = 0.0;
-    vec_torsion.y = 0.0;
-    vec_torsion.z = 0.0;
 
-    /* Compute the forces */
-    if (force_callback(&vec_callback, universe, part_id) == NULL)
-      return (retstr(NULL, TEXT_POTENTIAL_TOTAL_FAILURE, __FILE__, __LINE__));
-    if (force_bond(&vec_bond, universe, part_id) == NULL)
-      return (retstr(NULL, TEXT_POTENTIAL_TOTAL_FAILURE, __FILE__, __LINE__));
-    if (force_electrostatic(&vec_electrostatic, universe, part_id) == NULL)
-      return (retstr(NULL, TEXT_POTENTIAL_TOTAL_FAILURE, __FILE__, __LINE__));
-    if (force_lennardjones(&vec_lennardjones, universe, part_id) == NULL)
-      return (retstr(NULL, TEXT_POTENTIAL_TOTAL_FAILURE, __FILE__, __LINE__));
-    if (force_torsion(&vec_torsion, universe, part_id) == NULL)
+    /* Compute and apply the force */
+    if (force_total(&(universe->particle[part_id].frc), universe, part_id) == NULL)
       return (retstr(NULL, TEXT_POTENTIAL_TOTAL_FAILURE, __FILE__, __LINE__));
 
-    /* Apply them */
-    if (vec3d_add(&(universe->particle[part_id].frc), &(universe->particle[part_id].frc), &vec_callback) == NULL)
-      return (retstr(NULL, TEXT_POTENTIAL_TOTAL_FAILURE, __FILE__, __LINE__));
-    if (vec3d_add(&(universe->particle[part_id].frc), &(universe->particle[part_id].frc), &vec_bond) == NULL)
-      return (retstr(NULL, TEXT_POTENTIAL_TOTAL_FAILURE, __FILE__, __LINE__));
-    if (vec3d_add(&(universe->particle[part_id].frc), &(universe->particle[part_id].frc), &vec_electrostatic) == NULL)
-      return (retstr(NULL, TEXT_POTENTIAL_TOTAL_FAILURE, __FILE__, __LINE__));
-    if (vec3d_add(&(universe->particle[part_id].frc), &(universe->particle[part_id].frc), &vec_lennardjones) == NULL)
-      return (retstr(NULL, TEXT_POTENTIAL_TOTAL_FAILURE, __FILE__, __LINE__));
-    if (vec3d_add(&(universe->particle[part_id].frc), &(universe->particle[part_id].frc), &vec_torsion) == NULL)
-      return (retstr(NULL, TEXT_POTENTIAL_TOTAL_FAILURE, __FILE__, __LINE__));
   }
 
   return (universe);
@@ -192,4 +151,24 @@ universe_t *particle_update_pos(universe_t *universe, const args_t *args, const 
     return (retstr(NULL, TEXT_PARTICLE_UPDATE_POS_FAILURE, __FILE__, __LINE__));
 
   return (universe);
+}
+
+int particle_is_bonded(const particle_t *p1, const particle_t *p2)
+{
+  if (p1 != p2->bond[0] &&
+      p1 != p2->bond[1] &&
+      p1 != p2->bond[2] &&
+      p1 != p2->bond[3] &&
+      p1 != p2->bond[4] &&
+      p1 != p2->bond[5] &&
+      p1 != p2->bond[6] &&
+      p2 != p1->bond[0] &&
+      p2 != p1->bond[1] &&
+      p2 != p1->bond[2] &&
+      p2 != p1->bond[3] &&
+      p2 != p1->bond[4] &&
+      p2 != p1->bond[5] &&
+      p2 != p1->bond[6])
+    return (0);
+  return (1);
 }

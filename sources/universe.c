@@ -160,8 +160,6 @@ universe_t *universe_load(universe_t *universe)
 
 universe_t *universe_populate(universe_t *universe)
 {
-  double x1;
-  double x2;
   size_t i;
   size_t ii;
   size_t iii;
@@ -174,17 +172,10 @@ universe_t *universe_populate(universe_t *universe)
   for (i=1; i<(universe->mol_nb); ++i) /* i=1 because we already have a molecule loaded at particle[0] */
   { 
     id_offset = (universe->mol_size)*i;
-    
-    /* Generate a random vector in the unit sphere*/
-    /* Method from Marsaglia, 1972 */
-    do
-    {
-      x1 = cos(rand());
-      x2 = cos(rand());
-    } while ((x1*x1)+(x2*x2) > 1);
-    pos_offset.x = 2*x1*sqrt(1-(x1*x1)-(x2*x2));
-    pos_offset.y = 2*x2*sqrt(1-(x1*x1)-(x2*x2));
-    pos_offset.z = 1-2*((x1*x1)+(x2*x2));
+
+    /* Generate a random unit vector */
+    if (vec3d_marsaglia(&pos_offset) == NULL)
+      return (retstr(NULL, TEXT_UNIVERSE_POPULATE_FAILURE, __FILE__, __LINE__));
 
     /* Multiply the vector by a random value */
     if (vec3d_mul(&pos_offset, &pos_offset, 0.5*(universe->size)*cos(rand())) == NULL)
@@ -241,11 +232,7 @@ universe_t *universe_setvelocity(universe_t *universe)
   /* For every atom in the universe */
   for (i=0; i<(universe->part_nb); ++i)
   {
-    /* Generate a random unit vector */
-    vec.x = cos(rand());
-    vec.y = cos(rand());
-    vec.z = cos(rand());
-    if (vec3d_unit(&vec, &vec) == NULL)
+    if (vec3d_marsaglia(&vec) == NULL)
       return (retstr(NULL, TEXT_UNIVERSE_SETVELOCITY_FAILURE, __FILE__, __LINE__));
 
     /* Apply an average velocity from the average kinetic energy */
