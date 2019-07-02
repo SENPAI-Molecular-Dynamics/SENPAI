@@ -63,9 +63,10 @@ universe_t *universe_populate(universe_t *universe);
 universe_t *universe_setvelocity(universe_t *universe);
 universe_t *universe_load(universe_t *universe);
 universe_t *universe_printstate(universe_t *universe);
-int         universe_simulate(universe_t *universe, const args_t *args);
+universe_t *universe_simulate(universe_t *universe, const args_t *args);
+universe_t *universe_iterate(universe_t *universe, const args_t *args);
 universe_t *universe_init(universe_t *universe, const args_t *args);
 void        universe_clean(universe_t *universe);
-universe_t *universe_iterate(universe_t *universe, const args_t *args);
+double      universe_energy(universe_t *universe, uint8_t *err_flag);
 
 #endif

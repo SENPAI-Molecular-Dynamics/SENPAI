@@ -34,9 +34,10 @@ universe_t *force_bond(vec3d_t *frc, universe_t *universe, const size_t p1, cons
   /* Find the bond id */
   for (bond_id=0; universe->particle[p1].bond[bond_id] != &(universe->particle[p2]); ++bond_id);
 
+
   /* Compute the force vector */
   displacement = dst - (universe->particle[p1].bond_length[bond_id]);
-  if (vec3d_mul(frc, &vec, -(displacement*(universe->particle[p1].bond_strength[bond_id]))/dst) == NULL)
+  if (vec3d_mul(frc, &vec, -displacement*(universe->particle[p1].bond_strength[bond_id])/dst) == NULL)
     return (retstr(NULL, TEXT_FORCE_BOND_FAILURE, __FILE__, __LINE__));
 
   return (universe);
@@ -139,9 +140,9 @@ universe_t *force_total(vec3d_t *frc, universe_t *universe, const size_t part_id
         if (force_torsion(&vec_torsion, universe, part_id, i) == NULL)
           return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__));
 
-        /* Sum the forces */
+        /* Sum the forces
         if (vec3d_add(frc, frc, &vec_bond) == NULL)
-          return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__));
+          return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__)); */
         if (vec3d_add(frc, frc, &vec_torsion) == NULL)
           return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__));
       }
@@ -154,11 +155,11 @@ universe_t *force_total(vec3d_t *frc, universe_t *universe, const size_t part_id
         if (force_lennardjones(&vec_lennardjones, universe, part_id, i) == NULL)
           return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__));
 
-        /* Sum the forces */
+        /* Sum the forces
         if (vec3d_add(frc, frc, &vec_electrostatic) == NULL)
           return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__));
         if (vec3d_add(frc, frc, &vec_lennardjones) == NULL)
-          return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__));
+          return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__)); */
       }
     }
   }

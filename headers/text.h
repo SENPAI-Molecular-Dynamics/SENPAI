@@ -23,8 +23,8 @@
 
 
 #define TEXT_FAILURE                      "[" COLOUR_RED "FAILURE" COLOUR_RESET "] "
-#define TEXT_SIMSTART                     "Simulation started (%ld molecules, %ld particles, %.2lf K, %.2lf hPa, %.3lf ns with %.1lf fs steps, frameskip set at %ld frames)\n"
-#define TEXT_SIMEND                       "Simulation ended (%ld iterations)\n"
+#define TEXT_SIMSTART                     "Simulation started"
+#define TEXT_SIMEND                       "Simulation ended"
 
 /* args.c */
 #define TEXT_ARGS_INIT_FAILURE            TEXT_FAILURE "args_init: Argument initialisation failed"
@@ -60,6 +60,7 @@
 #define TEXT_UNIVERSE_SETVELOCITY_FAILURE TEXT_FAILURE "universe_setvelocity: Failed to set initial velocities"
 #define TEXT_UNIVERSE_SIMULATE_FAILURE    TEXT_FAILURE "universe_simulate: Simulation failed"
 #define TEXT_UNIVERSE_ITERATE_FAILURE     TEXT_FAILURE "universe_iterate: Iteration failed"
+#define TEXT_UNIVERSE_ENERGY_FAILURE      TEXT_FAILURE "universe_energy: Failed to compute system energy"
 
 /* vec3d.c */
 #define TEXT_VEC3D_ADD_FAILURE            TEXT_FAILURE "vec3d_add: Failed to perform vector addition"

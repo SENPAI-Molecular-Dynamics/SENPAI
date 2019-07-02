@@ -25,9 +25,9 @@ double potential_callback(universe_t *universe, const size_t part_id, uint8_t *e
     return (retstrf(0.0, TEXT_POTENTIAL_CALLBACK_FAILURE, __FILE__, __LINE__));
   }
 
-  /* Return the potential U=k*x^2 */
+  /* Return the potential U=0.5*k*x^2 */
   if (dst > (universe->size))
-    return (1E4*((dst - universe->size)/(universe->size))*((dst - universe->size)/(universe->size)));
+    return (5E3*((dst - universe->size)/(universe->size))*((dst - universe->size)/(universe->size)));
   return (0.0);
 }
 

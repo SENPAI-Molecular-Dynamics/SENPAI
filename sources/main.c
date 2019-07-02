@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
+#include <math.h>
 
 #include "universe.h"
 #include "args.h"
@@ -18,7 +19,7 @@ int main(int argc, char **argv)
 {
   universe_t universe;
   args_t args;
-  int exit_state;
+  void *exit_state;
 
   srand((unsigned int)time(NULL));
   
@@ -35,10 +36,10 @@ int main(int argc, char **argv)
     return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));
 
   /* Let's roll */
-  printf(TEXT_SIMSTART, universe.mol_nb, universe.part_nb, universe.temperature, args.pressure/1E2, args.max_time*1E9, args.timestep*1E15, args.frameskip);
   exit_state = universe_simulate(&universe, &args);
-  printf(TEXT_SIMEND, universe.iterations);
 
   universe_clean(&universe);
-  return (exit_state);
+  if (exit_state == NULL)
+    return (EXIT_FAILURE);
+  return (EXIT_SUCCESS);
 }

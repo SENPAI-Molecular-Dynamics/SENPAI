@@ -279,36 +279,55 @@ universe_t *universe_iterate(universe_t *universe, const args_t *args)
   return (universe);
 }
 
-int universe_simulate(universe_t *universe, const args_t *args)
+universe_t *universe_simulate(universe_t *universe, const args_t *args)
 {
+  double energy;
+  uint8_t err_flag;
   uint64_t frame_nb;
 
   frame_nb = 0;
+  energy = universe_energy(universe, &err_flag);
 
+  if (err_flag)
+    return (retstr(NULL, TEXT_UNIVERSE_SIMULATE_FAILURE, __FILE__, __LINE__));
+
+  /* Print some useful information */
+  printf("Molecules..............%ld\n", universe->mol_nb);
+  printf("Particles..............%ld\n", universe->part_nb);
+  printf("Temperature............%lf K\n", universe->temperature);
+  printf("Pressure...............%lf hPa\n", args->pressure/1E2);
+  printf("Energy.................%lf pJ\n", energy*1E12);
+  printf("Universe radius........%lf pm\n", universe->size*1E12);
+  printf("Simulation time........%lf ns\n", args->max_time*1E9);
+  printf("Timestep...............%lf fs\n", args->timestep*1E15);
+  printf("Frameskip..............%ld\n", args->frameskip);
+  printf("Iterations.............%ld\n\n", (long)ceil(args->max_time/args->timestep));
+
+  puts(TEXT_SIMSTART);
   /* While we haven't reached the target time, we iterate the universe */
   while (universe->time < args->max_time)
   {
 
+    /* Print the state to the .xyz file, if required */
     if (!frame_nb)
     {
-      frame_nb = (args->frameskip);
-
-      /* We print the state to the .xyz file */
       if (universe_printstate(universe) == NULL)
-        return (retstri(EXIT_FAILURE, TEXT_UNIVERSE_SIMULATE_FAILURE, __FILE__, __LINE__));
+        return (retstr(NULL, TEXT_UNIVERSE_SIMULATE_FAILURE, __FILE__, __LINE__));
+      frame_nb = (args->frameskip);
     }
-    
     else
       --frame_nb;
 
     /* And we iterate */
     if (universe_iterate(universe, args) == NULL)
-      return (retstri(EXIT_FAILURE, TEXT_UNIVERSE_SIMULATE_FAILURE, __FILE__, __LINE__));
+      return (retstr(NULL, TEXT_UNIVERSE_SIMULATE_FAILURE, __FILE__, __LINE__));
 
     universe->time += args->timestep;
     ++(universe->iterations);
   }
-  return (EXIT_SUCCESS);
+  puts(TEXT_SIMEND);
+
+  return (universe);
 }
 
 universe_t *universe_printstate(universe_t *universe)
@@ -327,4 +346,33 @@ universe_t *universe_printstate(universe_t *universe)
             universe->particle[i].pos.z*1E10);
   }
   return (universe);
+}
+
+double universe_energy(universe_t *universe, uint8_t *err_flag)
+{
+  size_t i;
+  double vel;
+  double kinetic;
+  double potential;
+
+  kinetic = 0.0;
+  potential = 0.0;
+
+  /* Get total potential energy */
+  for (i=0; i<(universe->part_nb); ++i)
+  {
+    potential += potential_total(universe, i, err_flag);
+    if (*err_flag)
+      return (retstrf(0.0, TEXT_UNIVERSE_ENERGY_FAILURE, __FILE__, __LINE__));
+  }
+
+  /* Get total kinetic energy */
+  for (i=0; i<(universe->part_nb); ++i)
+  {
+    if ((vel = vec3d_mag(&(universe->particle[i].spd))) < 0.0)
+      return (retstrf(0.0, TEXT_UNIVERSE_ENERGY_FAILURE, __FILE__, __LINE__));
+    kinetic += 0.5*(universe->particle[i].mass)*POW2(vel);
+  }
+
+  return (kinetic+potential);
 }
