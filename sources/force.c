@@ -20,7 +20,7 @@ universe_t *force_bond(vec3d_t *frc, universe_t *universe, const size_t p1, cons
   vec3d_t vec;
 
   /* Get the difference vector */
-  if (vec3d_sub(&vec, &(universe->particle[p2].pos), &(universe->particle[p1].pos)) == NULL)
+  if (vec3d_sub(&vec, &(universe->particle[p1].pos), &(universe->particle[p2].pos)) == NULL)
     return (retstr(NULL, TEXT_FORCE_BOND_FAILURE, __FILE__, __LINE__));
 
   /* Get its magnitude */
@@ -74,16 +74,20 @@ universe_t *force_lennardjones(vec3d_t *frc, universe_t *universe, const size_t 
   epsilon = 1.4110228E-22;
 
   /* Get the difference vector */
-  if (vec3d_sub(&vec, &(universe->particle[p2].pos), &(universe->particle[p1].pos)) == NULL)
+  if (vec3d_sub(&vec, &(universe->particle[p1].pos), &(universe->particle[p2].pos)) == NULL)
     return (retstr(NULL, TEXT_FORCE_LENNARDJONES_FAILURE, __FILE__, __LINE__));
 
   /* Get its magnitude */
   if ((dst = vec3d_mag(&vec)) < 0.0)
     return (retstr(NULL, TEXT_FORCE_LENNARDJONES_FAILURE, __FILE__, __LINE__));
 
+  /* Turn it into its unit vector */
+  if (vec3d_unit(&vec, &vec) == NULL)
+    return (retstr(NULL, TEXT_FORCE_LENNARDJONES_FAILURE, __FILE__, __LINE__));
+
   /* If the particle is not beyond the cutoff distance, compute the LJ force */
   if (dst < LENNARDJONES_CUTOFF*sigma)
-    if (vec3d_mul(frc, &vec, -24*POW6(sigma)*epsilon*(POW6(dst)-2*POW6(sigma))/(dst*POW12(dst))) == NULL)
+    if (vec3d_mul(frc, &vec, -24*POW6(sigma)*epsilon*(POW6(dst)-2*POW6(sigma))/POW12(dst)) == NULL)
       return (retstr(NULL, TEXT_FORCE_LENNARDJONES_FAILURE, __FILE__, __LINE__));
 
   return (universe);
@@ -129,10 +133,6 @@ universe_t *force_total(vec3d_t *frc, universe_t *universe, const size_t part_id
       }
     }
   }
-  
-  printf("F_bond......%lf\n", vec3d_mag(&vec_bond));
-  printf("F_elec......%lf\n", vec3d_mag(&vec_electrostatic));
-  printf("F_lj........%lf\n\n", vec3d_mag(&vec_lennardjones));
 
   return (universe);
 }

@@ -46,7 +46,7 @@ universe_t *particle_update_frc(universe_t *universe, const uint64_t part_id)
 
   err_flag = 0;
 
-  /* Reset the force vectors */
+  /* Reset the force vector */
   universe->particle[part_id].frc.x = 0.0;
   universe->particle[part_id].frc.y = 0.0;
   universe->particle[part_id].frc.z = 0.0;
