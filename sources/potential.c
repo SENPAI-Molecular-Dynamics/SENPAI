@@ -99,7 +99,7 @@ double potential_electrostatic(universe_t *universe, const size_t part_id, uint8
       }
 
       /* Compute the potential */
-      potential += C_ELEC*(universe->particle[part_id].charge)*(universe->particle[i].charge)/(dst_mag*dst_mag*dst_mag);
+      potential += C_ELEC*(universe->particle[part_id].charge)*(universe->particle[i].charge)/dst_mag;
     }
   }
 

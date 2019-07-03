@@ -48,15 +48,19 @@ universe_t *force_electrostatic(vec3d_t *frc, universe_t *universe, const size_t
   vec3d_t vec;
 
   /* Get the difference vector */
-  if (vec3d_sub(&vec, &(universe->particle[p2].pos), &(universe->particle[p1].pos)) == NULL)
+  if (vec3d_sub(&vec, &(universe->particle[p1].pos), &(universe->particle[p2].pos)) == NULL)
     return (retstr(NULL, TEXT_FORCE_ELECTROSTATIC_FAILURE, __FILE__, __LINE__));
 
   /* Get its magnitude */
   if ((dst = vec3d_mag(&vec)) < 0.0)
     return (retstr(NULL, TEXT_FORCE_ELECTROSTATIC_FAILURE, __FILE__, __LINE__));
 
+  /* Turn it into its unit vector */
+  if (vec3d_unit(&vec, &vec) == NULL)
+    return (retstr(NULL, TEXT_FORCE_BOND_FAILURE, __FILE__, __LINE__));
+
   /* Compute the force vector */
-  if (vec3d_mul(frc, &vec, C_ELEC*(universe->particle[p1].charge)*(universe->particle[p2].charge)/(POW3(dst))) == NULL)
+  if (vec3d_mul(frc, &vec, C_ELEC*(universe->particle[p1].charge)*(universe->particle[p2].charge)/POW2(dst)) == NULL)
     return (retstr(NULL, TEXT_FORCE_ELECTROSTATIC_FAILURE, __FILE__, __LINE__));
 
   return (universe);
@@ -93,12 +97,26 @@ universe_t *force_lennardjones(vec3d_t *frc, universe_t *universe, const size_t 
   return (universe);
 }
 
+universe_t *force_angle(vec3d_t *frc, universe_t *universe, const size_t p1, const size_t p2)
+{
+  (void)universe;
+  (void)p1;
+  (void)p2;
+
+  frc->x = 0.0;
+  frc->y = 0.0;
+  frc->z = 0.0;
+
+  return (universe);
+}
+
 universe_t *force_total(vec3d_t *frc, universe_t *universe, const size_t part_id)
 {
   size_t i;
   vec3d_t vec_bond;
   vec3d_t vec_electrostatic;
   vec3d_t vec_lennardjones;
+  vec3d_t vec_angle;
 
   /* For each particle */
   for (i=0; i<(universe->part_nb); ++i)
@@ -111,9 +129,13 @@ universe_t *force_total(vec3d_t *frc, universe_t *universe, const size_t part_id
       {
         if (force_bond(&vec_bond, universe, part_id, i) == NULL)
           return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__));
+        if (force_angle(&vec_angle, universe, part_id, i) == NULL)
+          return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__));
 
         /* Sum the forces */
         if (vec3d_add(frc, frc, &vec_bond) == NULL)
+          return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__));
+        if (vec3d_add(frc, frc, &vec_angle) == NULL)
           return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__));
       }
 
