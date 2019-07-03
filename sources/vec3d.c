@@ -60,10 +60,7 @@ vec3d_t *vec3d_div(vec3d_t *dest, const vec3d_t *v, const double lambda)
 
 double vec3d_dot(const vec3d_t *v1, const vec3d_t *v2)
 {
-  if (v1 == NULL || v2 == NULL)
-    return (retstri(-1.0, TEXT_VEC3D_DOT_FAILURE, __FILE__, __LINE__));
-
-  return ((v1->x * v2->x) + (v1->y * v2->y) + (v1->z * v2->z));
+   return ((v1->x * v2->x) + (v1->y * v2->y) + (v1->z * v2->z));
 }
 
 double vec3d_mag(const vec3d_t *v)

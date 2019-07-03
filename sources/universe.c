@@ -106,10 +106,11 @@ universe_t *universe_load(universe_t *universe)
   {
     temp = &(universe->particle[i]);
     if (sscanf(tok,
-               "%2s,%lf,%lf,%d,%d,%d,%d,%d,%d,%d,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
+               "%2s,%lf,%lf,%lf,%d,%d,%d,%d,%d,%d,%d,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
                temp->element,
                &(temp->mass),
                &(temp->charge),
+               &(temp->angle),
                &(bond_id[0]),
                &(bond_id[1]),
                &(bond_id[2]),
@@ -280,6 +281,7 @@ universe_t *universe_simulate(universe_t *universe, const args_t *args)
   uint8_t err_flag;
   uint64_t frame_nb;
 
+  err_flag = 0;
   frame_nb = 0;
   energy = universe_energy(universe, &err_flag);
 
@@ -302,7 +304,6 @@ universe_t *universe_simulate(universe_t *universe, const args_t *args)
   /* While we haven't reached the target time, we iterate the universe */
   while (universe->time < args->max_time)
   {
-
     /* Print the state to the .xyz file, if required */
     if (!frame_nb)
     {
@@ -350,6 +351,7 @@ double universe_energy(universe_t *universe, uint8_t *err_flag)
   double kinetic;
   double potential;
 
+  *err_flag = 0;
   kinetic = 0.0;
   potential = 0.0;
 

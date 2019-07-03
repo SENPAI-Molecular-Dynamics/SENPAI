@@ -60,7 +60,7 @@ universe_t *force_electrostatic(vec3d_t *frc, universe_t *universe, const size_t
     return (retstr(NULL, TEXT_FORCE_BOND_FAILURE, __FILE__, __LINE__));
 
   /* Compute the force vector */
-  if (vec3d_mul(frc, &vec, C_ELEC*(universe->particle[p1].charge)*(universe->particle[p2].charge)/POW2(dst)) == NULL)
+  if (vec3d_mul(frc, &vec, (universe->particle[p1].charge)*(universe->particle[p2].charge)/(4*M_PI*C_VACUUMPERM*POW2(dst))) == NULL)
     return (retstr(NULL, TEXT_FORCE_ELECTROSTATIC_FAILURE, __FILE__, __LINE__));
 
   return (universe);
@@ -99,13 +99,119 @@ universe_t *force_lennardjones(vec3d_t *frc, universe_t *universe, const size_t 
 
 universe_t *force_angle(vec3d_t *frc, universe_t *universe, const size_t p1, const size_t p2)
 {
-  (void)universe;
-  (void)p1;
-  (void)p2;
+  /* This function is a bit complex so here is a rundown:
+   * p1 is bonded to p2, but p2 can be bonded to more atoms.
+   *
+   * The bonds p2 forms with its atoms are represented as vectors
+   * going from p2 to each atom.
+   *
+   * p2 has an equilibrium angle (p2->angle, a double, in radians)
+   * and will apply a torque to each of its atoms should the
+   * angles be different from the equilibrium value.
+   *
+   * As an example, an sp carbon will have an equilibrium angle of
+   * pi rad. If the angle it forms with its ligands is smaller, it
+   * each ligand will have a repelling radial force applied to them.
+   *
+   * The force vector, in cylindrical coordinates, is expressed as:
+   * F_angle = -k(alpha-alpha_eq)*e_phi
+   *
+   * Where F_angle is the force (in Newtons)
+   *       k is the "spring" constant (in Newtons per meter)
+   *       alpha is the current angle (in radians)
+   *       alpha_eq is the equilibrium angle (in radians)
+   *       e_phi is the azimuth-normal cylindrical unit vector
+   *
+   */
 
+  size_t i;
+  size_t bond_nb;
+  size_t bond_id;
+  double angle;
+  double angle_eq;
+  double to_current_mag;
+  double to_ligand_mag;
+  vec3d_t to_current;
+  vec3d_t to_ligand;
+  vec3d_t e_phi;
+  vec3d_t temp;
+  particle_t *current;
+  particle_t *ligand;
+  particle_t *node;
+
+  /* Initialize the resulting force vector */
   frc->x = 0.0;
   frc->y = 0.0;
   frc->z = 0.0;
+
+  /* Those are just shortcuts, making the code easier to read */
+  current = &(universe->particle[p1]);
+  node = &(universe->particle[p2]);
+  angle_eq = node->angle;
+
+  /* Get the number of bonds on the node */
+  bond_nb = 0;
+  for (i=0; i<7; ++i)
+    if (node->bond[i] != NULL)
+      ++bond_nb;
+
+  /* If p1 isn't bonded to the node, there is nothing to compute */
+  if (!particle_is_bonded(current, node))
+    return (universe);
+
+  /* If the node has no other ligand, don't bother either */
+  if (bond_nb == 1)
+    return (universe);
+  
+  /* Get the vector going from the node to the current particle */
+  if (vec3d_sub(&to_current, &(current->pos), &(node->pos)) == NULL)
+    return (retstr(NULL, TEXT_FORCE_ANGLE_FAILURE, __FILE__, __LINE__));
+
+  /* As well as its magnitude */
+  if ((to_current_mag = vec3d_mag(&to_current)) < 0.0)
+    return (retstr(NULL, TEXT_FORCE_ANGLE_FAILURE, __FILE__, __LINE__));
+
+  /* For all ligands */
+  for (bond_id=0; bond_id<7; ++bond_id)
+  { 
+    ligand = node->bond[bond_id];
+
+    /* If the ligand exists and isn't the current particle*/
+    if (ligand != NULL && ligand != current)
+    {
+      /* Get the vector going from the node to the ligand */
+      if (vec3d_sub(&to_ligand, &(ligand->pos), &(node->pos)) == NULL)
+        return (retstr(NULL, TEXT_FORCE_ANGLE_FAILURE, __FILE__, __LINE__));
+
+      /* Get its magnitude */
+      if ((to_ligand_mag = vec3d_mag(&to_ligand)) < 0.0)
+        return (retstr(NULL, TEXT_FORCE_ANGLE_FAILURE, __FILE__, __LINE__));
+
+      /* Get the current angle */
+      angle = acos(vec3d_dot(&to_current, &to_ligand)/(to_current_mag*to_ligand_mag));
+
+      /* Compute e_phi 
+       * I'm trash at maths so here's a tumor involving a double cross product
+       * Feel free to send hate mail at <thomas.murgia@univ-tlse3.fr>
+       */
+      if (vec3d_cross(&e_phi, &to_ligand, &to_current) == NULL)
+        return (retstr(NULL, TEXT_FORCE_ANGLE_FAILURE, __FILE__, __LINE__));
+      if (vec3d_unit(&e_phi, &e_phi) == NULL)
+        return (retstr(NULL, TEXT_FORCE_ANGLE_FAILURE, __FILE__, __LINE__));
+      if (vec3d_cross(&e_phi, &to_current, &e_phi) == NULL)
+        return (retstr(NULL, TEXT_FORCE_ANGLE_FAILURE, __FILE__, __LINE__));
+      if (vec3d_unit(&e_phi, &e_phi) == NULL)
+        return (retstr(NULL, TEXT_FORCE_ANGLE_FAILURE, __FILE__, __LINE__));
+
+      /* Compute the force */
+      if (vec3d_mul(&temp, &e_phi, -(angle-angle_eq)) == NULL)
+        return (retstr(NULL, TEXT_FORCE_ANGLE_FAILURE, __FILE__, __LINE__));
+
+      /* Sum it */
+      if (vec3d_add(frc, frc, &temp) == NULL)
+        return (retstr(NULL, TEXT_FORCE_ANGLE_FAILURE, __FILE__, __LINE__));
+    }
+  }
 
   return (universe);
 }
@@ -131,6 +237,8 @@ universe_t *force_total(vec3d_t *frc, universe_t *universe, const size_t part_id
           return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__));
         if (force_angle(&vec_angle, universe, part_id, i) == NULL)
           return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__));
+
+        printf("frc_angle=%lf\n", vec3d_mag(&vec_angle));
 
         /* Sum the forces */
         if (vec3d_add(frc, frc, &vec_bond) == NULL)

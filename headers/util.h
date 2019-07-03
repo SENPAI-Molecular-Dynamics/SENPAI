@@ -12,10 +12,11 @@
 
 #define LENNARDJONES_CUTOFF 2.5
 
-#define C_BOLTZMANN (double)(1.380649E-23)
-#define C_AVOGADRO  (double)(6.02214076E23)
-#define C_IDEALGAS  (double)(8.31446261)
-#define C_ELEC      (double)(8.98755*10E9)
+#define C_BOLTZMANN  (double)(1.380649E-23)
+#define C_AVOGADRO   (double)(6.02214076E23)
+#define C_IDEALGAS   (double)(8.31446261)
+#define C_VACUUMPERM (double)(8.8541878128E-12)
+#define C_ELEC       (double)(8.98755*10E9)
 
 #define POW2(x) (x*x)
 #define POW3(x) (x*POW2(x))

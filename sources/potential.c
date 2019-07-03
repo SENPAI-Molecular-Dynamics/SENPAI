@@ -6,6 +6,7 @@
  */
 
 #include <stdint.h>
+#include <math.h>
 
 #include "text.h"
 #include "util.h"
@@ -99,7 +100,7 @@ double potential_electrostatic(universe_t *universe, const size_t part_id, uint8
       }
 
       /* Compute the potential */
-      potential += C_ELEC*(universe->particle[part_id].charge)*(universe->particle[i].charge)/dst_mag;
+      potential += (universe->particle[part_id].charge)*(universe->particle[i].charge)/(4*M_PI*C_VACUUMPERM*dst_mag);
     }
   }
 

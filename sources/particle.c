@@ -32,8 +32,9 @@ particle_t *particle_init(particle_t *particle)
   particle->frc.z = 0.0;
 
   strcpy(particle->element, "??");
-  particle->mass = 1.0;
+  particle->mass = 0.0;
   particle->charge = 0.0;
+  particle->angle = 0.0;
   return (particle);
 }
 

@@ -34,7 +34,7 @@
 #define TEXT_FORCE_BOND_FAILURE           TEXT_FAILURE "force_bond: Failed to compute the bond force"
 #define TEXT_FORCE_ELECTROSTATIC_FAILURE  TEXT_FAILURE "force_electrostatic: Failed to compute the electrostatic force"
 #define TEXT_FORCE_LENNARDJONES_FAILURE   TEXT_FAILURE "force_lennardjones: Failed to compute the Lennard-Jones force"
-#define TEXT_FORCE_TORSION_FAILURE        TEXT_FAILURE "force_torsion: Failed to compute bond torsion force"
+#define TEXT_FORCE_ANGLE_FAILURE          TEXT_FAILURE "force_angle: Failed to compute bond angle force"
 #define TEXT_FORCE_TOTAL_FAILURE          TEXT_FAILURE "force_total: Failed to compute the force vector"
 
 /* main.c */
