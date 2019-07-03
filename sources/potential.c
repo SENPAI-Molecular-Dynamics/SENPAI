@@ -149,15 +149,6 @@ double potential_lennardjones(universe_t *universe, const size_t part_id, uint8_
   return (potential);
 }
 
-/* Bond torsion interaction */
-double potential_torsion(universe_t *universe, const size_t part_id, uint8_t *err_flag)
-{
-  (void)universe;
-  (void)part_id;
-  (void)err_flag;
-  return (0.0);
-}
-
 /* Total potential energy of the particle */
 double potential_total(universe_t *universe, const size_t part_id, uint8_t *err_flag)
 {
@@ -172,7 +163,6 @@ double potential_total(universe_t *universe, const size_t part_id, uint8_t *err_
   potential += potential_bond(universe, part_id, &err_flag_local);
   potential += potential_electrostatic(universe, part_id, &err_flag_local);
   potential += potential_lennardjones(universe, part_id, &err_flag_local);
-  potential += potential_torsion(universe, part_id, &err_flag_local);
 
   /* We check if an error happened during potential energy computation */
   if (err_flag_local)

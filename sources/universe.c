@@ -143,14 +143,13 @@ universe_t *universe_load(universe_t *universe)
     /* Set up the bonds */
     for (ii=0; ii<7; ++ii)
     {
-      temp->bond_length[ii] *= 1E-12;
+      temp->bond_length[ii] *= 1E-12; /* Scale from pm */
       temp->bond_id[ii] = bond_id[ii];
+
       if (bond_id[ii] < 0)
         temp->bond[ii] = NULL;
       else
-      {
         temp->bond[ii] = &(universe->particle[bond_id[ii]]);
-      }
     }
     
     tok = strtok(NULL, "\n");
@@ -213,13 +212,9 @@ universe_t *universe_populate(universe_t *universe)
 universe_t *universe_setvelocity(universe_t *universe)
 {
   double mass_mol;
-  double kinetic_avg;
   double velocity;
   vec3d_t vec;
   size_t i;
-  
-  /* Get the average kinetic energy from temperature */
-  kinetic_avg = (3/2)*C_BOLTZMANN*(universe->temperature);
 
   /* Get the molecule's total mass */
   mass_mol = 0;
@@ -227,7 +222,7 @@ universe_t *universe_setvelocity(universe_t *universe)
     mass_mol += universe->particle[i].mass;
 
   /* Get the molecule's velocity */
-  velocity = sqrt(2*kinetic_avg/mass_mol);
+  velocity = sqrt(3*C_BOLTZMANN*(universe->temperature)/mass_mol);
 
   /* For every atom in the universe */
   for (i=0; i<(universe->part_nb); ++i)
@@ -296,7 +291,7 @@ universe_t *universe_simulate(universe_t *universe, const args_t *args)
   printf("Particles..............%ld\n", universe->part_nb);
   printf("Temperature............%lf K\n", universe->temperature);
   printf("Pressure...............%lf hPa\n", args->pressure/1E2);
-  printf("Energy.................%lf pJ\n", energy*1E12);
+  printf("Total system energy....%lf pJ\n", energy*1E12);
   printf("Universe radius........%lf pm\n", universe->size*1E12);
   printf("Simulation time........%lf ns\n", args->max_time*1E9);
   printf("Timestep...............%lf fs\n", args->timestep*1E15);

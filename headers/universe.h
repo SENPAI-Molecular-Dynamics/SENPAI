@@ -22,8 +22,8 @@ struct particle_s
   double mass;
   double charge;
 
-  particle_t *bond[7]; /* Points to the bonded particles (max. 7) */
-  int64_t bond_id[7]; /* ID of the particle located at bond[ID] */
+  particle_t *bond[7]; /* Points to the bonded particles  */
+  int64_t bond_id[7]; /* IDs of the bonded particles */
   double bond_strength[7]; /* Strength of each bond (spring constant) */
   double bond_length[7]; /* Length of the bond */
 

@@ -44,10 +44,16 @@ universe_t *particle_update_frc(universe_t *universe, const uint64_t part_id)
   double potential;
   double h;
 
+  err_flag = 0;
+
+  /* Reset the force vectors */
+  universe->particle[part_id].frc.x = 0.0;
+  universe->particle[part_id].frc.y = 0.0;
+  universe->particle[part_id].frc.z = 0.0;
+
   /* If we use numerical solving */
   if (universe->force_computation_mode == MODE_NUMERICAL)
   {
-    err_flag = 0;
 
     /* Differentiate potential over x axis */
     h = ROOT_MACHINE_EPSILON * (universe->particle[part_id].pos.x);
@@ -78,19 +84,9 @@ universe_t *particle_update_frc(universe_t *universe, const uint64_t part_id)
       return (retstr(NULL, TEXT_POTENTIAL_TOTAL_FAILURE, __FILE__, __LINE__));
   }
 
-  /* If we use analytical solving */
-  else
-  {
-    /* Reset the force vectors */
-    universe->particle[part_id].frc.x = 0.0;
-    universe->particle[part_id].frc.y = 0.0;
-    universe->particle[part_id].frc.z = 0.0;
-
-    /* Compute and apply the force */
-    if (force_total(&(universe->particle[part_id].frc), universe, part_id) == NULL)
+  /* If we use analytical solving, compute and apply the force */
+  else if (force_total(&(universe->particle[part_id].frc), universe, part_id) == NULL)
       return (retstr(NULL, TEXT_POTENTIAL_TOTAL_FAILURE, __FILE__, __LINE__));
-
-  }
 
   return (universe);
 }
