@@ -189,12 +189,14 @@ universe_t *force_angle(vec3d_t *frc, universe_t *universe, const size_t p1, con
 
       /* Get the current angle */
       angle = acos(vec3d_dot(&to_current, &to_ligand)/(to_current_mag*to_ligand_mag));
+      if (angle > M_PI)
+        angle = -(2*M_PI-angle);
 
       /* Compute e_phi 
        * I'm trash at maths so here's a tumor involving a double cross product
        * Feel free to send hate mail at <thomas.murgia@univ-tlse3.fr>
        */
-      if (vec3d_cross(&e_phi, &to_ligand, &to_current) == NULL)
+      if (vec3d_cross(&e_phi, &to_current, &to_ligand) == NULL)
         return (retstr(NULL, TEXT_FORCE_ANGLE_FAILURE, __FILE__, __LINE__));
       if (vec3d_unit(&e_phi, &e_phi) == NULL)
         return (retstr(NULL, TEXT_FORCE_ANGLE_FAILURE, __FILE__, __LINE__));
@@ -204,7 +206,7 @@ universe_t *force_angle(vec3d_t *frc, universe_t *universe, const size_t p1, con
         return (retstr(NULL, TEXT_FORCE_ANGLE_FAILURE, __FILE__, __LINE__));
 
       /* Compute the force */
-      if (vec3d_mul(&temp, &e_phi, -(angle-angle_eq)) == NULL)
+      if (vec3d_mul(&temp, &e_phi, -1E-2*(angle-angle_eq)) == NULL)
         return (retstr(NULL, TEXT_FORCE_ANGLE_FAILURE, __FILE__, __LINE__));
 
       /* Sum it */
@@ -238,12 +240,10 @@ universe_t *force_total(vec3d_t *frc, universe_t *universe, const size_t part_id
         if (force_angle(&vec_angle, universe, part_id, i) == NULL)
           return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__));
 
-        printf("frc_angle=%lf\n", vec3d_mag(&vec_angle));
-
         /* Sum the forces */
         if (vec3d_add(frc, frc, &vec_bond) == NULL)
           return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__));
-        if (vec3d_add(frc, frc, &vec_angle) == NULL)
+       if (vec3d_add(frc, frc, &vec_angle) == NULL)
           return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__));
       }
 
