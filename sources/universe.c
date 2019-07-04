@@ -106,7 +106,7 @@ universe_t *universe_load(universe_t *universe)
   {
     temp = &(universe->particle[i]);
     if (sscanf(tok,
-               "%2s,%lf,%lf,%lf,%d,%d,%d,%d,%d,%d,%d,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
+               "%2s,%lf,%lf,%lf,%lf,%lf,%d,%d,%d,%d,%d,%d,%d,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
                temp->element,
                &(temp->mass),
                &(temp->charge),
