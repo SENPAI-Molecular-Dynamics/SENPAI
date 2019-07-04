@@ -73,9 +73,9 @@ universe_t *force_lennardjones(vec3d_t *frc, universe_t *universe, const size_t 
   double dst;
   vec3d_t vec;
 
-  /* Lennard-Jones parameters for helium */
-  sigma = 256E-12;
-  epsilon = 1.4110228E-22;
+  /* Compute the Lennard-Jones parameters (Duffy, E. M.; Severance, D. L.; Jorgensen, W. L.; Isr. J. Chem.1993, 33,  323) */
+  sigma = sqrt((universe->particle[p1].sigma)*(universe->particle[p2].sigma));
+  epsilon = sqrt((universe->particle[p1].epsilon)*(universe->particle[p2].epsilon)*POW2(C_BOLTZMANN));
 
   /* Get the difference vector */
   if (vec3d_sub(&vec, &(universe->particle[p1].pos), &(universe->particle[p2].pos)) == NULL)
@@ -89,10 +89,9 @@ universe_t *force_lennardjones(vec3d_t *frc, universe_t *universe, const size_t 
   if (vec3d_unit(&vec, &vec) == NULL)
     return (retstr(NULL, TEXT_FORCE_LENNARDJONES_FAILURE, __FILE__, __LINE__));
 
-  /* If the particle is not beyond the cutoff distance, compute the LJ force */
-  if (dst < LENNARDJONES_CUTOFF*sigma)
-    if (vec3d_mul(frc, &vec, -24*POW6(sigma)*epsilon*(POW6(dst)-2*POW6(sigma))/POW12(dst)) == NULL)
-      return (retstr(NULL, TEXT_FORCE_LENNARDJONES_FAILURE, __FILE__, __LINE__));
+  /* Compute the LJ force */
+  if (vec3d_mul(frc, &vec, -24*POW6(sigma)*epsilon*(POW6(dst)-2*POW6(sigma))/POW12(dst)) == NULL)
+    return (retstr(NULL, TEXT_FORCE_LENNARDJONES_FAILURE, __FILE__, __LINE__));
 
   return (universe);
 }
@@ -206,7 +205,7 @@ universe_t *force_angle(vec3d_t *frc, universe_t *universe, const size_t p1, con
         return (retstr(NULL, TEXT_FORCE_ANGLE_FAILURE, __FILE__, __LINE__));
 
       /* Compute the force */
-      if (vec3d_mul(&temp, &e_phi, -1E-2*(angle-angle_eq)) == NULL)
+      if (vec3d_mul(&temp, &e_phi, -5E-8*(angle-angle_eq)) == NULL)
         return (retstr(NULL, TEXT_FORCE_ANGLE_FAILURE, __FILE__, __LINE__));
 
       /* Sum it */

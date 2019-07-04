@@ -22,11 +22,13 @@ struct particle_s
   double mass;
   double charge;
   double angle;
+  double epsilon;
+  double sigma;
 
   particle_t *bond[7]; /* Points to the bonded particles  */
   int64_t bond_id[7]; /* IDs of the bonded particles */
   double bond_strength[7]; /* Strength of each bond (spring constant) */
-  double bond_length[7]; /* Length of the bond */
+  double bond_length[7]; /* Equilibrium length of the bond */
 
   vec3d_t pos;
   vec3d_t spd;

@@ -111,6 +111,8 @@ universe_t *universe_load(universe_t *universe)
                &(temp->mass),
                &(temp->charge),
                &(temp->angle),
+               &(temp->epsilon),
+               &(temp->sigma),
                &(bond_id[0]),
                &(bond_id[1]),
                &(bond_id[2]),
@@ -138,13 +140,15 @@ universe_t *universe_load(universe_t *universe)
       return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
     temp->mass *= 1.66053904020E-27; /* We convert the values from atomic mass units to kg */
     temp->charge *= 1.602176634E-19; /* Same with charge, from e to C */
-    if (vec3d_mul(&(temp->pos), &(temp->pos), 1E-12) == NULL) /* We convert the position vector from pm to m */
+    temp->sigma *= 1E-10; /* Scale from Angstroms to metres */
+
+    if (vec3d_mul(&(temp->pos), &(temp->pos), 1E-10) == NULL) /* We convert the position vector from angstroms to m */
       return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
 
     /* Set up the bonds */
     for (ii=0; ii<7; ++ii)
     {
-      temp->bond_length[ii] *= 1E-12; /* Scale from pm */
+      temp->bond_length[ii] *= 1E-10; /* Scale from angstrom */
       temp->bond_id[ii] = bond_id[ii];
 
       if (bond_id[ii] < 0)
@@ -178,7 +182,7 @@ universe_t *universe_populate(universe_t *universe)
       return (retstr(NULL, TEXT_UNIVERSE_POPULATE_FAILURE, __FILE__, __LINE__));
 
     /* Multiply the vector by a random value */
-    if (vec3d_mul(&pos_offset, &pos_offset, 0.5*(universe->size)*cos(rand())) == NULL)
+    if (vec3d_mul(&pos_offset, &pos_offset, (0.1*(universe->size)) + (0.8*(universe->size)*cos(rand()))) == NULL)
       return (retstr(NULL, TEXT_UNIVERSE_POPULATE_FAILURE, __FILE__, __LINE__));
     
     /* For every atom in the molecule */

@@ -35,6 +35,8 @@ particle_t *particle_init(particle_t *particle)
   particle->mass = 0.0;
   particle->charge = 0.0;
   particle->angle = 0.0;
+  particle->epsilon = 0.0;
+  particle->sigma = 0.0;
   return (particle);
 }
 
