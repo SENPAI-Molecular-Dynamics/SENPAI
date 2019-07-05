@@ -9,7 +9,7 @@
 
 #include "model.h"
 
-char const *model_symbol(uint64_t atom)
+char const *model_symbol(uint8_t atom)
 {
   switch (atom)
   {
@@ -33,7 +33,7 @@ char const *model_symbol(uint64_t atom)
   }
 }
 
-double model_mass(uint64_t atom)
+double model_mass(uint8_t atom)
 {
   switch (atom)
   {
@@ -57,7 +57,7 @@ double model_mass(uint64_t atom)
   }
 }
 
-double model_covalent_radius(uint64_t atom)
+double model_covalent_radius(uint8_t atom)
 {
   switch (atom)
   {
@@ -81,7 +81,30 @@ double model_covalent_radius(uint64_t atom)
   }
 }
 
-double model_bond_angle(uint64_t atom)
+double model_vdw_radius(uint8_t atom)
+{
+  switch (atom)
+  {
+    case ATOM_H:    return (120E-12); break;
+    case ATOM_HE:   return (140E-12); break;
+    case ATOM_LI:   return (182E-12); break;
+    case ATOM_BE:   return (153E-12); break;
+    case ATOM_BSP3: return (192E-12); break;
+    case ATOM_BSP2: return (192E-12); break;
+    case ATOM_CSP3: return (170E-12); break;
+    case ATOM_CSP2: return (170E-12); break;
+    case ATOM_CSP:  return (170E-12); break;
+    case ATOM_NSP3: return (155E-12); break;
+    case ATOM_NSP2: return (155E-12); break;
+    case ATOM_OSP3: return (152E-12); break;
+    case ATOM_OSP2: return (152E-12); break;
+    case ATOM_F:    return (135E-12); break;
+    case ATOM_NE:   return (154E-12); break;
+    default:        return (0.0);    break;
+  }
+}
+
+double model_bond_angle(uint8_t atom)
 {
   switch (atom)
   {

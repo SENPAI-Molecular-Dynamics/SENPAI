@@ -343,18 +343,19 @@ double universe_energy(universe_t *universe, uint8_t *err_flag)
   size_t i;
   double vel;
   double kinetic;
-  double potential;
+  double pot;
+  double pot_total;
 
   *err_flag = 0;
   kinetic = 0.0;
-  potential = 0.0;
+  pot_total = 0.0;
 
   /* Get total potential energy */
   for (i=0; i<(universe->part_nb); ++i)
   {
-    potential += potential_total(universe, i, err_flag);
-    if (*err_flag)
+    if (potential_total(&pot, universe, i) == NULL)
       return (retstrf(0.0, TEXT_UNIVERSE_ENERGY_FAILURE, __FILE__, __LINE__));
+    pot_total += pot;
   }
 
   /* Get total kinetic energy */
@@ -365,5 +366,5 @@ double universe_energy(universe_t *universe, uint8_t *err_flag)
     kinetic += 0.5*POW2(vel)*model_mass(universe->particle[i].element);
   }
 
-  return (kinetic+potential);
+  return (kinetic+pot_total);
 }

@@ -28,9 +28,10 @@
 #define ATOM_F    15
 #define ATOM_NE   16
 
-extern char const *model_symbol(uint64_t atom);
-extern double      model_mass(uint64_t atom);
-extern double      model_covalent_radius(uint64_t atom);
-extern double      model_bond_angle(uint64_t atom);
+extern char const *model_symbol(uint8_t atom);
+extern double      model_mass(uint8_t atom);
+extern double      model_covalent_radius(uint8_t atom);
+extern double      model_vdw_radius(uint8_t atom);
+extern double      model_bond_angle(uint8_t atom);
 
 #endif

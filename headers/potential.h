@@ -12,11 +12,10 @@
 
 #include "universe.h"
 
-double potential_callback(universe_t *universe, const size_t part_id, uint8_t *err_flag);
-double potential_bond(universe_t *universe, const size_t part_id, uint8_t *err_flag);
-double potential_electrostatic(universe_t *universe, const size_t part_id, uint8_t *err_flag);
-double potential_lennardjones(universe_t *universe, const size_t part_id, uint8_t *err_flag);
-
-double potential_total(universe_t *universe, const size_t part_id, uint8_t *err_flag_local);
+universe_t *potential_bond(double *pot, universe_t *universe, const size_t p1, const size_t p2);
+universe_t *potential_electrostatic(double *pot, universe_t *universe, const size_t p1, const size_t p2);
+universe_t *potential_lennardjones(double *pot, universe_t *universe, const size_t p1, const size_t p2);
+universe_t *potential_angle(double *pot, universe_t *universe, const size_t p1, const size_t p2);
+universe_t *potential_total(double *pot, universe_t *universe, const size_t part_id);
 
 #endif
