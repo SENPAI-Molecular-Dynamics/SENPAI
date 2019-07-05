@@ -18,17 +18,14 @@
 typedef struct particle_s particle_t;
 struct particle_s
 {
-  char element[3]; /* The element in question */
-  double mass;
+  uint8_t element; /* The element in question */
   double charge;
-  double angle;
   double epsilon;
   double sigma;
 
   particle_t *bond[7]; /* Points to the bonded particles  */
   int64_t bond_id[7]; /* IDs of the bonded particles */
   double bond_strength[7]; /* Strength of each bond (spring constant) */
-  double bond_length[7]; /* Equilibrium length of the bond */
 
   vec3d_t pos;
   vec3d_t spd;

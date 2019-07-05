@@ -8,6 +8,7 @@
 #include <string.h>
 
 #include "force.h"
+#include "model.h"
 #include "potential.h"
 #include "universe.h"
 #include "util.h"
@@ -15,6 +16,11 @@
 
 particle_t *particle_init(particle_t *particle)
 {
+  particle->element = ATOM_NULL;
+  particle->charge = 0.0;
+  particle->epsilon = 0.0;
+  particle->sigma = 0.0;
+
   particle->pos.x = 0.0;
   particle->pos.y = 0.0;
   particle->pos.z = 0.0;
@@ -31,12 +37,6 @@ particle_t *particle_init(particle_t *particle)
   particle->frc.y = 0.0;
   particle->frc.z = 0.0;
 
-  strcpy(particle->element, "??");
-  particle->mass = 0.0;
-  particle->charge = 0.0;
-  particle->angle = 0.0;
-  particle->epsilon = 0.0;
-  particle->sigma = 0.0;
   return (particle);
 }
 
@@ -100,7 +100,7 @@ universe_t *particle_update_acc(universe_t *universe, const uint64_t part_id)
   particle_t *current;
 
   current = &(universe->particle[part_id]);
-  if (vec3d_div(&(current->acc), &(current->frc), current->mass) == NULL)
+  if (vec3d_div(&(current->acc), &(current->frc), model_mass(current->element)) == NULL)
     return (retstr(NULL, TEXT_PARTICLE_UPDATE_ACC_FAILURE, __FILE__, __LINE__));
 
   return (universe);

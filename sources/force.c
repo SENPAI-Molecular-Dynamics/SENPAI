@@ -8,14 +8,17 @@
 #include <math.h>
 #include <stdio.h>
 
-#include "util.h"
 #include "force.h"
+#include "model.h"
 #include "universe.h"
+#include "util.h"
 
 universe_t *force_bond(vec3d_t *frc, universe_t *universe, const size_t p1, const size_t p2)
 {
   int bond_id;
   double displacement;
+  double radius_p1;
+  double radius_p2;
   double dst;
   vec3d_t vec;
 
@@ -34,8 +37,12 @@ universe_t *force_bond(vec3d_t *frc, universe_t *universe, const size_t p1, cons
   /* Find the bond id */
   for (bond_id=0; universe->particle[p1].bond[bond_id] != &(universe->particle[p2]); ++bond_id);
 
+  /* Compute the displacement */
+  radius_p1 = model_covalent_radius(universe->particle[p1].element);
+  radius_p2 = model_covalent_radius(universe->particle[p2].element);
+  displacement = dst - (radius_p1 + radius_p2);
+
   /* Compute the force vector */
-  displacement = dst - (universe->particle[p1].bond_length[bond_id]);
   if (vec3d_mul(frc, &vec, -displacement*(universe->particle[p1].bond_strength[bond_id])) == NULL)
     return (retstr(NULL, TEXT_FORCE_BOND_FAILURE, __FILE__, __LINE__));
 
@@ -146,7 +153,7 @@ universe_t *force_angle(vec3d_t *frc, universe_t *universe, const size_t p1, con
   /* Those are just shortcuts, making the code easier to read */
   current = &(universe->particle[p1]);
   node = &(universe->particle[p2]);
-  angle_eq = node->angle;
+  angle_eq = model_bond_angle(node->element);
 
   /* Get the number of bonds on the node */
   bond_nb = 0;

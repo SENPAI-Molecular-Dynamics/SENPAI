@@ -8,11 +8,12 @@
 #include <stdint.h>
 #include <math.h>
 
+#include "model.h"
+#include "potential.h"
 #include "text.h"
+#include "universe.h"
 #include "util.h"
 #include "vec3d.h"
-#include "universe.h"
-#include "potential.h"
 
 /* Universe boundaries reaction */
 double potential_callback(universe_t *universe, const size_t part_id, uint8_t *err_flag)
@@ -37,6 +38,8 @@ double potential_bond(universe_t *universe, const size_t part_id, uint8_t *err_f
 {
   size_t i;
   double dst_mag;
+  double radius_p1;
+  double radius_p2;
   double displacement;
   double potential;
   vec3d_t dst;
@@ -49,7 +52,7 @@ double potential_bond(universe_t *universe, const size_t part_id, uint8_t *err_f
     if (universe->particle[part_id].bond[i] != NULL)
     {
       /* Get the position difference vector */
-      if (vec3d_sub(&dst, &(universe->particle[part_id].pos), &(universe->particle[i].pos)) == NULL)
+      if (vec3d_sub(&dst, &(universe->particle[part_id].pos), &(universe->particle[universe->particle[part_id].bond_id[i]].pos)) == NULL)
       {
         *err_flag = 1;
         return (retstrf(0.0, TEXT_POTENTIAL_BOND_FAILURE, __FILE__, __LINE__));
@@ -63,7 +66,9 @@ double potential_bond(universe_t *universe, const size_t part_id, uint8_t *err_f
       }
 
       /* Compute the bond potential U=kx^2 */
-      displacement = dst_mag - universe->particle[part_id].bond_length[i];
+      radius_p1 = model_covalent_radius(universe->particle[part_id].element);
+      radius_p2 = model_covalent_radius(universe->particle[universe->particle[part_id].bond_id[i]].element);
+      displacement = dst_mag - (radius_p1 + radius_p2);
       potential += (universe->particle[part_id].bond_strength[i])*displacement*displacement;
     }
   }

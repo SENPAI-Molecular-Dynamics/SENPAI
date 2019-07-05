@@ -11,6 +11,7 @@
 #include <math.h>
 
 #include "args.h"
+#include "model.h"
 #include "text.h"
 #include "vec3d.h"
 #include "util.h"
@@ -106,11 +107,9 @@ universe_t *universe_load(universe_t *universe)
   {
     temp = &(universe->particle[i]);
     if (sscanf(tok,
-               "%2s,%lf,%lf,%lf,%lf,%lf,%d,%d,%d,%d,%d,%d,%d,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
-               temp->element,
-               &(temp->mass),
+               "%hhu,%lf,%lf,%lf,%d,%d,%d,%d,%d,%d,%d,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
+               &(temp->element),
                &(temp->charge),
-               &(temp->angle),
                &(temp->epsilon),
                &(temp->sigma),
                &(bond_id[0]),
@@ -127,18 +126,10 @@ universe_t *universe_load(universe_t *universe)
                &(temp->bond_strength[4]),
                &(temp->bond_strength[5]),
                &(temp->bond_strength[6]),
-               &(temp->bond_length[0]),
-               &(temp->bond_length[1]),
-               &(temp->bond_length[2]),
-               &(temp->bond_length[3]),
-               &(temp->bond_length[4]),
-               &(temp->bond_length[5]),
-               &(temp->bond_length[6]),
                &(temp->pos.x),
                &(temp->pos.y),
                &(temp->pos.z)) < 0)
       return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
-    temp->mass *= 1.66053904020E-27; /* We convert the values from atomic mass units to kg */
     temp->charge *= 1.602176634E-19; /* Same with charge, from e to C */
     temp->sigma *= 1E-10; /* Scale from Angstroms to metres */
 
@@ -148,7 +139,6 @@ universe_t *universe_load(universe_t *universe)
     /* Set up the bonds */
     for (ii=0; ii<7; ++ii)
     {
-      temp->bond_length[ii] *= 1E-10; /* Scale from angstrom */
       temp->bond_id[ii] = bond_id[ii];
 
       if (bond_id[ii] < 0)
@@ -224,7 +214,7 @@ universe_t *universe_setvelocity(universe_t *universe)
   /* Get the molecule's total mass */
   mass_mol = 0;
   for (i=0; i<(universe->mol_size); ++i)
-    mass_mol += universe->particle[i].mass;
+    mass_mol += model_mass(universe->particle[i].element);
 
   /* Get the molecule's velocity */
   velocity = sqrt(3*C_BOLTZMANN*(universe->temperature)/mass_mol);
@@ -340,7 +330,7 @@ universe_t *universe_printstate(universe_t *universe)
   {
     fprintf(universe->output_file_xyz,
             "%s\t%.15lf\t%.15lf\t%.15lf\n",
-            universe->particle[i].element,
+            model_symbol(universe->particle[i].element),
             universe->particle[i].pos.x*1E10,
             universe->particle[i].pos.y*1E10,
             universe->particle[i].pos.z*1E10);
@@ -372,7 +362,7 @@ double universe_energy(universe_t *universe, uint8_t *err_flag)
   {
     if ((vel = vec3d_mag(&(universe->particle[i].spd))) < 0.0)
       return (retstrf(0.0, TEXT_UNIVERSE_ENERGY_FAILURE, __FILE__, __LINE__));
-    kinetic += 0.5*(universe->particle[i].mass)*POW2(vel);
+    kinetic += 0.5*POW2(vel)*model_mass(universe->particle[i].element);
   }
 
   return (kinetic+potential);
