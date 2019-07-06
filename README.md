@@ -1,10 +1,32 @@
 # SENPAI - Simplified Evolutive N-body Processing and Analytics for Integration
 
-SENPAI is a molecular dynamics (MD) simulation software aimed at simulating organic systems. It handles electrostatic, Van der Waals, and covalent interactions.
+SENPAI is a molecular dynamics (MD) simulation software aimed at simulating organic systems. It handles  the following interractions:
 
-## Compilation
+- Covalence (as undamped Newtonian harmonic oscillators)
 
-Compilation is achieved using the provided makefile. No additional software is required.
+- Bond angles (by enforcing atomic orbital hybridisation via angular undamped Newtonian harmonic oscillators)
+
+- Electrostatics (treating atoms as point charges)
+
+- Van der Waals (by analytically differentiating the Lennard-Jones potential function)
+
+# Cool features
+
+- Unlimited portability: SENPAI does not require any library, and is 100% compliant with the C99 standard. **SENPAI could run on a Roomba**.
+
+- Efficient computing model: the **Optimized Numerical Integration / Classical Harmonics and N-body** (ONI/CHaN) model was tailored for SENPAI over months of work. Inspired by the AMBER family of force fields, it allows SENPAI to compute forces with unprecedented efficiency.
+
+- No potentials: Traditional MD simulators compute a particle's total potential and numerically differentiate it to compute the applied force. SENPAI analytically solves for the force vector, resulting in an extreme speed-up.
+
+- Tunable thermodynamics: Efficiently write scripts to run simulations with various thermodynamical settings and analyse the impact of the system's surroundings on its evolution.
+
+- Render as `.xyz`: Keep it simple. Simulations are rendered using the `.xyz` format, and can be directly visualized with software like VMD.
+
+## Installation
+
+On UNIX systems, compilation is achieved using the provided makefile. No additional software is required.
+
+` git clone https://github.com/Garuda1/senpai && cd senpai && make`
 
 ## Usage
 
@@ -32,16 +54,28 @@ Options:
 
 ## Example use
 
-`./senpai.bin --in examples/benzene.nh4 --out render.xyz --time 1000 --dt 2 --mol 512`
+`./senpai.bin --in examples/urea.nh4 --out render.xyz --time 1000 --dt 0.5 --mol 512`
 
-This will tell SENPAI to simulate 512 benzene molecules at STP for one nanosecond using a two femtosecond timestep. The rendered simulation will be saved in `render.xyz` for further analysis.
+This will tell SENPAI to simulate 512 benzene molecules at STP for one nanosecond using a half femtosecond timestep. The rendered simulation will be saved in `render.xyz` for further analysis.
 
-## Introduction
+## Questions and Answers
 
-SENPAI will simulate its provided system in a classical way. Particles are charged point-masses, covalent bonds are springs, and Van der Waals interactions are approximated with the Lennard-Jones potential.
+Q: Tell me about you!
 
-The simulation's initial state is read from a `.nh4` file. It is a format similar to `.xyz`, but with extra bond information.
+A: Thomas Murgia, 18y old when the first commit got on GitHub, 19y old at the time of writing this. I'm a second year undergraduate student of chemistry at the Université Toulouse 3 in France.
 
-The simulation, after being rendered, can be visualised using existing software like VMD or JMOL.
+-----
+
+Q: I WANT YOU IN MY LAB
+
+A: e-mail me at <thomas.murgia@univ-tlse3.fr> (academic email). I'm open to any offers :)
+
+-----
+
+Q: Why are you doing this? Go out, the sun's out
+
+A:   T h e   s u n   c a n ' t   s i m u l a t e   d e e p   e u t e c t i c   s o l v e n t s
+
+# Documentation currently unavailable, as things are constantly suspect to drastic changes
 
 ## SENPAI file format 
