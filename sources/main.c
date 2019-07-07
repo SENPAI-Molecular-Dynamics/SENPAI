@@ -17,9 +17,10 @@
 
 int main(int argc, char **argv)
 {
-  universe_t universe;
-  args_t args;
+  size_t i;
   void *exit_state;
+  args_t args;
+  universe_t universe;
 
   srand((unsigned int)time(NULL));
 
@@ -33,6 +34,12 @@ int main(int argc, char **argv)
 
   /* Initialise the universe with the arguments */
   if (universe_init(&universe, &args) == NULL)
+    return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));
+
+  /* Run some Monte Carlo to reduce the system's potential */
+  printf(TEXT_MONTECARLO, args.montecarlo);
+  for (i=0; i<(args.montecarlo); ++i)
+    if (universe_montecarlo(&universe) == NULL)
     return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));
 
   /* Let's roll */

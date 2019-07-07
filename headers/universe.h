@@ -71,5 +71,6 @@ universe_t *universe_iterate(universe_t *universe, const args_t *args);
 universe_t *universe_init(universe_t *universe, const args_t *args);
 void        universe_clean(universe_t *universe);
 double      universe_energy(universe_t *universe, uint8_t *err_flag);
+universe_t *universe_montecarlo(universe_t *universe);
 
 #endif

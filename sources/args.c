@@ -27,6 +27,7 @@ args_t *args_init(args_t *args)
   args->molecules = ARGS_MOLECULES_DEFAULT;
   args->pressure = ARGS_PRESSURE_DEFAULT;
   args->frameskip = ARGS_FRAMESKIP_DEFAULT;
+  args->montecarlo = ARGS_MONTECARLO_DEFAULT;
   return (args);
 }
 
@@ -54,6 +55,8 @@ args_t *args_parse(args_t *args, int argc, char **argv)
       args->pressure = atof(argv[++i])*1E2; /* Scale from mbar */
     else if (!strcmp(argv[i], FLAG_FRAMESKIP) && (i+1)<argc)
       args->frameskip = strtoul(argv[++i], NULL, 10);
+    else if (!strcmp(argv[i], FLAG_MONTECARLO) && (i+1)<argc)
+      args->montecarlo = strtoul(argv[++i], NULL, 10);
   }
 
   if (args->path == NULL ||

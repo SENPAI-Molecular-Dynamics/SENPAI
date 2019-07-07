@@ -25,6 +25,7 @@
 #define TEXT_FAILURE                      "[" COLOUR_RED "FAILURE" COLOUR_RESET "] "
 #define TEXT_SIMSTART                     "Simulation started"
 #define TEXT_SIMEND                       "Simulation ended"
+#define TEXT_MONTECARLO                   "Running %ld Monte Carlo potential reduction cycles\n"
 
 /* args.c */
 #define TEXT_ARGS_INIT_FAILURE            TEXT_FAILURE "args_init: Argument initialisation failed"
@@ -61,6 +62,7 @@
 #define TEXT_UNIVERSE_SIMULATE_FAILURE    TEXT_FAILURE "universe_simulate: Simulation failed"
 #define TEXT_UNIVERSE_ITERATE_FAILURE     TEXT_FAILURE "universe_iterate: Iteration failed"
 #define TEXT_UNIVERSE_ENERGY_FAILURE      TEXT_FAILURE "universe_energy: Failed to compute system energy"
+#define TEXT_UNIVERSE_MONTECARLO_FAILURE  TEXT_FAILURE "universe_montecarlo: Failed to minimise potential energy"
 
 /* vec3d.c */
 #define TEXT_VEC3D_ADD_FAILURE            TEXT_FAILURE "vec3d_add: Failed to perform vector addition"

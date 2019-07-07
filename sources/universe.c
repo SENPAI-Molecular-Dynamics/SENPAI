@@ -382,3 +382,39 @@ double universe_energy(universe_t *universe, uint8_t *err_flag)
 
   return (kinetic+pot_total);
 }
+
+universe_t *universe_montecarlo(universe_t *universe)
+{
+  size_t i;
+  double pot;
+  double pot_old;
+  double pot_total;
+
+  /* Get the system's total potential energy */
+  pot_old = 0.0;
+  for (i=0; i<(universe->part_nb); ++i)
+  {
+    if (potential_total(&pot, universe, i) == NULL)
+      return (retstr(NULL, TEXT_UNIVERSE_MONTECARLO_FAILURE, __FILE__, __LINE__));
+    pot_old += pot;
+  }
+
+  pot_total = 0.0;
+  do
+  {
+    /* Perform random transformation */
+    /* ... */
+
+    /* Get the system's total potential energy */
+    pot_total = 0.0;
+    for (i=0; i<(universe->part_nb); ++i)
+    {
+      if (potential_total(&pot, universe, i) == NULL)
+        return (retstr(NULL, TEXT_UNIVERSE_MONTECARLO_FAILURE, __FILE__, __LINE__));
+      pot_total += pot;
+    }
+
+  } while (pot_total > pot_old);
+
+  return (universe);
+}

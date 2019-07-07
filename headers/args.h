@@ -23,6 +23,7 @@ struct args_s
   uint64_t part_nb;
   uint64_t molecules;
   uint64_t frameskip;
+  uint64_t montecarlo;
 };
 
 args_t *args_init(args_t *args);
