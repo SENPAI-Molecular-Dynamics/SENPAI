@@ -232,6 +232,12 @@ universe_t *force_angle(vec3d_t *frc, universe_t *universe, const size_t p1, con
 
 universe_t *force_total(vec3d_t *frc, universe_t *universe, const size_t part_id)
 {
+  int b_relocated;
+  double pos_mag;
+  double dst;
+  vec3d_t vec;
+  vec3d_t temp;
+
   size_t i;
   vec3d_t vec_bond;
   vec3d_t vec_electrostatic;
@@ -247,10 +253,43 @@ universe_t *force_total(vec3d_t *frc, universe_t *universe, const size_t part_id
       /* Bonded interractions */
       if (particle_is_bonded(&(universe->particle[part_id]), &(universe->particle[i])))
       {
+        /* Get the distance between the two particles */
+        if (vec3d_sub(&vec, &(universe->particle[i].pos), &(universe->particle[part_id].pos)) == NULL)
+          return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__));
+        if ((dst = vec3d_mag(&vec)) < 0.0)
+          return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__));
+
+        /* Relocate the particle outside of the universe during the computation */
+        b_relocated = 0;
+        if (dst > 0.5*(universe->size))
+        {
+          b_relocated = 1;
+
+          if ((pos_mag = vec3d_mag(&(universe->particle[part_id].pos))) < 0.0)
+            return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__));
+
+          if (vec3d_mul(&temp, &(universe->particle[part_id].pos), -2*(universe->size)/pos_mag) == NULL)
+            return (retstr(NULL, TEXT_PARTICLE_UPDATE_POS_FAILURE, __FILE__, __LINE__));
+
+          if (vec3d_add(&(universe->particle[part_id].pos), &(universe->particle[part_id].pos), &temp) == NULL)
+            return (retstr(NULL, TEXT_PARTICLE_UPDATE_POS_FAILURE, __FILE__, __LINE__));
+        }
+
+        /* Compute the forces */
         if (force_bond(&vec_bond, universe, part_id, i) == NULL)
           return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__));
         if (force_angle(&vec_angle, universe, part_id, i) == NULL)
           return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__));
+
+        /* Revert the temporary particle relocation */
+        if (b_relocated)
+        {
+          if (vec3d_mul(&temp, &(universe->particle[part_id].pos), -2*(universe->size)/pos_mag) == NULL)
+            return (retstr(NULL, TEXT_PARTICLE_UPDATE_POS_FAILURE, __FILE__, __LINE__));
+
+          if (vec3d_add(&(universe->particle[part_id].pos), &(universe->particle[part_id].pos), &temp) == NULL)
+            return (retstr(NULL, TEXT_PARTICLE_UPDATE_POS_FAILURE, __FILE__, __LINE__));
+        }
 
         /* Sum the forces */
         if (vec3d_add(frc, frc, &vec_bond) == NULL)
@@ -262,6 +301,7 @@ universe_t *force_total(vec3d_t *frc, universe_t *universe, const size_t part_id
       /* Non-bonded interractions */
       else
       {
+        /* Compute the forces */
         if (force_electrostatic(&vec_electrostatic, universe, part_id, i) == NULL)
           return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__));
         if (force_lennardjones(&vec_lennardjones, universe, part_id, i) == NULL)

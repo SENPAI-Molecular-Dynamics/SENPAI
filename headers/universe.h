@@ -19,6 +19,8 @@ typedef struct particle_s particle_t;
 struct particle_s
 {
   uint8_t element; /* The element in question */
+  uint8_t bond_nb;
+
   double charge;
   double epsilon;
   double sigma;

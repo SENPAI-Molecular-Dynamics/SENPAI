@@ -130,11 +130,15 @@ universe_t *universe_load(universe_t *universe)
                &(temp->pos.y),
                &(temp->pos.z)) < 0)
       return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
-    temp->charge *= 1.602176634E-19; /* Same with charge, from e to C */
-    temp->sigma *= 1E-10; /* Scale from Angstroms to metres */
 
-    if (vec3d_mul(&(temp->pos), &(temp->pos), 1E-10) == NULL) /* We convert the position vector from angstroms to m */
-      return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
+    /* Scale from elementary charges to Coulombs */
+    temp->charge *= 1.602176634E-19;
+
+    /* Scale from Angstroms to metres */
+    temp->sigma *= 1E-10;
+    temp->pos.x *= 1E-10;
+    temp->pos.y *= 1E-10;
+    temp->pos.z *= 1E-10;
 
     /* Set up the bonds */
     for (ii=0; ii<7; ++ii)

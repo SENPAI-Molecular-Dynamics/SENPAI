@@ -17,6 +17,8 @@
 particle_t *particle_init(particle_t *particle)
 {
   particle->element = ATOM_NULL;
+  particle->bond_nb = 0;
+
   particle->charge = 0.0;
   particle->epsilon = 0.0;
   particle->sigma = 0.0;

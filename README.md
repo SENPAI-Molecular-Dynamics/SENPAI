@@ -60,22 +60,51 @@ This will tell SENPAI to simulate 512 benzene molecules at STP for one nanosecon
 
 ## Questions and Answers
 
-Q: Tell me about you!
+Q: Why are you doing this? Go out, the sun's out.
 
-A: Thomas Murgia, 18y old when the first commit got on GitHub, 19y old at the time of writing this. I'm a second year undergraduate student of chemistry at the UniversitÃ© Toulouse 3 in France.
-
------
-
-Q: I WANT YOU IN MY LAB
-
-A: e-mail me at <thomas.murgia@univ-tlse3.fr> (academic email). I'm open to any offers :)
+A: The sun can't simulate deep eutectic solvents.
 
 -----
 
-Q: Why are you doing this? Go out, the sun's out
+Q: Who are you?
 
-A:   T h e   s u n   c a n ' t   s i m u l a t e   d e e p   e u t e c t i c   s o l v e n t s
+A: Thomas Murgia, 19y old at the time of writing this. I'm a second year undergraduate student of chemistry at the Université Toulouse 3 in France.
+
+I plan to keep going with projects like those and hopefully get involved in purely academic and fundamental research in chemistry until the end of my days.
+
+-----
+
+Q: Are you looking for grad programs? Or even internships?
+
+A: Definitely. E-mail me at <thomas.murgia@univ-tlse3.fr> (academic email). I'm open to all offers :)
+
+## SENPAI file format (NH4)
+
+SENPAI uses its own file format, `.nh4`, named after SENPAI's predescesor, *Ammonium*. A `.nh4` file is structured the following way:
+
+    OFFSET  SIZE    TYPE       DESCRIPTION
+    0x00    4       Text       Must be "nh4\0" in ASCII (0x6E 0x68 0x34 0x00)
+    0x04    8       uint64_t   Number of atoms in the system
+	0x0C	??      ??         Atom data
+
+Atom data is encoded in the following way, for each atom:
+
+    OFFSET  SIZE    TYPE       DESCRIPTION
+    0x00    1       uint8_t    Atom type (Full list in headers/model.h)
+    0x01    8       double     Electrostatic charge (in elementary charges)
+    0x09    8       double     Lennard-Jones epsilon (kJ/Kb)
+    0x11    8       double     Lennard-Jones sigma (A)
+    0x19    8       double     Coordinate along the x axis (A)
+    0x21    8       double     Coordinate along the y axis (A)
+    0x29    8       double     Coordinate along the z axis (A)
+    0x31    1       uint8_t    Number of covalent bonds
+    0x32    ??      ??         Bond data
+
+Bond data for each atom is structure the following way:
+
+    OFFSET  SIZE    TYPE       DESCRIPTION
+    0x00    8       uint64_t   ID of the atom the current atom is bonded to
+    0x08    8       double     Bond force constant (N/m or kg.s-2)
+    
 
 # Documentation currently unavailable, as things are constantly suspect to drastic changes
-
-## SENPAI file format 
