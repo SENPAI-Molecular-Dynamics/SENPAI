@@ -34,9 +34,6 @@ universe_t *universe_init(universe_t *universe, const args_t *args)
   universe->mol_nb = args->molecules;
   universe->force_computation_mode = args->numerical;
 
-  /* Initialize the universe size */
-  universe->size = cbrt(0.75*C_BOLTZMANN*(universe->mol_nb)*(universe->temperature)/((args->pressure)*M_PI));
-
   /* Open the input file */
   if ((input_file = fopen(args->path, "r")) == NULL)
     return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
@@ -77,6 +74,9 @@ universe_t *universe_init(universe_t *universe, const args_t *args)
   /* Load the initial state from the input file */
   if (universe_load(universe) == NULL)
     return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
+
+  /* Initialize the universe size */
+  universe->size = cbrt(C_BOLTZMANN*(universe->part_nb)*(universe->temperature)/(args->pressure));
   
   /* Populate the universe with extra molecules */
   if (universe_populate(universe) == NULL)
@@ -172,7 +172,10 @@ universe_t *universe_populate(universe_t *universe)
     id_offset = (universe->mol_size)*i;
 
     /* Generate a random unit vector */
-    if (vec3d_marsaglia(&pos_offset) == NULL)
+    pos_offset.x = -0.3*(universe->size) + fmod(rand(), 0.6*(universe->size));
+    pos_offset.y = -0.3*(universe->size) + fmod(rand(), 0.6*(universe->size));
+    pos_offset.z = -0.3*(universe->size) + fmod(rand(), 0.6*(universe->size));
+    if (vec3d_unit(&pos_offset, &pos_offset) == NULL)
       return (retstr(NULL, TEXT_UNIVERSE_POPULATE_FAILURE, __FILE__, __LINE__));
 
     /* Multiply the vector by a random value */
@@ -255,6 +258,11 @@ universe_t *universe_iterate(universe_t *universe, const args_t *args)
     if (particle_update_pos(universe, args, i) == NULL)
       return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
 
+  /* We enforce the periodic boundary conditions */
+  for (i=0; i<(universe->part_nb); ++i)
+    if (particle_enforce_pbc(universe, i) == NULL)
+      return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+
   /* Update the force vectors */
   for (i=0; i<(universe->part_nb); ++i)
     if (particle_update_frc(universe, i) == NULL)
@@ -312,7 +320,7 @@ universe_t *universe_simulate(universe_t *universe, const args_t *args)
     else
       --frame_nb;
 
-    /* And we iterate */
+    /* Iterate */
     if (universe_iterate(universe, args) == NULL)
       return (retstr(NULL, TEXT_UNIVERSE_SIMULATE_FAILURE, __FILE__, __LINE__));
 

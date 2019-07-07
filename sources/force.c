@@ -195,6 +195,20 @@ universe_t *force_angle(vec3d_t *frc, universe_t *universe, const size_t p1, con
       if (vec3d_sub(&to_ligand, &(ligand->pos), &(node->pos)) == NULL)
         return (retstr(NULL, TEXT_FORCE_ANGLE_FAILURE, __FILE__, __LINE__));
 
+      /* Deal with periodic boundary conditions */
+      if (to_ligand.x > 0.5*(universe->size))
+        to_ligand.x -= universe->size;
+      else if (to_ligand.x <= 0.5*(universe->size))
+        to_ligand.x += universe->size;
+      if (to_ligand.y > 0.5*(universe->size))
+        to_ligand.y -= universe->size;
+      else if (to_ligand.y <= 0.5*(universe->size))
+        to_ligand.y += universe->size;
+      if (to_ligand.z > 0.5*(universe->size))
+        to_ligand.z -= universe->size;
+      else if (to_ligand.z <= 0.5*(universe->size))
+        to_ligand.z += universe->size;
+
       /* Get its magnitude */
       if ((to_ligand_mag = vec3d_mag(&to_ligand)) < 0.0)
         return (retstr(NULL, TEXT_FORCE_ANGLE_FAILURE, __FILE__, __LINE__));
@@ -232,13 +246,9 @@ universe_t *force_angle(vec3d_t *frc, universe_t *universe, const size_t p1, con
 
 universe_t *force_total(vec3d_t *frc, universe_t *universe, const size_t part_id)
 {
-  int b_relocated;
-  double pos_mag;
-  double dst;
-  vec3d_t vec;
-  vec3d_t temp;
-
   size_t i;
+  vec3d_t pos_backup;
+  vec3d_t vec;
   vec3d_t vec_bond;
   vec3d_t vec_electrostatic;
   vec3d_t vec_lennardjones;
@@ -250,51 +260,41 @@ universe_t *force_total(vec3d_t *frc, universe_t *universe, const size_t part_id
     /* That isn't the same as the current one */
     if (i != part_id)
     {
+      /* Deal with periodic boundary conditions */
+      /* Backup the particle's coordinates */
+      pos_backup = universe->particle[i].pos;
+
+      /* Get the difference vector */
+      if (vec3d_sub(&vec, &(universe->particle[part_id].pos), &(universe->particle[i].pos)) == NULL)
+        return (retstr(NULL, TEXT_FORCE_BOND_FAILURE, __FILE__, __LINE__));
+
+      /* Temporarily undo the PBC enforcement */
+      if (vec.x > 0.5*(universe->size))
+        universe->particle[i].pos.x -= universe->size;
+      else if (vec.x <= 0.5*(universe->size))
+        universe->particle[i].pos.x += universe->size;
+      if (vec.y > 0.5*(universe->size))
+        universe->particle[i].pos.y -= universe->size;
+      else if (vec.y <= 0.5*(universe->size))
+        universe->particle[i].pos.y += universe->size;
+      if (vec.z > 0.5*(universe->size))
+        universe->particle[i].pos.z -= universe->size;
+      else if (vec.z <= 0.5*(universe->size))
+        universe->particle[i].pos.z += universe->size;
+
       /* Bonded interractions */
       if (particle_is_bonded(&(universe->particle[part_id]), &(universe->particle[i])))
       {
-        /* Get the distance between the two particles */
-        if (vec3d_sub(&vec, &(universe->particle[i].pos), &(universe->particle[part_id].pos)) == NULL)
-          return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__));
-        if ((dst = vec3d_mag(&vec)) < 0.0)
-          return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__));
-
-        /* Relocate the particle outside of the universe during the computation */
-        b_relocated = 0;
-        if (dst > 0.5*(universe->size))
-        {
-          b_relocated = 1;
-
-          if ((pos_mag = vec3d_mag(&(universe->particle[part_id].pos))) < 0.0)
-            return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__));
-
-          if (vec3d_mul(&temp, &(universe->particle[part_id].pos), -2*(universe->size)/pos_mag) == NULL)
-            return (retstr(NULL, TEXT_PARTICLE_UPDATE_POS_FAILURE, __FILE__, __LINE__));
-
-          if (vec3d_add(&(universe->particle[part_id].pos), &(universe->particle[part_id].pos), &temp) == NULL)
-            return (retstr(NULL, TEXT_PARTICLE_UPDATE_POS_FAILURE, __FILE__, __LINE__));
-        }
-
         /* Compute the forces */
         if (force_bond(&vec_bond, universe, part_id, i) == NULL)
           return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__));
         if (force_angle(&vec_angle, universe, part_id, i) == NULL)
           return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__));
 
-        /* Revert the temporary particle relocation */
-        if (b_relocated)
-        {
-          if (vec3d_mul(&temp, &(universe->particle[part_id].pos), -2*(universe->size)/pos_mag) == NULL)
-            return (retstr(NULL, TEXT_PARTICLE_UPDATE_POS_FAILURE, __FILE__, __LINE__));
-
-          if (vec3d_add(&(universe->particle[part_id].pos), &(universe->particle[part_id].pos), &temp) == NULL)
-            return (retstr(NULL, TEXT_PARTICLE_UPDATE_POS_FAILURE, __FILE__, __LINE__));
-        }
-
         /* Sum the forces */
         if (vec3d_add(frc, frc, &vec_bond) == NULL)
           return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__));
-       if (vec3d_add(frc, frc, &vec_angle) == NULL)
+        if (vec3d_add(frc, frc, &vec_angle) == NULL)
           return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__));
       }
 
@@ -313,6 +313,9 @@ universe_t *force_total(vec3d_t *frc, universe_t *universe, const size_t part_id
         if (vec3d_add(frc, frc, &vec_lennardjones) == NULL)
           return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__));
       }
+
+      /* Restore the backup coordinates */
+      universe->particle[i].pos = pos_backup;
     }
   }
 

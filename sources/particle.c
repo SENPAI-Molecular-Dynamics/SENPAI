@@ -166,16 +166,29 @@ universe_t *particle_update_pos(universe_t *universe, const args_t *args, const 
   if ((dst = vec3d_mag(&(current->pos))) < 0.0)
     return (retstr(NULL, TEXT_PARTICLE_UPDATE_POS_FAILURE, __FILE__, __LINE__));
 
-  /* Particle relocation */
-  /* Should the particle leave the universe, it loops back to the other side */
-  if (dst > (universe->size))
-  {
-    if (vec3d_mul(&temp, &(current->pos), -2*(universe->size)/dst) == NULL)
-      return (retstr(NULL, TEXT_PARTICLE_UPDATE_POS_FAILURE, __FILE__, __LINE__));
+  return (universe);
+}
 
-    if (vec3d_add(&(current->pos), &(current->pos), &temp) == NULL)
-      return (retstr(NULL, TEXT_PARTICLE_UPDATE_POS_FAILURE, __FILE__, __LINE__));
-  }
+universe_t *particle_enforce_pbc(universe_t *universe, const uint64_t part_id)
+{
+  particle_t *p;
+  
+  p = &(universe->particle[part_id]);
+
+  if (p->pos.x >= 0.5*(universe->size))
+    p->pos.x -= universe->size;
+  else if (p->pos.x < -0.5*(universe->size))
+    p->pos.x += universe->size;
+
+  if (p->pos.y >= 0.5*(universe->size))
+    p->pos.y -= universe->size;
+  else if (p->pos.y < -0.5*(universe->size))
+    p->pos.y += universe->size;
+
+  if (p->pos.z >= 0.5*(universe->size))
+    p->pos.z -= universe->size;
+  else if (p->pos.z < -0.5*(universe->size))
+    p->pos.z += universe->size;
 
   return (universe);
 }

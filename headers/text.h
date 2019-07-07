@@ -47,12 +47,11 @@
 #define TEXT_PARTICLE_UPDATE_POS_FAILURE  TEXT_FAILURE "particle_update_pos: Failed to update a particle's position"
 
 /* potential.c */
-#define TEXT_POTENTIAL_CALLBACK_FAILURE   TEXT_FAILURE "potential_callback: Failed to compute callback potential"
-#define TEXT_POTENTIAL_BOND_FAILURE       TEXT_FAILURE "potential_bond: Failed to compute bond potential"
-#define TEXT_POTENTIAL_ELEC_FAILURE       TEXT_FAILURE "potential_electrostatic: Failed to compute electrostatic potential"
-#define TEXT_POTENTIAL_LJ_FAILURE         TEXT_FAILURE "potential_lennardjones: Failed to compute Lennard-Jones potential"
-#define TEXT_POTENTIAL_TORSION_FAILURE    TEXT_FAILURE "potential_torsion: Failed to compute bond torsion potential"
-#define TEXT_POTENTIAL_TOTAL_FAILURE      TEXT_FAILURE "potential_total: Failed to compute total potential energy"
+#define TEXT_POTENTIAL_BOND_FAILURE           TEXT_FAILURE "potential_bond: Failed to compute bond potential"
+#define TEXT_POTENTIAL_ELECTROSTATIC_FAILURE  TEXT_FAILURE "potential_electrostatic: Failed to compute electrostatic potential"
+#define TEXT_POTENTIAL_LENNARDJONES_FAILURE   TEXT_FAILURE "potential_lennardjones: Failed to compute Lennard-Jones potential"
+#define TEXT_POTENTIAL_ANGLE_FAILURE          TEXT_FAILURE "potential_angle: Failed to compute bond angle potential"
+#define TEXT_POTENTIAL_TOTAL_FAILURE          TEXT_FAILURE "potential_total: Failed to compute total potential energy"
 
 /* universe.c */
 #define TEXT_UNIVERSE_INIT_FAILURE        TEXT_FAILURE "universe_init: Failed to initialize the universe"

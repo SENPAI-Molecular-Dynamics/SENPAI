@@ -10,6 +10,8 @@ SENPAI is a molecular dynamics (MD) simulation software aimed at simulating orga
 
 - Van der Waals (by analytically differentiating the Lennard-Jones potential function)
 
+The simulation is rendered in a cubic universe of constant size, enforcing periodic boundary conditions via coordinate restriction.
+
 # Cool features
 
 - Unlimited portability: SENPAI does not require any library, and is 100% compliant with the C99 standard. **SENPAI could run on a Roomba**.
@@ -58,26 +60,6 @@ Options:
 
 This will tell SENPAI to simulate 512 benzene molecules at STP for one nanosecond using a half femtosecond timestep. The rendered simulation will be saved in `render.xyz` for further analysis.
 
-## Questions and Answers
-
-Q: Why are you doing this? Go out, the sun's out.
-
-A: The sun can't simulate deep eutectic solvents.
-
------
-
-Q: Who are you?
-
-A: Thomas Murgia, 19y old at the time of writing this. I'm a second year undergraduate student of chemistry at the Université Toulouse 3 in France.
-
-I plan to keep going with projects like those and hopefully get involved in purely academic and fundamental research in chemistry until the end of my days.
-
------
-
-Q: Are you looking for grad programs? Or even internships?
-
-A: Definitely. E-mail me at <thomas.murgia@univ-tlse3.fr> (academic email). I'm open to all offers :)
-
 ## SENPAI file format (NH4)
 
 SENPAI uses its own file format, `.nh4`, named after SENPAI's predescesor, *Ammonium*. A `.nh4` file is structured the following way:
@@ -105,6 +87,26 @@ Bond data for each atom is structure the following way:
     OFFSET  SIZE    TYPE       DESCRIPTION
     0x00    8       uint64_t   ID of the atom the current atom is bonded to
     0x08    8       double     Bond force constant (N/m or kg.s-2)
+
+## Questions and Answers
+
+Q: Why are you doing this? Go out, the sun's out.
+
+A: The sun can't simulate deep eutectic solvents.
+
+-----
+
+Q: Who are you?
+
+A: Thomas Murgia, 19y old at the time of writing this. I'm a second year undergraduate student of chemistry at the Université Toulouse 3 in France.
+
+I plan to keep going with projects like those and hopefully get involved in purely academic and fundamental research in chemistry until the end of my days.
+
+-----
+
+Q: Are you looking for grad programs? Or even internships?
+
+A: Definitely. E-mail me at <thomas.murgia@univ-tlse3.fr> (academic email). I'm open to all offers :)
     
 
 # Documentation currently unavailable, as things are constantly suspect to drastic changes
