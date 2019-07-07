@@ -147,6 +147,7 @@ universe_t *force_angle(vec3d_t *frc, universe_t *universe, const size_t p1, con
   vec3d_t to_ligand;
   vec3d_t e_phi;
   vec3d_t temp;
+  vec3d_t pos_backup;
   particle_t *current;
   particle_t *ligand;
   particle_t *node;
@@ -195,19 +196,8 @@ universe_t *force_angle(vec3d_t *frc, universe_t *universe, const size_t p1, con
       if (vec3d_sub(&to_ligand, &(ligand->pos), &(node->pos)) == NULL)
         return (retstr(NULL, TEXT_FORCE_ANGLE_FAILURE, __FILE__, __LINE__));
 
-      /* Deal with periodic boundary conditions */
-      if (to_ligand.x > 0.5*(universe->size))
-        to_ligand.x -= universe->size;
-      else if (to_ligand.x <= 0.5*(universe->size))
-        to_ligand.x += universe->size;
-      if (to_ligand.y > 0.5*(universe->size))
-        to_ligand.y -= universe->size;
-      else if (to_ligand.y <= 0.5*(universe->size))
-        to_ligand.y += universe->size;
-      if (to_ligand.z > 0.5*(universe->size))
-        to_ligand.z -= universe->size;
-      else if (to_ligand.z <= 0.5*(universe->size))
-        to_ligand.z += universe->size;
+      /* Temporarily undo the PBC enforcement */
+      pos_backup = ligand->pos;
 
       /* Get its magnitude */
       if ((to_ligand_mag = vec3d_mag(&to_ligand)) < 0.0)
@@ -238,6 +228,8 @@ universe_t *force_angle(vec3d_t *frc, universe_t *universe, const size_t p1, con
       /* Sum it */
       if (vec3d_add(frc, frc, &temp) == NULL)
         return (retstr(NULL, TEXT_FORCE_ANGLE_FAILURE, __FILE__, __LINE__));
+
+      ligand->pos = pos_backup;
     }
   }
 
@@ -247,8 +239,8 @@ universe_t *force_angle(vec3d_t *frc, universe_t *universe, const size_t p1, con
 universe_t *force_total(vec3d_t *frc, universe_t *universe, const size_t part_id)
 {
   size_t i;
+  vec3d_t to_target;
   vec3d_t pos_backup;
-  vec3d_t vec;
   vec3d_t vec_bond;
   vec3d_t vec_electrostatic;
   vec3d_t vec_lennardjones;
@@ -260,27 +252,30 @@ universe_t *force_total(vec3d_t *frc, universe_t *universe, const size_t part_id
     /* That isn't the same as the current one */
     if (i != part_id)
     {
-      /* Deal with periodic boundary conditions */
+      /* PERIODIC BOUNDARY CONDITIONS */
       /* Backup the particle's coordinates */
       pos_backup = universe->particle[i].pos;
 
-      /* Get the difference vector */
-      if (vec3d_sub(&vec, &(universe->particle[part_id].pos), &(universe->particle[i].pos)) == NULL)
-        return (retstr(NULL, TEXT_FORCE_BOND_FAILURE, __FILE__, __LINE__));
-
-      /* Temporarily undo the PBC enforcement */
-      if (vec.x > 0.5*(universe->size))
+      /* Get the vector going to the target particle */
+      if (vec3d_sub(&to_target, &(universe->particle[i].pos), &(universe->particle[part_id].pos)) == NULL)
+        return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__));
+      
+      /* Temporarily undo the PBC enforcement, if needed */
+      if (to_target.x > 0.5*(universe->size))
         universe->particle[i].pos.x -= universe->size;
-      else if (vec.x <= 0.5*(universe->size))
+      else if (to_target.x < -0.5*(universe->size))
         universe->particle[i].pos.x += universe->size;
-      if (vec.y > 0.5*(universe->size))
+
+      if (to_target.y > 0.5*(universe->size))
         universe->particle[i].pos.y -= universe->size;
-      else if (vec.y <= 0.5*(universe->size))
+      else if (to_target.y < -0.5*(universe->size))
         universe->particle[i].pos.y += universe->size;
-      if (vec.z > 0.5*(universe->size))
+
+      if (to_target.z > 0.5*(universe->size))
         universe->particle[i].pos.z -= universe->size;
-      else if (vec.z <= 0.5*(universe->size))
+      else if (to_target.z < -0.5*(universe->size))
         universe->particle[i].pos.z += universe->size;
+      /* PERIODIC BOUNDARY CONDITIONS */
 
       /* Bonded interractions */
       if (particle_is_bonded(&(universe->particle[part_id]), &(universe->particle[i])))

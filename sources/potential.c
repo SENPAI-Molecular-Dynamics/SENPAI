@@ -200,6 +200,8 @@ universe_t *potential_angle(double *pot, universe_t *universe, const size_t p1, 
 universe_t *potential_total(double *pot, universe_t *universe, const size_t part_id)
 {
   size_t i;
+  vec3d_t to_target;
+  vec3d_t pos_backup;
   double pot_bond;
   double pot_electrostatic;
   double pot_lennardjones;
@@ -214,6 +216,31 @@ universe_t *potential_total(double *pot, universe_t *universe, const size_t part
     /* That isn't the same as the current one */
     if (i != part_id)
     {
+      /* PERIODIC BOUNDARY CONDITIONS */
+      /* Backup the particle's coordinates */
+      pos_backup = universe->particle[i].pos;
+
+      /* Get the vector going to the target particle */
+      if (vec3d_sub(&to_target, &(universe->particle[i].pos), &(universe->particle[part_id].pos)) == NULL)
+        return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__));
+      
+      /* Temporarily undo the PBC enforcement, if needed */
+      if (to_target.x > 0.5*(universe->size))
+        universe->particle[i].pos.x -= universe->size;
+      else if (to_target.x < -0.5*(universe->size))
+        universe->particle[i].pos.x += universe->size;
+
+      if (to_target.y > 0.5*(universe->size))
+        universe->particle[i].pos.y -= universe->size;
+      else if (to_target.y < -0.5*(universe->size))
+        universe->particle[i].pos.y += universe->size;
+
+      if (to_target.z > 0.5*(universe->size))
+        universe->particle[i].pos.z -= universe->size;
+      else if (to_target.z < -0.5*(universe->size))
+        universe->particle[i].pos.z += universe->size;
+      /* PERIODIC BOUNDARY CONDITIONS */
+
       /* Bonded interractions */
       if (particle_is_bonded(&(universe->particle[part_id]), &(universe->particle[i])))
       {
@@ -239,6 +266,9 @@ universe_t *potential_total(double *pot, universe_t *universe, const size_t part
         *pot += pot_electrostatic;
         *pot += pot_lennardjones;
       }
+
+      /* Restore the backup coordinates */
+      universe->particle[i].pos = pos_backup;
     }
   }
 

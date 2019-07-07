@@ -300,7 +300,7 @@ universe_t *universe_simulate(universe_t *universe, const args_t *args)
   printf("Temperature............%lf K\n", universe->temperature);
   printf("Pressure...............%lf hPa\n", args->pressure/1E2);
   printf("Total system energy....%lf pJ\n", energy*1E12);
-  printf("Universe radius........%lf pm\n", universe->size*1E12);
+  printf("Universe size  ........%lf pm\n", universe->size*1E12);
   printf("Simulation time........%lf ns\n", args->max_time*1E9);
   printf("Timestep...............%lf fs\n", args->timestep*1E15);
   printf("Frameskip..............%ld\n", args->frameskip);
@@ -377,6 +377,8 @@ double universe_energy(universe_t *universe, uint8_t *err_flag)
       return (retstrf(0.0, TEXT_UNIVERSE_ENERGY_FAILURE, __FILE__, __LINE__));
     kinetic += 0.5*POW2(vel)*model_mass(universe->particle[i].element);
   }
+
+  printf("\nU=%lf\nEk=%lf\ntotal=%lf\n\n", pot_total*1E12, kinetic*1E12, 1E12*(kinetic+pot_total));
 
   return (kinetic+pot_total);
 }
