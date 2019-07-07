@@ -402,7 +402,7 @@ universe_t *universe_montecarlo(universe_t *universe)
   pot_total = 0.0;
   do
   {
-    /* Perform random transformation */
+    /* Apply a random transformation */
     /* ... */
 
     /* Get the system's total potential energy */

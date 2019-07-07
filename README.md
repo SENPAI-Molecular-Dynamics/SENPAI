@@ -54,6 +54,8 @@ Options:
 
 - `--frameskip` Sets a frameskip to reduce I/O usage. Disabled by default
 
+- `--montecarlo` Sets a number of potential reduction cycles to apply. Defaults to 100.
+
 ## Example use
 
 `./senpai.bin --in examples/urea.nh4 --out render.xyz --time 1000 --dt 0.5 --mol 512`
