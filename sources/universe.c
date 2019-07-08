@@ -407,7 +407,7 @@ universe_t *universe_montecarlo(universe_t *universe)
 
   tries = 0;
   pot_total = 0.0;
-  pos_offset_mag = 1E-12;
+  pos_offset_mag = 1E-9;
   pos_backup = universe->particle[part_id].pos;
   
   do
@@ -416,7 +416,7 @@ universe_t *universe_montecarlo(universe_t *universe)
       ++tries;
     else
     {
-      tries = 0;
+      tries = 1;
       pos_offset_mag *= 1E-3;
     }
 

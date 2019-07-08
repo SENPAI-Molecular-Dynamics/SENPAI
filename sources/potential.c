@@ -133,6 +133,7 @@ universe_t *potential_angle(double *pot, universe_t *universe, const size_t p1, 
   double to_ligand_mag;
   vec3d_t to_current;
   vec3d_t to_ligand;
+  vec3d_t pos_backup;
   particle_t *current;
   particle_t *ligand;
   particle_t *node;
@@ -179,6 +180,26 @@ universe_t *potential_angle(double *pot, universe_t *universe, const size_t p1, 
       if (vec3d_sub(&to_ligand, &(ligand->pos), &(node->pos)) == NULL)
         return (retstr(NULL, TEXT_POTENTIAL_ANGLE_FAILURE, __FILE__, __LINE__));
 
+      /* PERIODIC BOUNDARY CONDITIONS */
+      /* Backup the particle's coordinates */
+      pos_backup = ligand->pos;
+
+      if (to_ligand.x > 0.5*(universe->size))
+        ligand->pos.x -= universe->size;
+      else if (to_ligand.x < -0.5*(universe->size))
+        ligand->pos.x += universe->size;
+
+      if (to_ligand.y > 0.5*(universe->size))
+        ligand->pos.y -= universe->size;
+      else if (to_ligand.y < -0.5*(universe->size))
+        ligand->pos.y += universe->size;
+
+      if (to_ligand.z > 0.5*(universe->size))
+        ligand->pos.z -= universe->size;
+      else if (to_ligand.z < -0.5*(universe->size))
+        ligand->pos.z += universe->size;
+      /* PERIODIC BOUNDARY CONDITIONS */
+
       /* Get its magnitude */
       if ((to_ligand_mag = vec3d_mag(&to_ligand)) < 0.0)
         return (retstr(NULL, TEXT_POTENTIAL_ANGLE_FAILURE, __FILE__, __LINE__));
@@ -191,6 +212,9 @@ universe_t *potential_angle(double *pot, universe_t *universe, const size_t p1, 
       /* Compute the potential */
       angular_displacement = angle-angle_eq;
       *pot += 5E-8*POW2(angular_displacement);
+
+      /* Restore the backup coordinates */
+      ligand->pos = pos_backup;
     }
   }
 
