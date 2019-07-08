@@ -378,8 +378,6 @@ double universe_energy(universe_t *universe, uint8_t *err_flag)
     kinetic += 0.5*POW2(vel)*model_mass(universe->particle[i].element);
   }
 
-  printf("\nU=%lf\nEk=%lf\ntotal=%lf\n\n", pot_total*1E12, kinetic*1E12, 1E12*(kinetic+pot_total));
-
   return (kinetic+pot_total);
 }
 
@@ -389,6 +387,11 @@ universe_t *universe_montecarlo(universe_t *universe)
   double pot;
   double pot_old;
   double pot_total;
+  double pos_offset_mag;
+  uint64_t part_id;
+  uint64_t tries;
+  vec3d_t pos_offset;
+  vec3d_t pos_backup;
 
   /* Get the system's total potential energy */
   pot_old = 0.0;
@@ -399,11 +402,37 @@ universe_t *universe_montecarlo(universe_t *universe)
     pot_old += pot;
   }
 
+  /* Select a random particle */
+  part_id = rand()%(universe->part_nb);
+
+  tries = 0;
   pot_total = 0.0;
+  pos_offset_mag = 1E-12;
+  pos_backup = universe->particle[part_id].pos;
+  
   do
   {
-    /* Apply a random transformation */
-    /* ... */
+    if (tries < 1000)
+      ++tries;
+    else
+    {
+      tries = 0;
+      pos_offset_mag *= 1E-3;
+    }
+
+    /* Back up the coordinates */
+    universe->particle[part_id].pos = pos_backup;
+
+    /* Generate a random transformation */
+    if (vec3d_marsaglia(&pos_offset) == NULL)
+      return (retstr(NULL, TEXT_UNIVERSE_MONTECARLO_FAILURE, __FILE__, __LINE__));
+    if (vec3d_mul(&pos_offset, &pos_offset, pos_offset_mag) == NULL)
+      return (retstr(NULL, TEXT_UNIVERSE_MONTECARLO_FAILURE, __FILE__, __LINE__));
+
+    /* Apply the random transformation */
+    pos_backup = universe->particle[part_id].pos;
+    if (vec3d_add(&(universe->particle[part_id].pos), &(universe->particle[part_id].pos), &pos_offset) == NULL)
+      return (retstr(NULL, TEXT_UNIVERSE_MONTECARLO_FAILURE, __FILE__, __LINE__));
 
     /* Get the system's total potential energy */
     pot_total = 0.0;
@@ -413,7 +442,6 @@ universe_t *universe_montecarlo(universe_t *universe)
         return (retstr(NULL, TEXT_UNIVERSE_MONTECARLO_FAILURE, __FILE__, __LINE__));
       pot_total += pot;
     }
-
   } while (pot_total > pot_old);
 
   return (universe);

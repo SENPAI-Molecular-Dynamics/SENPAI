@@ -14,15 +14,17 @@ The simulation is rendered in a cubic universe of constant size, enforcing perio
 
 # Cool features
 
-- Unlimited portability: SENPAI does not require any library, and is 100% compliant with the C99 standard. **SENPAI could run on a Roomba**.
+- **Unlimited portability:** SENPAI does not require any library, and is 100% compliant with the C99 standard. **SENPAI could run on a Roomba**.
 
-- Efficient computing model: the **Optimized Numerical Integration / Classical Harmonics and N-body** (ONI/CHaN) model was tailored for SENPAI over months of work. Inspired by the AMBER family of force fields, it allows SENPAI to compute forces with unprecedented efficiency.
+- **Efficient computing model:** the **Optimized Numerical Integration / Classical Harmonics and N-body** (ONI/CHaN) model was tailored for SENPAI over months of work. Inspired by the AMBER family of force fields, it allows SENPAI to compute forces with unprecedented efficiency.
 
-- No potentials: Traditional MD simulators compute a particle's total potential and numerically differentiate it to compute the applied force. SENPAI analytically solves for the force vector, resulting in an extreme speed-up.
+- **No potential differentiation:** Traditional MD simulators compute a particle's total potential and numerically differentiate it to compute the applied force. SENPAI analytically solves for the force vector, resulting in an extreme speed-up.
 
-- Tunable thermodynamics: Efficiently write scripts to run simulations with various thermodynamical settings and analyse the impact of the system's surroundings on its evolution.
+- **Tunable thermodynamics:** Efficiently write scripts to run simulations with various thermodynamical settings and analyse the impact of the system's surroundings on its evolution.
 
-- Render as `.xyz`: Keep it simple. Simulations are rendered using the `.xyz` format, and can be directly visualized with software like VMD.
+- **Render as `.xyz`:** Keep it simple. Simulations are rendered using the `.xyz` format, and can be directly visualized with software like VMD.
+
+- **Integrated potential reduction:** SENPAI will reduce the system's potential energy with a user-selectable number of Monte Carlo circles before starting the simulation.
 
 ## Installation
 

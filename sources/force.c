@@ -196,8 +196,25 @@ universe_t *force_angle(vec3d_t *frc, universe_t *universe, const size_t p1, con
       if (vec3d_sub(&to_ligand, &(ligand->pos), &(node->pos)) == NULL)
         return (retstr(NULL, TEXT_FORCE_ANGLE_FAILURE, __FILE__, __LINE__));
 
-      /* Temporarily undo the PBC enforcement */
+      /* PERIODIC BOUNDARY CONDITIONS */
+      /* Backup the particle's coordinates */
       pos_backup = ligand->pos;
+
+      if (to_ligand.x > 0.5*(universe->size))
+        ligand->pos.x -= universe->size;
+      else if (to_ligand.x < -0.5*(universe->size))
+        ligand->pos.x += universe->size;
+
+      if (to_ligand.y > 0.5*(universe->size))
+        ligand->pos.y -= universe->size;
+      else if (to_ligand.y < -0.5*(universe->size))
+        ligand->pos.y += universe->size;
+
+      if (to_ligand.z > 0.5*(universe->size))
+        ligand->pos.z -= universe->size;
+      else if (to_ligand.z < -0.5*(universe->size))
+        ligand->pos.z += universe->size;
+      /* PERIODIC BOUNDARY CONDITIONS */
 
       /* Get its magnitude */
       if ((to_ligand_mag = vec3d_mag(&to_ligand)) < 0.0)
@@ -229,6 +246,7 @@ universe_t *force_angle(vec3d_t *frc, universe_t *universe, const size_t p1, con
       if (vec3d_add(frc, frc, &temp) == NULL)
         return (retstr(NULL, TEXT_FORCE_ANGLE_FAILURE, __FILE__, __LINE__));
 
+      /* Restore the backup coordinates */
       ligand->pos = pos_backup;
     }
   }
