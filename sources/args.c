@@ -62,7 +62,7 @@ args_t *args_parse(args_t *args, int argc, char **argv)
   if (args->path == NULL ||
       args->out_path == NULL ||
       args->molecules < 1 ||
-      args->temperature < 0.0 ||
+      args->temperature <= 0.0 ||
       args->pressure < 0.0 ||
       args->timestep < 0.0)
     return (retstr(NULL, TEXT_ARGS_PARSE_FAILURE, __FILE__, __LINE__));

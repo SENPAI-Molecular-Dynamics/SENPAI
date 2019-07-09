@@ -283,15 +283,12 @@ universe_t *universe_iterate(universe_t *universe, const args_t *args)
 
 universe_t *universe_simulate(universe_t *universe, const args_t *args)
 {
-  double energy;
-  uint8_t err_flag;
   uint64_t frame_nb;
+  double energy;
 
-  err_flag = 0;
   frame_nb = 0;
-  energy = universe_energy(universe, &err_flag);
 
-  if (err_flag)
+  if (universe_energy_total(universe, &energy) == NULL)
     return (retstr(NULL, TEXT_UNIVERSE_SIMULATE_FAILURE, __FILE__, __LINE__));
 
   /* Print some useful information */
@@ -349,100 +346,111 @@ universe_t *universe_printstate(universe_t *universe)
   }
   return (universe);
 }
-
-double universe_energy(universe_t *universe, uint8_t *err_flag)
+universe_t *universe_energy_kinetic(universe_t *universe, double *energy)
 {
   size_t i;
   double vel;
-  double kinetic;
-  double pot;
-  double pot_total;
 
-  *err_flag = 0;
-  kinetic = 0.0;
-  pot_total = 0.0;
-
-  /* Get total potential energy */
-  for (i=0; i<(universe->part_nb); ++i)
-  {
-    if (potential_total(&pot, universe, i) == NULL)
-      return (retstrf(0.0, TEXT_UNIVERSE_ENERGY_FAILURE, __FILE__, __LINE__));
-    pot_total += pot;
-  }
-
-  /* Get total kinetic energy */
+  *energy = 0.0;
   for (i=0; i<(universe->part_nb); ++i)
   {
     if ((vel = vec3d_mag(&(universe->particle[i].spd))) < 0.0)
-      return (retstrf(0.0, TEXT_UNIVERSE_ENERGY_FAILURE, __FILE__, __LINE__));
-    kinetic += 0.5*POW2(vel)*model_mass(universe->particle[i].element);
+      return (retstr(NULL, TEXT_UNIVERSE_ENERGY_KINETIC_FAILURE, __FILE__, __LINE__));
+    *energy += 0.5*POW2(vel)*model_mass(universe->particle[i].element);
   }
 
-  return (kinetic+pot_total);
+  return (universe);
+}
+
+universe_t *universe_energy_potential(universe_t *universe, double *energy)
+{
+  size_t i;
+  double potential;
+
+  *energy = 0.0;
+  for (i=0; i<(universe->part_nb); ++i)
+  {
+    if (potential_total(&potential, universe, i) == NULL)
+      return (retstr(NULL, TEXT_UNIVERSE_ENERGY_POTENTIAL_FAILURE, __FILE__, __LINE__));
+    *energy += potential;
+  }
+
+  return (universe);
+}
+
+universe_t *universe_energy_total(universe_t *universe, double *energy)
+{
+  double kinetic;
+  double potential;
+
+  if (universe_energy_kinetic(universe, &kinetic) == NULL)
+      return (retstr(NULL, TEXT_UNIVERSE_ENERGY_TOTAL_FAILURE, __FILE__, __LINE__));
+  if (universe_energy_potential(universe, &potential) == NULL)
+      return (retstr(NULL, TEXT_UNIVERSE_ENERGY_TOTAL_FAILURE, __FILE__, __LINE__));
+
+  *energy = kinetic + potential;
+  return (universe);
 }
 
 universe_t *universe_montecarlo(universe_t *universe)
 {
-  size_t i;
-  double pot;
-  double pot_old;
-  double pot_total;
+  double potential;
+  double potential_new;
   double pos_offset_mag;
   uint64_t part_id;
   uint64_t tries;
   vec3d_t pos_offset;
   vec3d_t pos_backup;
 
-  /* Get the system's total potential energy */
-  pot_old = 0.0;
-  for (i=0; i<(universe->part_nb); ++i)
+  for (part_id=0; part_id<(universe->part_nb); ++part_id)
   {
-    if (potential_total(&pot, universe, i) == NULL)
-      return (retstr(NULL, TEXT_UNIVERSE_MONTECARLO_FAILURE, __FILE__, __LINE__));
-    pot_old += pot;
-  }
-
-  /* Select a random particle */
-  part_id = rand()%(universe->part_nb);
-
-  tries = 0;
-  pot_total = 0.0;
-  pos_offset_mag = 1E-9;
-  pos_backup = universe->particle[part_id].pos;
-  
-  do
-  {
-    if (tries < 1000)
-      ++tries;
-    else
-    {
-      tries = 1;
-      pos_offset_mag *= 1E-3;
-    }
-
-    /* Back up the coordinates */
-    universe->particle[part_id].pos = pos_backup;
-
-    /* Generate a random transformation */
-    if (vec3d_marsaglia(&pos_offset) == NULL)
-      return (retstr(NULL, TEXT_UNIVERSE_MONTECARLO_FAILURE, __FILE__, __LINE__));
-    if (vec3d_mul(&pos_offset, &pos_offset, pos_offset_mag) == NULL)
-      return (retstr(NULL, TEXT_UNIVERSE_MONTECARLO_FAILURE, __FILE__, __LINE__));
-
-    /* Apply the random transformation */
-    pos_backup = universe->particle[part_id].pos;
-    if (vec3d_add(&(universe->particle[part_id].pos), &(universe->particle[part_id].pos), &pos_offset) == NULL)
-      return (retstr(NULL, TEXT_UNIVERSE_MONTECARLO_FAILURE, __FILE__, __LINE__));
+    pos_offset_mag = 1E-9;
 
     /* Get the system's total potential energy */
-    pot_total = 0.0;
-    for (i=0; i<(universe->part_nb); ++i)
+    if (universe_energy_potential(universe, &potential) == NULL)
+      return (retstr(NULL, TEXT_UNIVERSE_ENERGY_TOTAL_FAILURE, __FILE__, __LINE__));
+
+    tries = 0;
+    while (1)
     {
-      if (potential_total(&pot, universe, i) == NULL)
+      if (tries < 50)
+        ++tries;
+      else
+      {
+        tries = 0;
+        pos_offset_mag *= 0.5; /* Refine the random displacement */
+      }
+
+      /* Back up the coordinates */
+      pos_backup = universe->particle[part_id].pos;
+
+      /* Generate a random transformation */
+      if (vec3d_marsaglia(&pos_offset) == NULL)
         return (retstr(NULL, TEXT_UNIVERSE_MONTECARLO_FAILURE, __FILE__, __LINE__));
-      pot_total += pot;
+      if (vec3d_mul(&pos_offset, &pos_offset, pos_offset_mag) == NULL)
+        return (retstr(NULL, TEXT_UNIVERSE_MONTECARLO_FAILURE, __FILE__, __LINE__));
+
+      /* Apply the random transformation */
+      if (vec3d_add(&(universe->particle[part_id].pos), &(universe->particle[part_id].pos), &pos_offset) == NULL)
+        return (retstr(NULL, TEXT_UNIVERSE_MONTECARLO_FAILURE, __FILE__, __LINE__));
+
+      /* Enforce the PBC */
+      if (particle_enforce_pbc(universe, part_id) == NULL)
+        return (retstr(NULL, TEXT_UNIVERSE_MONTECARLO_FAILURE, __FILE__, __LINE__));
+
+      /* Get the system's total potential energy */
+      if (universe_energy_potential(universe, &potential_new) == NULL)
+        return (retstr(NULL, TEXT_UNIVERSE_ENERGY_TOTAL_FAILURE, __FILE__, __LINE__));
+
+      /* If the transformation decreases the potential, we're done */
+      if (potential_new < potential)
+        break;
+
+      /* Otherwise, discard the transformation */
+      else
+        universe->particle[part_id].pos = pos_backup;
     }
-  } while (pot_total > pot_old);
+  }
 
   return (universe);
 }

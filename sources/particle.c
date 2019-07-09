@@ -140,7 +140,6 @@ universe_t *particle_update_spd(universe_t *universe, const args_t *args, const 
 /* Velocity-Verlet integrator */
 universe_t *particle_update_pos(universe_t *universe, const args_t *args, const uint64_t part_id)
 {
-  double dst;
   particle_t *current;
   vec3d_t temp;
 
@@ -160,10 +159,6 @@ universe_t *particle_update_pos(universe_t *universe, const args_t *args, const 
 
   /* pos += new_pos */
   if (vec3d_add(&(current->pos), &(current->pos), &temp) == NULL)
-    return (retstr(NULL, TEXT_PARTICLE_UPDATE_POS_FAILURE, __FILE__, __LINE__));
-
-  /* Particle's distance from the origin */
-  if ((dst = vec3d_mag(&(current->pos))) < 0.0)
     return (retstr(NULL, TEXT_PARTICLE_UPDATE_POS_FAILURE, __FILE__, __LINE__));
 
   return (universe);
