@@ -16,7 +16,7 @@ The simulation is rendered in a cubic universe of constant size, enforcing perio
 
 - **Unlimited portability:** SENPAI does not require any library, and is 100% compliant with the C99 standard. **SENPAI could run on a Roomba**.
 
-- **Efficient computing model:** the **Optimized Numerical Integration / Classical Harmonics and N-body** (ONI/CHaN) model was tailored for SENPAI over months of work. Inspired by the AMBER family of force fields, it allows SENPAI to compute forces with unprecedented efficiency.
+- **Efficient computing model:** the **Optimized Numerical Integration, Classical Harmonics, and N-body** (ONICHaN) model was tailored for SENPAI over months of work. Inspired by the AMBER family of force fields, it allows SENPAI to compute forces with unprecedented efficiency.
 
 - **No potential differentiation:** Traditional MD simulators compute a particle's total potential and numerically differentiate it to compute the applied force. SENPAI analytically solves for the force vector, resulting in an extreme speed-up.
 

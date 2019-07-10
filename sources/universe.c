@@ -447,8 +447,7 @@ universe_t *universe_montecarlo(universe_t *universe)
         break;
 
       /* Otherwise, discard the transformation */
-      else
-        universe->particle[part_id].pos = pos_backup;
+      universe->particle[part_id].pos = pos_backup;
     }
   }
 
