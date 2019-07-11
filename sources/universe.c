@@ -82,6 +82,11 @@ universe_t *universe_init(universe_t *universe, const args_t *args)
   if (universe_populate(universe) == NULL)
     return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
 
+  /* Enforce the PBC */
+  for (i=0; i<(universe->part_nb); ++i)
+    if (particle_enforce_pbc(universe, i) == NULL)
+      return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
+
   /* Apply initial velocities */
   if (universe_setvelocity(universe) == NULL)
     return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
@@ -171,14 +176,8 @@ universe_t *universe_populate(universe_t *universe)
   { 
     id_offset = (universe->mol_size)*i;
 
-    /* Generate a random unit vector */
-    pos_offset.x = -0.3*(universe->size) + fmod(rand(), 0.6*(universe->size));
-    pos_offset.y = -0.3*(universe->size) + fmod(rand(), 0.6*(universe->size));
-    pos_offset.z = -0.3*(universe->size) + fmod(rand(), 0.6*(universe->size));
-    if (vec3d_unit(&pos_offset, &pos_offset) == NULL)
-      return (retstr(NULL, TEXT_UNIVERSE_POPULATE_FAILURE, __FILE__, __LINE__));
-
-    /* Multiply the vector by a random value */
+    /* Generate a random vector */
+    vec3d_marsaglia(&pos_offset);
     vec3d_mul(&pos_offset, &pos_offset, (0.1*(universe->size)) + (0.8*(universe->size)*cos(rand())));
     
     /* For every atom in the molecule */
@@ -209,6 +208,7 @@ universe_t *universe_populate(universe_t *universe)
   return (universe);
 }
 
+/* Apply a velocity to all the system's particles from the average kinetic energy */
 universe_t *universe_setvelocity(universe_t *universe)
 {
   double mass_mol;
@@ -216,21 +216,19 @@ universe_t *universe_setvelocity(universe_t *universe)
   vec3d_t vec;
   size_t i;
 
-  /* Get the molecule's total mass */
+  /* Get the molecular mass */
   mass_mol = 0;
   for (i=0; i<(universe->mol_size); ++i)
     mass_mol += model_mass(universe->particle[i].element);
 
-  /* Get the molecule's velocity */
+  /* Get the average velocity */
   velocity = sqrt(3*C_BOLTZMANN*(universe->temperature)/mass_mol);
 
   /* For every atom in the universe */
   for (i=0; i<(universe->part_nb); ++i)
   {
-    /* Generate a random vector */
+    /* Apply the velocity in a random direction */
     vec3d_marsaglia(&vec);
-
-    /* Apply an average velocity from the average kinetic energy */
     vec3d_mul(&(universe->particle[i].spd), &vec, velocity);
   }
 
@@ -244,11 +242,12 @@ void universe_clean(universe_t *universe)
 
   /* Free allocated memory */
   free(universe->input_file_buffer);
-  free(universe->particle);}
+  free(universe->particle);
+}
 
 universe_t *universe_iterate(universe_t *universe, const args_t *args)
 {
-  uint64_t i;
+  size_t i;
 
   /* We update the position vector first, as part of the Velocity-Verley integration */
   for (i=0; i<(universe->part_nb); ++i)
@@ -278,6 +277,7 @@ universe_t *universe_iterate(universe_t *universe, const args_t *args)
   return (universe);
 }
 
+/* Main loop of the simulator. Iterates until the target time is reached */
 universe_t *universe_simulate(universe_t *universe, const args_t *args)
 {
   uint64_t frame_nb;
@@ -326,6 +326,7 @@ universe_t *universe_simulate(universe_t *universe, const args_t *args)
   return (universe);
 }
 
+/* Print the system's state to the .xyz file */
 universe_t *universe_printstate(universe_t *universe)
 {
   size_t i;
@@ -343,6 +344,8 @@ universe_t *universe_printstate(universe_t *universe)
   }
   return (universe);
 }
+
+/* Compute the system's total kinetic energy */
 universe_t *universe_energy_kinetic(universe_t *universe, double *energy)
 {
   size_t i;
@@ -358,6 +361,7 @@ universe_t *universe_energy_kinetic(universe_t *universe, double *energy)
   return (universe);
 }
 
+/* Compute the system's total potential energy */
 universe_t *universe_energy_potential(universe_t *universe, double *energy)
 {
   size_t i;
@@ -374,6 +378,7 @@ universe_t *universe_energy_potential(universe_t *universe, double *energy)
   return (universe);
 }
 
+/* Compute the total system energy */
 universe_t *universe_energy_total(universe_t *universe, double *energy)
 {
   double kinetic;
@@ -388,6 +393,7 @@ universe_t *universe_energy_total(universe_t *universe, double *energy)
   return (universe);
 }
 
+/* Apply random transformations to lower the system's potential energy */
 universe_t *universe_montecarlo(universe_t *universe)
 {
   double potential;
@@ -414,17 +420,15 @@ universe_t *universe_montecarlo(universe_t *universe)
       else
       {
         tries = 0;
-        pos_offset_mag *= 0.5; /* Refine the random displacement */
+        pos_offset_mag *= 0.1; /* Refine the random displacement */
       }
 
       /* Back up the coordinates */
       pos_backup = universe->particle[part_id].pos;
 
-      /* Generate a random transformation */
+      /* Apply a random transformation */
       vec3d_marsaglia(&pos_offset);
       vec3d_mul(&pos_offset, &pos_offset, pos_offset_mag);
-
-      /* Apply the random transformation */
       vec3d_add(&(universe->particle[part_id].pos), &(universe->particle[part_id].pos), &pos_offset);
 
       /* Enforce the PBC */

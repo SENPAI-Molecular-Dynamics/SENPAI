@@ -23,10 +23,8 @@ universe_t *force_bond(vec3d_t *frc, universe_t *universe, const size_t p1, cons
   double dst;
   vec3d_t vec;
 
-  /* Get the difference vector */
+  /* Get the distance between the particles */
   vec3d_sub(&vec, &(universe->particle[p2].pos), &(universe->particle[p1].pos));
-
-  /* Get its magnitude */
   dst = vec3d_mag(&vec);
 
   /* Turn it into its unit vector */
@@ -55,10 +53,8 @@ universe_t *force_electrostatic(vec3d_t *frc, universe_t *universe, const size_t
   double charge_p2;
   vec3d_t vec;
 
-  /* Get the difference vector */
+  /* Get the distance between the particles */
   vec3d_sub(&vec, &(universe->particle[p2].pos), &(universe->particle[p1].pos));
-
-  /* Get its magnitude */
   dst = vec3d_mag(&vec);
 
   /* Turn it into its unit vector */
@@ -80,10 +76,8 @@ universe_t *force_lennardjones(vec3d_t *frc, universe_t *universe, const size_t 
   double dst;
   vec3d_t vec;
 
-  /* Get the difference vector */
+  /* Get the distance between the particles */
   vec3d_sub(&vec, &(universe->particle[p2].pos), &(universe->particle[p1].pos));
-
-  /* Get its magnitude */
   dst = vec3d_mag(&vec);
 
   /* Turn it into its unit vector */

@@ -33,7 +33,7 @@
 #define ARGS_TEMPERATURE_DEFAULT (uint64_t)273.15     /* Temperature of the universe */
 #define ARGS_PRESSURE_DEFAULT    (double)1E5          /* Pressure of the universe */
 #define ARGS_FRAMESKIP_DEFAULT   (uint64_t)0          /* Frameskip */
-#define ARGS_MONTECARLO_DEFAULT  (uint64_t)100        /* Monte carlo potential reduction cycles to run before simulating */
+#define ARGS_MONTECARLO_DEFAULT  (uint64_t)0          /* Monte carlo potential reduction cycles to run before simulating */
 
 #define FLAG_NUMERICAL  "--numerical"
 #define FLAG_INPUT      "--in"

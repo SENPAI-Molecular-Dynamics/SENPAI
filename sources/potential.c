@@ -25,10 +25,8 @@ universe_t *potential_bond(double *pot, universe_t *universe, const size_t p1, c
   double dst;
   vec3d_t vec;
 
-  /* Get the difference vector */
+  /* Get the distance between the particles */
   vec3d_sub(&vec, &(universe->particle[p2].pos), &(universe->particle[p1].pos));
-
-  /* Get its magnitude */
   dst = vec3d_mag(&vec);
 
   /* Find the bond id */
@@ -53,10 +51,8 @@ universe_t *potential_electrostatic(double *pot, universe_t *universe, const siz
   double charge_p2;
   vec3d_t vec;
 
-  /* Get the difference vector */
-  vec3d_sub(&vec, &(universe->particle[p1].pos), &(universe->particle[p2].pos));
-
-  /* Get its magnitude */
+  /* Get the distance between the particles */
+  vec3d_sub(&vec, &(universe->particle[p2].pos), &(universe->particle[p1].pos));
   dst = vec3d_mag(&vec);
 
   /* Compute the potential */
@@ -74,10 +70,8 @@ universe_t *potential_lennardjones(double *pot, universe_t *universe, const size
   double dst;
   vec3d_t vec;
 
-  /* Get the difference vector */
-  vec3d_sub(&vec, &(universe->particle[p1].pos), &(universe->particle[p2].pos));
-
-  /* Get its magnitude */
+  /* Get the distance between the particles */
+  vec3d_sub(&vec, &(universe->particle[p2].pos), &(universe->particle[p1].pos));
   dst = vec3d_mag(&vec);
 
   /* Compute the Lennard-Jones parameters (Duffy, E. M.; Severance, D. L.; Jorgensen, W. L.; Isr. J. Chem.1993, 33,  323) */

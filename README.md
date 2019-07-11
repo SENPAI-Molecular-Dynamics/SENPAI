@@ -56,7 +56,7 @@ Options:
 
 - `--frameskip` Sets a frameskip to reduce I/O usage. Disabled by default
 
-- `--montecarlo` Sets a number of potential reduction cycles to apply. Defaults to 100.
+- `--montecarlo` Sets a number of potential reduction cycles to apply. Defaults to 0.
 
 ## Example use
 
