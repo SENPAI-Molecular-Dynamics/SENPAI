@@ -179,8 +179,7 @@ universe_t *universe_populate(universe_t *universe)
       return (retstr(NULL, TEXT_UNIVERSE_POPULATE_FAILURE, __FILE__, __LINE__));
 
     /* Multiply the vector by a random value */
-    if (vec3d_mul(&pos_offset, &pos_offset, (0.1*(universe->size)) + (0.8*(universe->size)*cos(rand()))) == NULL)
-      return (retstr(NULL, TEXT_UNIVERSE_POPULATE_FAILURE, __FILE__, __LINE__));
+    vec3d_mul(&pos_offset, &pos_offset, (0.1*(universe->size)) + (0.8*(universe->size)*cos(rand())));
     
     /* For every atom in the molecule */
     for (ii=0; ii<(universe->mol_size); ++ii)
@@ -191,8 +190,7 @@ universe_t *universe_populate(universe_t *universe)
       *current = *reference;
       
       /* Displace the atom to the random vector */
-      if (vec3d_add(&(current->pos), &(current->pos), &pos_offset) == NULL)
-        return (retstr(NULL, TEXT_UNIVERSE_POPULATE_FAILURE, __FILE__, __LINE__));
+      vec3d_add(&(current->pos), &(current->pos), &pos_offset);
       
       /* For every bond in the displaced atom */
       for (iii=0; iii<7; ++iii)
@@ -229,12 +227,11 @@ universe_t *universe_setvelocity(universe_t *universe)
   /* For every atom in the universe */
   for (i=0; i<(universe->part_nb); ++i)
   {
-    if (vec3d_marsaglia(&vec) == NULL)
-      return (retstr(NULL, TEXT_UNIVERSE_SETVELOCITY_FAILURE, __FILE__, __LINE__));
+    /* Generate a random vector */
+    vec3d_marsaglia(&vec);
 
     /* Apply an average velocity from the average kinetic energy */
-    if (vec3d_mul(&(universe->particle[i].spd), &vec, velocity) == NULL)
-      return (retstr(NULL, TEXT_UNIVERSE_SETVELOCITY_FAILURE, __FILE__, __LINE__));
+    vec3d_mul(&(universe->particle[i].spd), &vec, velocity);
   }
 
   return (universe);
@@ -354,8 +351,7 @@ universe_t *universe_energy_kinetic(universe_t *universe, double *energy)
   *energy = 0.0;
   for (i=0; i<(universe->part_nb); ++i)
   {
-    if ((vel = vec3d_mag(&(universe->particle[i].spd))) < 0.0)
-      return (retstr(NULL, TEXT_UNIVERSE_ENERGY_KINETIC_FAILURE, __FILE__, __LINE__));
+    vel = vec3d_mag(&(universe->particle[i].spd));
     *energy += 0.5*POW2(vel)*model_mass(universe->particle[i].element);
   }
 
@@ -425,14 +421,11 @@ universe_t *universe_montecarlo(universe_t *universe)
       pos_backup = universe->particle[part_id].pos;
 
       /* Generate a random transformation */
-      if (vec3d_marsaglia(&pos_offset) == NULL)
-        return (retstr(NULL, TEXT_UNIVERSE_MONTECARLO_FAILURE, __FILE__, __LINE__));
-      if (vec3d_mul(&pos_offset, &pos_offset, pos_offset_mag) == NULL)
-        return (retstr(NULL, TEXT_UNIVERSE_MONTECARLO_FAILURE, __FILE__, __LINE__));
+      vec3d_marsaglia(&pos_offset);
+      vec3d_mul(&pos_offset, &pos_offset, pos_offset_mag);
 
       /* Apply the random transformation */
-      if (vec3d_add(&(universe->particle[part_id].pos), &(universe->particle[part_id].pos), &pos_offset) == NULL)
-        return (retstr(NULL, TEXT_UNIVERSE_MONTECARLO_FAILURE, __FILE__, __LINE__));
+      vec3d_add(&(universe->particle[part_id].pos), &(universe->particle[part_id].pos), &pos_offset);
 
       /* Enforce the PBC */
       if (particle_enforce_pbc(universe, part_id) == NULL)

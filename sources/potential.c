@@ -26,12 +26,10 @@ universe_t *potential_bond(double *pot, universe_t *universe, const size_t p1, c
   vec3d_t vec;
 
   /* Get the difference vector */
-  if (vec3d_sub(&vec, &(universe->particle[p1].pos), &(universe->particle[p2].pos)) == NULL)
-    return (retstr(NULL, TEXT_POTENTIAL_BOND_FAILURE, __FILE__, __LINE__));
+  vec3d_sub(&vec, &(universe->particle[p1].pos), &(universe->particle[p2].pos));
 
   /* Get its magnitude */
-  if ((dst = vec3d_mag(&vec)) < 0.0)
-    return (retstr(NULL, TEXT_POTENTIAL_BOND_FAILURE, __FILE__, __LINE__));
+  dst = vec3d_mag(&vec);
 
   /* Find the bond id */
   for (bond_id=0; universe->particle[p1].bond[bond_id] != &(universe->particle[p2]); ++bond_id);
@@ -56,12 +54,10 @@ universe_t *potential_electrostatic(double *pot, universe_t *universe, const siz
   vec3d_t vec;
 
   /* Get the difference vector */
-  if (vec3d_sub(&vec, &(universe->particle[p1].pos), &(universe->particle[p2].pos)) == NULL)
-    return (retstr(NULL, TEXT_POTENTIAL_ELECTROSTATIC_FAILURE, __FILE__, __LINE__));
+  vec3d_sub(&vec, &(universe->particle[p1].pos), &(universe->particle[p2].pos));
 
   /* Get its magnitude */
-  if ((dst = vec3d_mag(&vec)) < 0.0)
-    return (retstr(NULL, TEXT_POTENTIAL_ELECTROSTATIC_FAILURE, __FILE__, __LINE__));
+  dst = vec3d_mag(&vec);
 
   /* Compute the potential */
   charge_p1 = universe->particle[p1].charge;
@@ -79,12 +75,10 @@ universe_t *potential_lennardjones(double *pot, universe_t *universe, const size
   vec3d_t vec;
 
   /* Get the difference vector */
-  if (vec3d_sub(&vec, &(universe->particle[p1].pos), &(universe->particle[p2].pos)) == NULL)
-    return (retstr(NULL, TEXT_POTENTIAL_LENNARDJONES_FAILURE, __FILE__, __LINE__));
+  vec3d_sub(&vec, &(universe->particle[p1].pos), &(universe->particle[p2].pos));
 
   /* Get its magnitude */
-  if ((dst = vec3d_mag(&vec)) < 0.0)
-    return (retstr(NULL, TEXT_POTENTIAL_LENNARDJONES_FAILURE, __FILE__, __LINE__));
+  dst = vec3d_mag(&vec);
 
   /* Compute the Lennard-Jones parameters (Duffy, E. M.; Severance, D. L.; Jorgensen, W. L.; Isr. J. Chem.1993, 33,  323) */
   sigma = sqrt((universe->particle[p1].sigma)*(universe->particle[p2].sigma));
@@ -161,12 +155,10 @@ universe_t *potential_angle(double *pot, universe_t *universe, const size_t p1, 
     return (universe);
   
   /* Get the vector going from the node to the current particle */
-  if (vec3d_sub(&to_current, &(current->pos), &(node->pos)) == NULL)
-    return (retstr(NULL, TEXT_POTENTIAL_ANGLE_FAILURE, __FILE__, __LINE__));
+  vec3d_sub(&to_current, &(current->pos), &(node->pos));
 
   /* As well as its magnitude */
-  if ((to_current_mag = vec3d_mag(&to_current)) < 0.0)
-    return (retstr(NULL, TEXT_POTENTIAL_ANGLE_FAILURE, __FILE__, __LINE__));
+  to_current_mag = vec3d_mag(&to_current);
 
   /* For all ligands */
   for (bond_id=0; bond_id<7; ++bond_id)
@@ -177,11 +169,9 @@ universe_t *potential_angle(double *pot, universe_t *universe, const size_t p1, 
     if (ligand != NULL && ligand != current)
     {
       /* Get the vector going from the node to the ligand */
-      if (vec3d_sub(&to_ligand, &(ligand->pos), &(node->pos)) == NULL)
-        return (retstr(NULL, TEXT_POTENTIAL_ANGLE_FAILURE, __FILE__, __LINE__));
+      vec3d_sub(&to_ligand, &(ligand->pos), &(node->pos));
 
       /* PERIODIC BOUNDARY CONDITIONS */
-      /* Backup the particle's coordinates */
       pos_backup = ligand->pos;
 
       if (to_ligand.x > 0.5*(universe->size))
@@ -201,8 +191,7 @@ universe_t *potential_angle(double *pot, universe_t *universe, const size_t p1, 
       /* PERIODIC BOUNDARY CONDITIONS */
 
       /* Get its magnitude */
-      if ((to_ligand_mag = vec3d_mag(&to_ligand)) < 0.0)
-        return (retstr(NULL, TEXT_POTENTIAL_ANGLE_FAILURE, __FILE__, __LINE__));
+      to_ligand_mag = vec3d_mag(&to_ligand);
 
       /* Get the current angle */
       angle = acos(vec3d_dot(&to_current, &to_ligand)/(to_current_mag*to_ligand_mag));
@@ -245,8 +234,7 @@ universe_t *potential_total(double *pot, universe_t *universe, const size_t part
       pos_backup = universe->particle[i].pos;
 
       /* Get the vector going to the target particle */
-      if (vec3d_sub(&to_target, &(universe->particle[i].pos), &(universe->particle[part_id].pos)) == NULL)
-        return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__));
+      vec3d_sub(&to_target, &(universe->particle[i].pos), &(universe->particle[part_id].pos));
       
       /* Temporarily undo the PBC enforcement, if needed */
       if (to_target.x > 0.5*(universe->size))

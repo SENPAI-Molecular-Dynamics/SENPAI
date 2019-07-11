@@ -24,12 +24,10 @@ universe_t *force_bond(vec3d_t *frc, universe_t *universe, const size_t p1, cons
   vec3d_t vec;
 
   /* Get the difference vector */
-  if (vec3d_sub(&vec, &(universe->particle[p1].pos), &(universe->particle[p2].pos)) == NULL)
-    return (retstr(NULL, TEXT_FORCE_BOND_FAILURE, __FILE__, __LINE__));
+  vec3d_sub(&vec, &(universe->particle[p1].pos), &(universe->particle[p2].pos));
 
   /* Get its magnitude */
-  if ((dst = vec3d_mag(&vec)) < 0.0)
-    return (retstr(NULL, TEXT_FORCE_BOND_FAILURE, __FILE__, __LINE__));
+  dst = vec3d_mag(&vec);
 
   /* Turn it into its unit vector */
   if (vec3d_unit(&vec, &vec) == NULL)
@@ -45,11 +43,10 @@ universe_t *force_bond(vec3d_t *frc, universe_t *universe, const size_t p1, cons
 
   /* Compute the force vector */
   spring_constant = universe->particle[p1].bond_strength[bond_id];
-  if (vec3d_mul(frc, &vec, -displacement*spring_constant) == NULL)
-    return (retstr(NULL, TEXT_FORCE_BOND_FAILURE, __FILE__, __LINE__));
+  vec3d_mul(frc, &vec, -displacement*spring_constant);
 
   return (universe);
-} 
+}
 
 universe_t *force_electrostatic(vec3d_t *frc, universe_t *universe, const size_t p1, const size_t p2)
 {
@@ -59,12 +56,10 @@ universe_t *force_electrostatic(vec3d_t *frc, universe_t *universe, const size_t
   vec3d_t vec;
 
   /* Get the difference vector */
-  if (vec3d_sub(&vec, &(universe->particle[p1].pos), &(universe->particle[p2].pos)) == NULL)
-    return (retstr(NULL, TEXT_FORCE_ELECTROSTATIC_FAILURE, __FILE__, __LINE__));
+  vec3d_sub(&vec, &(universe->particle[p1].pos), &(universe->particle[p2].pos));
 
   /* Get its magnitude */
-  if ((dst = vec3d_mag(&vec)) < 0.0)
-    return (retstr(NULL, TEXT_FORCE_ELECTROSTATIC_FAILURE, __FILE__, __LINE__));
+  dst = vec3d_mag(&vec);
 
   /* Turn it into its unit vector */
   if (vec3d_unit(&vec, &vec) == NULL)
@@ -73,8 +68,7 @@ universe_t *force_electrostatic(vec3d_t *frc, universe_t *universe, const size_t
   /* Compute the force vector */
   charge_p1 = universe->particle[p1].charge;
   charge_p2 = universe->particle[p2].charge;
-  if (vec3d_mul(frc, &vec, charge_p1*charge_p2/(4*M_PI*C_VACUUMPERM*POW2(dst))) == NULL)
-    return (retstr(NULL, TEXT_FORCE_ELECTROSTATIC_FAILURE, __FILE__, __LINE__));
+  vec3d_mul(frc, &vec, charge_p1*charge_p2/(4*M_PI*C_VACUUMPERM*POW2(dst)));
 
   return (universe);
 }
@@ -87,12 +81,10 @@ universe_t *force_lennardjones(vec3d_t *frc, universe_t *universe, const size_t 
   vec3d_t vec;
 
   /* Get the difference vector */
-  if (vec3d_sub(&vec, &(universe->particle[p1].pos), &(universe->particle[p2].pos)) == NULL)
-    return (retstr(NULL, TEXT_FORCE_LENNARDJONES_FAILURE, __FILE__, __LINE__));
+  vec3d_sub(&vec, &(universe->particle[p1].pos), &(universe->particle[p2].pos));
 
   /* Get its magnitude */
-  if ((dst = vec3d_mag(&vec)) < 0.0)
-    return (retstr(NULL, TEXT_FORCE_LENNARDJONES_FAILURE, __FILE__, __LINE__));
+  dst = vec3d_mag(&vec);
 
   /* Turn it into its unit vector */
   if (vec3d_unit(&vec, &vec) == NULL)
@@ -103,8 +95,7 @@ universe_t *force_lennardjones(vec3d_t *frc, universe_t *universe, const size_t 
   epsilon = C_BOLTZMANN*sqrt((universe->particle[p1].epsilon)*(universe->particle[p2].epsilon));
 
   /* Compute the LJ force */
-  if (vec3d_mul(frc, &vec, -24*POW6(sigma)*epsilon*(POW6(dst)-2*POW6(sigma))/POW12(dst)) == NULL)
-    return (retstr(NULL, TEXT_FORCE_LENNARDJONES_FAILURE, __FILE__, __LINE__));
+  vec3d_mul(frc, &vec, -24*POW6(sigma)*epsilon*(POW6(dst)-2*POW6(sigma))/POW12(dst));
 
   return (universe);
 }
@@ -177,12 +168,10 @@ universe_t *force_angle(vec3d_t *frc, universe_t *universe, const size_t p1, con
     return (universe);
   
   /* Get the vector going from the node to the current particle */
-  if (vec3d_sub(&to_current, &(current->pos), &(node->pos)) == NULL)
-    return (retstr(NULL, TEXT_FORCE_ANGLE_FAILURE, __FILE__, __LINE__));
+  vec3d_sub(&to_current, &(current->pos), &(node->pos));
 
   /* As well as its magnitude */
-  if ((to_current_mag = vec3d_mag(&to_current)) < 0.0)
-    return (retstr(NULL, TEXT_FORCE_ANGLE_FAILURE, __FILE__, __LINE__));
+  to_current_mag = vec3d_mag(&to_current);
 
   /* For all ligands */
   for (bond_id=0; bond_id<7; ++bond_id)
@@ -193,11 +182,9 @@ universe_t *force_angle(vec3d_t *frc, universe_t *universe, const size_t p1, con
     if (ligand != NULL && ligand != current)
     {
       /* Get the vector going from the node to the ligand */
-      if (vec3d_sub(&to_ligand, &(ligand->pos), &(node->pos)) == NULL)
-        return (retstr(NULL, TEXT_FORCE_ANGLE_FAILURE, __FILE__, __LINE__));
+      vec3d_sub(&to_ligand, &(ligand->pos), &(node->pos));
 
       /* PERIODIC BOUNDARY CONDITIONS */
-      /* Backup the particle's coordinates */
       pos_backup = ligand->pos;
 
       if (to_ligand.x > 0.5*(universe->size))
@@ -217,8 +204,7 @@ universe_t *force_angle(vec3d_t *frc, universe_t *universe, const size_t p1, con
       /* PERIODIC BOUNDARY CONDITIONS */
 
       /* Get its magnitude */
-      if ((to_ligand_mag = vec3d_mag(&to_ligand)) < 0.0)
-        return (retstr(NULL, TEXT_FORCE_ANGLE_FAILURE, __FILE__, __LINE__));
+      to_ligand_mag = vec3d_mag(&to_ligand);
 
       /* Get the current angle */
       angle = acos(vec3d_dot(&to_current, &to_ligand)/(to_current_mag*to_ligand_mag));
@@ -239,12 +225,10 @@ universe_t *force_angle(vec3d_t *frc, universe_t *universe, const size_t p1, con
         return (retstr(NULL, TEXT_FORCE_ANGLE_FAILURE, __FILE__, __LINE__));
 
       /* Compute the force */
-      if (vec3d_mul(&temp, &e_phi, -5E-8*(angle-angle_eq)) == NULL)
-        return (retstr(NULL, TEXT_FORCE_ANGLE_FAILURE, __FILE__, __LINE__));
+      vec3d_mul(&temp, &e_phi, -5E-8*(angle-angle_eq));
 
       /* Sum it */
-      if (vec3d_add(frc, frc, &temp) == NULL)
-        return (retstr(NULL, TEXT_FORCE_ANGLE_FAILURE, __FILE__, __LINE__));
+      vec3d_add(frc, frc, &temp);
 
       /* Restore the backup coordinates */
       ligand->pos = pos_backup;
@@ -275,8 +259,7 @@ universe_t *force_total(vec3d_t *frc, universe_t *universe, const size_t part_id
       pos_backup = universe->particle[i].pos;
 
       /* Get the vector going to the target particle */
-      if (vec3d_sub(&to_target, &(universe->particle[i].pos), &(universe->particle[part_id].pos)) == NULL)
-        return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__));
+      vec3d_sub(&to_target, &(universe->particle[i].pos), &(universe->particle[part_id].pos));
       
       /* Temporarily undo the PBC enforcement, if needed */
       if (to_target.x > 0.5*(universe->size))
@@ -305,10 +288,8 @@ universe_t *force_total(vec3d_t *frc, universe_t *universe, const size_t part_id
           return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__));
 
         /* Sum the forces */
-        if (vec3d_add(frc, frc, &vec_bond) == NULL)
-          return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__));
-        if (vec3d_add(frc, frc, &vec_angle) == NULL)
-          return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__));
+        vec3d_add(frc, frc, &vec_bond);
+        vec3d_add(frc, frc, &vec_angle);
       }
 
       /* Non-bonded interractions */
@@ -321,10 +302,8 @@ universe_t *force_total(vec3d_t *frc, universe_t *universe, const size_t part_id
           return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__));
 
         /* Sum the forces */
-        if (vec3d_add(frc, frc, &vec_electrostatic) == NULL)
-          return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__));
-        if (vec3d_add(frc, frc, &vec_lennardjones) == NULL)
-          return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__));
+        vec3d_add(frc, frc, &vec_electrostatic);
+        vec3d_add(frc, frc, &vec_lennardjones);
       }
 
       /* Restore the backup coordinates */

@@ -42,6 +42,7 @@ particle_t *particle_init(particle_t *particle)
   return (particle);
 }
 
+/* Update a particle's force */
 universe_t *particle_update_frc(universe_t *universe, const uint64_t part_id)
 {
   /* Used in the numerical method */
@@ -109,10 +110,7 @@ universe_t *particle_update_frc(universe_t *universe, const uint64_t part_id)
 /* Velocity-Verlet integrator */
 universe_t *particle_update_acc(universe_t *universe, const uint64_t part_id)
 {
-  particle_t *current;
-
-  current = &(universe->particle[part_id]);
-  if (vec3d_div(&(current->acc), &(current->frc), model_mass(current->element)) == NULL)
+  if (vec3d_div(&(universe->particle[part_id].acc), &(universe->particle[part_id].frc), model_mass(universe->particle[part_id].element)) == NULL)
     return (retstr(NULL, TEXT_PARTICLE_UPDATE_ACC_FAILURE, __FILE__, __LINE__));
 
   return (universe);
@@ -121,18 +119,15 @@ universe_t *particle_update_acc(universe_t *universe, const uint64_t part_id)
 /* Velocity-Verlet integrator */
 universe_t *particle_update_spd(universe_t *universe, const args_t *args, const uint64_t part_id)
 {
-  particle_t *current;
-  vec3d_t temp;
+  vec3d_t new_spd;
 
-  current = &(universe->particle[part_id]);
-
-  /* new_spd = acc*dt*0.5 */
-  if (vec3d_mul(&temp, &(current->acc), args->timestep * 0.5) == NULL)
-    return (retstr(NULL, TEXT_PARTICLE_UPDATE_SPD_FAILURE, __FILE__, __LINE__));
-
-  /* spd += new_spd */
-  if (vec3d_add(&(current->spd), &(current->spd), &temp) == NULL)
-    return (retstr(NULL, TEXT_PARTICLE_UPDATE_SPD_FAILURE, __FILE__, __LINE__));
+  /*
+   * new_spd = acc*dt*0.5
+   * spd += new_spd
+   */
+   
+  vec3d_mul(&new_spd, &(universe->particle[part_id].acc), 0.5 * args->timestep);
+  vec3d_add(&(universe->particle[part_id].spd), &(universe->particle[part_id].spd), &new_spd);
 
   return (universe);
 }
@@ -140,54 +135,45 @@ universe_t *particle_update_spd(universe_t *universe, const args_t *args, const 
 /* Velocity-Verlet integrator */
 universe_t *particle_update_pos(universe_t *universe, const args_t *args, const uint64_t part_id)
 {
-  particle_t *current;
   vec3d_t temp;
 
-  current = &(universe->particle[part_id]);
-
-  /* new_pos = acc*dt*0.5 */
-  if (vec3d_mul(&temp, &(current->acc), args->timestep * 0.5) == NULL)
-    return (retstr(NULL, TEXT_PARTICLE_UPDATE_POS_FAILURE, __FILE__, __LINE__));
-
-  /* new_pos += spd */
-  if (vec3d_add(&temp, &temp, &(current->spd)) == NULL)
-    return (retstr(NULL, TEXT_PARTICLE_UPDATE_POS_FAILURE, __FILE__, __LINE__));
-
-  /* new_pos *= dt */
-  if (vec3d_mul(&temp, &temp, args->timestep) == NULL)
-    return (retstr(NULL, TEXT_PARTICLE_UPDATE_POS_FAILURE, __FILE__, __LINE__));
-
-  /* pos += new_pos */
-  if (vec3d_add(&(current->pos), &(current->pos), &temp) == NULL)
-    return (retstr(NULL, TEXT_PARTICLE_UPDATE_POS_FAILURE, __FILE__, __LINE__));
+  /*
+   * new_pos = acc*dt*0.5
+   * new_pos += spd
+   * new_pos *= dt
+   * pos += new_pos
+   */
+   
+  vec3d_mul(&temp, &(universe->particle[part_id].acc), args->timestep * 0.5);
+  vec3d_add(&temp, &temp, &(universe->particle[part_id].spd));
+  vec3d_mul(&temp, &temp, args->timestep);
+  vec3d_add(&(universe->particle[part_id].pos), &(universe->particle[part_id].pos), &temp);
 
   return (universe);
 }
 
+/* Enforce the periodic boundary conditions by relocating the particle, if required */
 universe_t *particle_enforce_pbc(universe_t *universe, const uint64_t part_id)
 {
-  particle_t *p;
-  
-  p = &(universe->particle[part_id]);
+  if (universe->particle[part_id].pos.x >= 0.5*(universe->size))
+    universe->particle[part_id].pos.x -= universe->size;
+  else if (universe->particle[part_id].pos.x < -0.5*(universe->size))
+    universe->particle[part_id].pos.x += universe->size;
 
-  if (p->pos.x >= 0.5*(universe->size))
-    p->pos.x -= universe->size;
-  else if (p->pos.x < -0.5*(universe->size))
-    p->pos.x += universe->size;
+  if (universe->particle[part_id].pos.y >= 0.5*(universe->size))
+    universe->particle[part_id].pos.y -= universe->size;
+  else if (universe->particle[part_id].pos.y < -0.5*(universe->size))
+    universe->particle[part_id].pos.y += universe->size;
 
-  if (p->pos.y >= 0.5*(universe->size))
-    p->pos.y -= universe->size;
-  else if (p->pos.y < -0.5*(universe->size))
-    p->pos.y += universe->size;
-
-  if (p->pos.z >= 0.5*(universe->size))
-    p->pos.z -= universe->size;
-  else if (p->pos.z < -0.5*(universe->size))
-    p->pos.z += universe->size;
+  if (universe->particle[part_id].pos.z >= 0.5*(universe->size))
+    universe->particle[part_id].pos.z -= universe->size;
+  else if (universe->particle[part_id].pos.z < -0.5*(universe->size))
+    universe->particle[part_id].pos.z += universe->size;
 
   return (universe);
 }
 
+/* Returns 0 if p1 is not bonded to p2, returns 1 if it is bonded to p2 */
 int particle_is_bonded(const particle_t *p1, const particle_t *p2)
 {
   if (p1 != p2->bond[0] &&
