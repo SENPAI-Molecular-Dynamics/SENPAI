@@ -71,8 +71,9 @@ universe_t *potential_lennardjones(double *pot, universe_t *universe, const size
   vec3d_t vec;
 
   /* Get the distance between the particles */
+  /* Scale dst to Angstroms */
   vec3d_sub(&vec, &(universe->particle[p2].pos), &(universe->particle[p1].pos));
-  dst = vec3d_mag(&vec);
+  dst = 1E10 * vec3d_mag(&vec);
 
   /* Compute the Lennard-Jones parameters
    * (Duffy, E. M.; Severance, D. L.; Jorgensen, W. L.; Isr. J. Chem.1993, 33,  323)
@@ -81,7 +82,9 @@ universe_t *potential_lennardjones(double *pot, universe_t *universe, const size
   epsilon = sqrt((universe->particle[p1].epsilon)*(universe->particle[p2].epsilon));
 
   /* Compute the potential */
+  /* And scale from kJ.mol-1 to J */
   *pot = 4*epsilon*(POW12(sigma/dst)-POW6(sigma/dst));
+  *pot *= 1000/C_AVOGADRO;
 
   return (universe);
 }
@@ -259,7 +262,7 @@ universe_t *potential_total(double *pot, universe_t *universe, const size_t part
 
         /* Sum the potentials */
         *pot += pot_bond;
-        *pot += pot_angle;
+        //*pot += pot_angle;
       }
 
       /* Non-bonded interractions */
@@ -271,7 +274,7 @@ universe_t *potential_total(double *pot, universe_t *universe, const size_t part
           return (retstr(NULL, TEXT_POTENTIAL_TOTAL_FAILURE, __FILE__, __LINE__));
 
         /* Sum the potentials */
-        *pot += pot_electrostatic;
+        //*pot += pot_electrostatic;
         *pot += pot_lennardjones;
       }
 

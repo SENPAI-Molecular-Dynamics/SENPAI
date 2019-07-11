@@ -73,12 +73,14 @@ universe_t *force_lennardjones(vec3d_t *frc, universe_t *universe, const size_t 
 {
   double sigma;
   double epsilon;
+  double force;
   double dst;
   vec3d_t vec;
 
   /* Get the distance between the particles */
+  /* Scale dst to Angstroms */
   vec3d_sub(&vec, &(universe->particle[p2].pos), &(universe->particle[p1].pos));
-  dst = vec3d_mag(&vec);
+  dst = 1E10 * vec3d_mag(&vec);
 
   /* Turn it into its unit vector */
   if (vec3d_unit(&vec, &vec) == NULL)
@@ -91,7 +93,10 @@ universe_t *force_lennardjones(vec3d_t *frc, universe_t *universe, const size_t 
   epsilon = sqrt((universe->particle[p1].epsilon)*(universe->particle[p2].epsilon));
 
   /* Compute the LJ force */
-  vec3d_mul(frc, &vec, 48*epsilon/POW2(dst)*(POW12(sigma/dst)-0.5*POW6(sigma/dst)));
+  /* And scale from kJ.mol-1.ang-1 to N */
+  force = 48*epsilon*((POW12(sigma)/POW13(dst)) - 0.5*(POW6(sigma)/POW7(dst)));
+  force *= 1E13/C_AVOGADRO;
+  vec3d_mul(frc, &vec, force);
 
   return (universe);
 }

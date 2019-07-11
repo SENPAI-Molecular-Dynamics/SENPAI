@@ -21,7 +21,9 @@
 #define POW2(x) (x*x)
 #define POW3(x) (x*POW2(x))
 #define POW6(x) (POW3(x)*POW3(x))
+#define POW7(x) (x*POW6(x))
 #define POW12(x) (POW6(x)*POW6(x))
+#define POW13(x) (x*POW12(x))
 
 #define MODE_ANALYTICAL 0
 #define MODE_NUMERICAL 1
