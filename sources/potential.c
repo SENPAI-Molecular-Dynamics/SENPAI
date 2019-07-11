@@ -26,7 +26,7 @@ universe_t *potential_bond(double *pot, universe_t *universe, const size_t p1, c
   vec3d_t vec;
 
   /* Get the difference vector */
-  vec3d_sub(&vec, &(universe->particle[p1].pos), &(universe->particle[p2].pos));
+  vec3d_sub(&vec, &(universe->particle[p2].pos), &(universe->particle[p1].pos));
 
   /* Get its magnitude */
   dst = vec3d_mag(&vec);
@@ -199,8 +199,8 @@ universe_t *potential_angle(double *pot, universe_t *universe, const size_t p1, 
         angle = -(2*M_PI-angle);
 
       /* Compute the potential */
-      angular_displacement = angle-angle_eq;
-      *pot += 5E-8*POW2(angular_displacement);
+      angular_displacement = angle - angle_eq;
+      *pot += 0.5*5E-8*POW2(angular_displacement);
 
       /* Restore the backup coordinates */
       ligand->pos = pos_backup;

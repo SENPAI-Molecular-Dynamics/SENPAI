@@ -24,7 +24,7 @@ universe_t *force_bond(vec3d_t *frc, universe_t *universe, const size_t p1, cons
   vec3d_t vec;
 
   /* Get the difference vector */
-  vec3d_sub(&vec, &(universe->particle[p1].pos), &(universe->particle[p2].pos));
+  vec3d_sub(&vec, &(universe->particle[p2].pos), &(universe->particle[p1].pos));
 
   /* Get its magnitude */
   dst = vec3d_mag(&vec);
@@ -43,7 +43,7 @@ universe_t *force_bond(vec3d_t *frc, universe_t *universe, const size_t p1, cons
 
   /* Compute the force vector */
   spring_constant = universe->particle[p1].bond_strength[bond_id];
-  vec3d_mul(frc, &vec, -displacement*spring_constant);
+  vec3d_mul(frc, &vec, displacement*spring_constant);
 
   return (universe);
 }
@@ -56,7 +56,7 @@ universe_t *force_electrostatic(vec3d_t *frc, universe_t *universe, const size_t
   vec3d_t vec;
 
   /* Get the difference vector */
-  vec3d_sub(&vec, &(universe->particle[p1].pos), &(universe->particle[p2].pos));
+  vec3d_sub(&vec, &(universe->particle[p2].pos), &(universe->particle[p1].pos));
 
   /* Get its magnitude */
   dst = vec3d_mag(&vec);
@@ -81,7 +81,7 @@ universe_t *force_lennardjones(vec3d_t *frc, universe_t *universe, const size_t 
   vec3d_t vec;
 
   /* Get the difference vector */
-  vec3d_sub(&vec, &(universe->particle[p1].pos), &(universe->particle[p2].pos));
+  vec3d_sub(&vec, &(universe->particle[p2].pos), &(universe->particle[p1].pos));
 
   /* Get its magnitude */
   dst = vec3d_mag(&vec);
