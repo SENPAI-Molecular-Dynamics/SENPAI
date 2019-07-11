@@ -84,12 +84,14 @@ universe_t *force_lennardjones(vec3d_t *frc, universe_t *universe, const size_t 
   if (vec3d_unit(&vec, &vec) == NULL)
     return (retstr(NULL, TEXT_FORCE_LENNARDJONES_FAILURE, __FILE__, __LINE__));
 
-  /* Compute the Lennard-Jones parameters (Duffy, E. M.; Severance, D. L.; Jorgensen, W. L.; Isr. J. Chem.1993, 33,  323) */
+  /* Compute the Lennard-Jones parameters
+   * (Duffy, E. M.; Severance, D. L.; Jorgensen, W. L.; Isr. J. Chem.1993, 33,  323)
+   */
   sigma = sqrt((universe->particle[p1].sigma)*(universe->particle[p2].sigma));
-  epsilon = C_BOLTZMANN*sqrt((universe->particle[p1].epsilon)*(universe->particle[p2].epsilon));
+  epsilon = sqrt((universe->particle[p1].epsilon)*(universe->particle[p2].epsilon));
 
   /* Compute the LJ force */
-  vec3d_mul(frc, &vec, -24*POW6(sigma)*epsilon*(POW6(dst)-2*POW6(sigma))/POW12(dst));
+  vec3d_mul(frc, &vec, 48*epsilon/POW2(dst)*(POW12(sigma/dst)-0.5*POW6(sigma/dst)));
 
   return (universe);
 }

@@ -74,9 +74,11 @@ universe_t *potential_lennardjones(double *pot, universe_t *universe, const size
   vec3d_sub(&vec, &(universe->particle[p2].pos), &(universe->particle[p1].pos));
   dst = vec3d_mag(&vec);
 
-  /* Compute the Lennard-Jones parameters (Duffy, E. M.; Severance, D. L.; Jorgensen, W. L.; Isr. J. Chem.1993, 33,  323) */
+  /* Compute the Lennard-Jones parameters
+   * (Duffy, E. M.; Severance, D. L.; Jorgensen, W. L.; Isr. J. Chem.1993, 33,  323)
+   */
   sigma = sqrt((universe->particle[p1].sigma)*(universe->particle[p2].sigma));
-  epsilon = C_BOLTZMANN*sqrt((universe->particle[p1].epsilon)*(universe->particle[p2].epsilon));
+  epsilon = sqrt((universe->particle[p1].epsilon)*(universe->particle[p2].epsilon));
 
   /* Compute the potential */
   *pot = 4*epsilon*(POW12(sigma/dst)-POW6(sigma/dst));
