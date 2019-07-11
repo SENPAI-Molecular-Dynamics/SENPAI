@@ -42,7 +42,7 @@ universe_t *potential_bond(double *pot, universe_t *universe, const size_t p1, c
   *pot = 0.5*spring_constant*POW2(displacement);
 
   return (universe);
-} 
+}
 
 universe_t *potential_electrostatic(double *pot, universe_t *universe, const size_t p1, const size_t p2)
 {
@@ -58,7 +58,8 @@ universe_t *potential_electrostatic(double *pot, universe_t *universe, const siz
   /* Compute the potential */
   charge_p1 = universe->particle[p1].charge;
   charge_p2 = universe->particle[p2].charge;
-  *pot = charge_p1*charge_p2/(4*M_PI*C_VACUUMPERM*dst);
+  *pot = charge_p1*charge_p2/dst;
+  *pot *= 1/(4*M_PI*C_VACUUMPERM);
 
   return (universe);
 }
@@ -262,7 +263,7 @@ universe_t *potential_total(double *pot, universe_t *universe, const size_t part
 
         /* Sum the potentials */
         *pot += pot_bond;
-        //*pot += pot_angle;
+        *pot += pot_angle;
       }
 
       /* Non-bonded interractions */
@@ -274,7 +275,7 @@ universe_t *potential_total(double *pot, universe_t *universe, const size_t part
           return (retstr(NULL, TEXT_POTENTIAL_TOTAL_FAILURE, __FILE__, __LINE__));
 
         /* Sum the potentials */
-        //*pot += pot_electrostatic;
+        *pot += pot_electrostatic;
         *pot += pot_lennardjones;
       }
 
