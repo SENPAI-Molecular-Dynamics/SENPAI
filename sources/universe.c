@@ -140,7 +140,6 @@ universe_t *universe_load(universe_t *universe)
     temp->charge *= 1.602176634E-19;
 
     /* Scale from Angstroms to metres */
-    temp->sigma *= 1E-10;
     temp->pos.x *= 1E-10;
     temp->pos.y *= 1E-10;
     temp->pos.z *= 1E-10;
