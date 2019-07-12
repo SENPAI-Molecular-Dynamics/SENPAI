@@ -14,14 +14,39 @@
 #include "util.h"
 #include "vec3d.h"
 
+/* Initialise a particle's memory */
 particle_t *particle_init(particle_t *particle)
 {
   particle->element = ATOM_NULL;
-  particle->bond_nb = 0;
-
   particle->charge = 0.0;
   particle->epsilon = 0.0;
   particle->sigma = 0.0;
+
+  particle->bond_nb = 7;
+
+  particle->bond[0] = NULL;
+  particle->bond[1] = NULL;
+  particle->bond[2] = NULL;
+  particle->bond[3] = NULL;
+  particle->bond[4] = NULL;
+  particle->bond[5] = NULL;
+  particle->bond[6] = NULL;
+
+  particle->bond_id[0] = -1;
+  particle->bond_id[1] = -1;
+  particle->bond_id[2] = -1;
+  particle->bond_id[3] = -1;
+  particle->bond_id[4] = -1;
+  particle->bond_id[5] = -1;
+  particle->bond_id[6] = -1;
+
+  particle->bond_strength[0] = 0.0;
+  particle->bond_strength[1] = 0.0;
+  particle->bond_strength[2] = 0.0;
+  particle->bond_strength[3] = 0.0;
+  particle->bond_strength[4] = 0.0;
+  particle->bond_strength[5] = 0.0;
+  particle->bond_strength[6] = 0.0;
 
   particle->pos.x = 0.0;
   particle->pos.y = 0.0;
@@ -42,67 +67,64 @@ particle_t *particle_init(particle_t *particle)
   return (particle);
 }
 
-/* Update a particle's force */
-universe_t *particle_update_frc(universe_t *universe, const uint64_t part_id)
+/* Get the force through numerical differentiation */
+universe_t *particle_update_frc_numerical(universe_t *universe, const uint64_t part_id)
 {
-  /* Used in the numerical method */
-  uint8_t err_flag;
   double potential;
   double potential_new;
   double h;
-
-  err_flag = 0;
 
   /* Reset the force vector */
   universe->particle[part_id].frc.x = 0.0;
   universe->particle[part_id].frc.y = 0.0;
   universe->particle[part_id].frc.z = 0.0;
 
-  /* If we use numerical solving */
-  if (universe->force_computation_mode == MODE_NUMERICAL)
-  {
+  /* Differentiate potential over x axis */
+  h = ROOT_MACHINE_EPSILON * (universe->particle[part_id].pos.x);
+  universe->particle[part_id].pos.x -= h;
+  if (potential_total(&potential, universe, part_id) == NULL)
+    return (retstr(NULL, TEXT_PARTICLE_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
+  universe->particle[part_id].pos.x += 2*h;
+  if (potential_total(&potential_new, universe, part_id) == NULL)
+    return (retstr(NULL, TEXT_PARTICLE_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
+  universe->particle[part_id].frc.x = -(potential_new - potential)/(2*h);
+  universe->particle[part_id].pos.x -= h;
+  
+  /* Differentiate potential over y axis */
+  h = ROOT_MACHINE_EPSILON * (universe->particle[part_id].pos.y);
+  universe->particle[part_id].pos.y -= h;
+  if (potential_total(&potential, universe, part_id) == NULL)
+    return (retstr(NULL, TEXT_PARTICLE_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
+  universe->particle[part_id].pos.y += 2*h;
+  if (potential_total(&potential_new, universe, part_id) == NULL)
+    return (retstr(NULL, TEXT_PARTICLE_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
+  universe->particle[part_id].frc.y = -(potential_new - potential)/(2*h);
+  universe->particle[part_id].pos.y -= h;
 
-    /* Differentiate potential over x axis */
-    h = ROOT_MACHINE_EPSILON * (universe->particle[part_id].pos.x);
-    universe->particle[part_id].pos.x -= h;
-    if (potential_total(&potential, universe, part_id) == NULL)
-      return (retstr(NULL, TEXT_PARTICLE_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
-    universe->particle[part_id].pos.x += 2*h;
-    if (potential_total(&potential_new, universe, part_id) == NULL)
-      return (retstr(NULL, TEXT_PARTICLE_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
-    universe->particle[part_id].frc.x = -(potential_new - potential)/(2*h);
-    universe->particle[part_id].pos.x -= h;
-    
-    /* Differentiate potential over y axis */
-    h = ROOT_MACHINE_EPSILON * (universe->particle[part_id].pos.y);
-    universe->particle[part_id].pos.y -= h;
-    if (potential_total(&potential, universe, part_id) == NULL)
-      return (retstr(NULL, TEXT_PARTICLE_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
-    universe->particle[part_id].pos.y += 2*h;
-    if (potential_total(&potential_new, universe, part_id) == NULL)
-      return (retstr(NULL, TEXT_PARTICLE_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
-    universe->particle[part_id].frc.y = -(potential_new - potential)/(2*h);
-    universe->particle[part_id].pos.y -= h;
+  /* Differentiate potential over z axis */
+  h = ROOT_MACHINE_EPSILON * (universe->particle[part_id].pos.z);
+  universe->particle[part_id].pos.z -= h;
+  if (potential_total(&potential, universe, part_id) == NULL)
+    return (retstr(NULL, TEXT_PARTICLE_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
+  universe->particle[part_id].pos.z += 2*h;
+  if (potential_total(&potential_new, universe, part_id) == NULL)
+    return (retstr(NULL, TEXT_PARTICLE_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
+  universe->particle[part_id].frc.z = -(potential_new - potential)/(2*h);
+  universe->particle[part_id].pos.z -= h;
 
-    /* Differentiate potential over z axis */
-    h = ROOT_MACHINE_EPSILON * (universe->particle[part_id].pos.z);
-    universe->particle[part_id].pos.z -= h;
-    if (potential_total(&potential, universe, part_id) == NULL)
-      return (retstr(NULL, TEXT_PARTICLE_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
-    universe->particle[part_id].pos.z += 2*h;
-    if (potential_total(&potential_new, universe, part_id) == NULL)
-      return (retstr(NULL, TEXT_PARTICLE_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
-    universe->particle[part_id].frc.z = -(potential_new - potential)/(2*h);
-    universe->particle[part_id].pos.z -= h;
-    
-    /* We check if an error happened during potential energy computation */
-    if (err_flag)
-      return (retstr(NULL, TEXT_POTENTIAL_TOTAL_FAILURE, __FILE__, __LINE__));
-  }
+  return (universe);
+}
 
-  /* If we use analytical solving, compute and apply the force */
-  else if (force_total(&(universe->particle[part_id].frc), universe, part_id) == NULL)
-      return (retstr(NULL, TEXT_POTENTIAL_TOTAL_FAILURE, __FILE__, __LINE__));
+/* Get the force through analytical solving */
+universe_t *particle_update_frc_analytical(universe_t *universe, const uint64_t part_id)
+{
+  /* Reset the force vector */
+  universe->particle[part_id].frc.x = 0.0;
+  universe->particle[part_id].frc.y = 0.0;
+  universe->particle[part_id].frc.z = 0.0;
+
+  if (force_total(&(universe->particle[part_id].frc), universe, part_id) == NULL)
+    return (retstr(NULL, TEXT_POTENTIAL_TOTAL_FAILURE, __FILE__, __LINE__));
 
   return (universe);
 }

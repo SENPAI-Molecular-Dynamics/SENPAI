@@ -20,60 +20,63 @@
 
 universe_t *universe_init(universe_t *universe, const args_t *args)
 {
-  int32_t c;
-  size_t file_len;
-  size_t i;
-  FILE *input_file;
+  int32_t c;               /* Used as a character buffer for getc */
+  size_t i;                /* Iterator */
+  size_t input_file_len;   /* Size of the input file (bytes) */
+  char *input_file_buffer; /* A memory copy of the input file */
 
   /* Initialize the variables */
+  universe->sys_size = 0;
+  universe->copy_nb = args->copies;
   universe->part_nb = 0;
-  universe->mol_size = 0;
   universe->time = 0.0;
-  universe->iterations = 0;
   universe->temperature = args->temperature;
-  universe->mol_nb = args->molecules;
-  universe->force_computation_mode = args->numerical;
+  universe->pressure = args->pressure;
+  universe->iterations = 0;
+
+  /* Open the output file */
+  if ((universe->output_file = fopen(args->out_path, "w")) == NULL)
+    return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
 
   /* Open the input file */
-  if ((input_file = fopen(args->path, "r")) == NULL)
+  if ((universe->input_file = fopen(args->path, "r")) == NULL)
     return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
 
   /* Count the lines in the input file to get the molecule size */
-  while ((c = getc(input_file)) != EOF)
+  while ((c = getc(universe->input_file)) != EOF)
      if (c == '\n')
-       ++(universe->mol_size);
-   universe->part_nb = (universe->mol_nb)*(universe->mol_size);
+       ++(universe->sys_size);
+   universe->part_nb = (universe->copy_nb)*(universe->sys_size);
 
   /* Get the file's size */
-  fseek(input_file, 0, SEEK_END);
-  file_len = ftell(input_file);
-  rewind(input_file);
+  fseek(universe->input_file, 0, SEEK_END);
+  input_file_len = ftell(universe->input_file);
+  rewind(universe->input_file);
   
   /* Initialize the memory buffer for the file */
-  if ((universe->input_file_buffer = (char*)malloc(file_len+1)) == NULL)
+  if ((input_file_buffer = (char*)malloc(input_file_len+1)) == NULL)
     return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
 
   /* Load it in the buffer, terminate the string */
-  if (fread(universe->input_file_buffer, sizeof(char), file_len, input_file) != file_len)
+  if (fread(input_file_buffer, sizeof(char), input_file_len, universe->input_file) != input_file_len)
     return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
-  universe->input_file_buffer[file_len] = '\0';
-
-  /* Close the file, we're done */
-  fclose(input_file);
+  input_file_buffer[input_file_len] = '\0';
 
   /* Allocate memory for the particles */
   if ((universe->particle = malloc((universe->part_nb)*sizeof(particle_t))) == NULL)
     return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
 
   /* Initialize the particle memory */
-  memset(universe->particle, 0, (universe->part_nb)*sizeof(particle_t));
   for (i=0; i<(universe->part_nb); ++i)
     if (particle_init(&(universe->particle[i])) == NULL)
       return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
 
   /* Load the initial state from the input file */
-  if (universe_load(universe) == NULL)
+  if (universe_load(universe, input_file_buffer) == NULL)
     return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
+  
+  /* Free the buffer, we're done */
+  free(input_file_buffer);
 
   /* Initialize the universe size */
   universe->size = cbrt(C_BOLTZMANN*(universe->part_nb)*(universe->temperature)/(args->pressure));
@@ -82,23 +85,14 @@ universe_t *universe_init(universe_t *universe, const args_t *args)
   if (universe_populate(universe) == NULL)
     return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
 
-  /* Enforce the PBC */
-  for (i=0; i<(universe->part_nb); ++i)
-    if (particle_enforce_pbc(universe, i) == NULL)
-      return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
-
   /* Apply initial velocities */
   if (universe_setvelocity(universe) == NULL)
-    return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
-
-  /* Initialize the .xyz file pointer */
-  if ((universe->output_file_xyz = fopen(args->out_path, "w")) == NULL)
     return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
 
   return (universe);
 }
 
-universe_t *universe_load(universe_t *universe)
+universe_t *universe_load(universe_t *universe, char *input_file_buffer)
 {
   size_t i;
   size_t ii;
@@ -107,8 +101,8 @@ universe_t *universe_load(universe_t *universe)
   particle_t *temp;
   
   /* Load the initial state from the input file */
-  tok = strtok(universe->input_file_buffer, "\n");
-  for (i=0; i<(universe->mol_size); ++i)
+  tok = strtok(input_file_buffer, "\n");
+  for (i=0; i<(universe->sys_size); ++i)
   {
     temp = &(universe->particle[i]);
     if (sscanf(tok,
@@ -162,25 +156,25 @@ universe_t *universe_load(universe_t *universe)
 
 universe_t *universe_populate(universe_t *universe)
 {
-  size_t i;
-  size_t ii;
-  size_t iii;
-  size_t id_offset;
-  vec3d_t pos_offset;
-  particle_t *reference;
-  particle_t *current;
+  size_t i;              /* Iterator */
+  size_t ii;             /* Iterator */
+  size_t iii;            /* Iterator */
+  size_t id_offset;      /* ID offset in the (universe.particle) array */
+  vec3d_t pos_offset;    /* Physical position offset */
+  particle_t *reference; /* Reference particle */
+  particle_t *current;   /* Cloned particle */
   
   /* For every molecule */
-  for (i=1; i<(universe->mol_nb); ++i) /* i=1 because we already have a molecule loaded at particle[0] */
+  for (i=1; i<(universe->copy_nb); ++i) /* i=1 because we already have a molecule loaded at particle[0] */
   { 
-    id_offset = (universe->mol_size)*i;
+    id_offset = (universe->sys_size)*i;
 
     /* Generate a random vector */
     vec3d_marsaglia(&pos_offset);
     vec3d_mul(&pos_offset, &pos_offset, (0.1*(universe->size)) + (0.8*(universe->size)*cos(rand())));
     
     /* For every atom in the molecule */
-    for (ii=0; ii<(universe->mol_size); ++ii)
+    for (ii=0; ii<(universe->sys_size); ++ii)
     {
       /* Clone the reference atom */
       reference = &(universe->particle[ii]);
@@ -203,6 +197,11 @@ universe_t *universe_populate(universe_t *universe)
       }
     }
   }
+
+  /* Enforce the PBC */
+  for (i=0; i<(universe->part_nb); ++i)
+    if (particle_enforce_pbc(universe, i) == NULL)
+      return (retstr(NULL, TEXT_UNIVERSE_POPULATE_FAILURE, __FILE__, __LINE__));
     
   return (universe);
 }
@@ -210,14 +209,14 @@ universe_t *universe_populate(universe_t *universe)
 /* Apply a velocity to all the system's particles from the average kinetic energy */
 universe_t *universe_setvelocity(universe_t *universe)
 {
-  double mass_mol;
-  double velocity;
-  vec3d_t vec;
-  size_t i;
+  size_t i;        /* Iterator */
+  double mass_mol; /* Mass of a loaded system's */
+  double velocity; /* Average velocity calculated */
+  vec3d_t vec;     /* Random vector */
 
   /* Get the molecular mass */
   mass_mol = 0;
-  for (i=0; i<(universe->mol_size); ++i)
+  for (i=0; i<(universe->sys_size); ++i)
     mass_mol += model_mass(universe->particle[i].element);
 
   /* Get the average velocity */
@@ -237,59 +236,26 @@ universe_t *universe_setvelocity(universe_t *universe)
 void universe_clean(universe_t *universe)
 {
   /* Close the file pointers */
-  fclose(universe->output_file_xyz);
+  fclose(universe->output_file);
+  fclose(universe->input_file);
 
   /* Free allocated memory */
-  free(universe->input_file_buffer);
   free(universe->particle);
-}
-
-universe_t *universe_iterate(universe_t *universe, const args_t *args)
-{
-  size_t i;
-
-  /* We update the position vector first, as part of the Velocity-Verley integration */
-  for (i=0; i<(universe->part_nb); ++i)
-    if (particle_update_pos(universe, args, i) == NULL)
-      return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
-
-  /* We enforce the periodic boundary conditions */
-  for (i=0; i<(universe->part_nb); ++i)
-    if (particle_enforce_pbc(universe, i) == NULL)
-      return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
-
-  /* Update the force vectors */
-  for (i=0; i<(universe->part_nb); ++i)
-    if (particle_update_frc(universe, i) == NULL)
-      return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
-
-  /* Update the acceleration vectors */
-  for (i=0; i<(universe->part_nb); ++i)
-    if (particle_update_acc(universe, i) == NULL)
-      return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
-
-  /* Update the speed vectors */
-  for (i=0; i<(universe->part_nb); ++i)
-    if (particle_update_spd(universe, args, i) == NULL)
-      return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
-
-  return (universe);
 }
 
 /* Main loop of the simulator. Iterates until the target time is reached */
 universe_t *universe_simulate(universe_t *universe, const args_t *args)
 {
-  uint64_t frame_nb;
-  double energy;
+  uint64_t frame_nb; /* Used for frameskipping */
+  double energy;     /* The system's energy */
 
-  frame_nb = 0;
-
+  /* Get the system's initial energy */
   if (universe_energy_total(universe, &energy) == NULL)
     return (retstr(NULL, TEXT_UNIVERSE_SIMULATE_FAILURE, __FILE__, __LINE__));
 
   /* Print some useful information */
-  printf("Molecules..............%ld\n", universe->mol_nb);
-  printf("Particles..............%ld\n", universe->part_nb);
+  printf("System copies..........%ld\n", universe->copy_nb);
+  printf("Atoms..................%ld\n", universe->part_nb);
   printf("Temperature............%lf K\n", universe->temperature);
   printf("Pressure...............%lf hPa\n", args->pressure/1E2);
   printf("Total system energy....%lf pJ\n", energy*1E12);
@@ -299,8 +265,11 @@ universe_t *universe_simulate(universe_t *universe, const args_t *args)
   printf("Frameskip..............%ld\n", args->frameskip);
   printf("Iterations.............%ld\n\n", (long)ceil(args->max_time/args->timestep));
 
+  /* Tell the user the simulation is starting */
   puts(TEXT_SIMSTART);
+
   /* While we haven't reached the target time, we iterate the universe */
+  frame_nb = 0;
   while (universe->time < args->max_time)
   {
     /* Print the state to the .xyz file, if required */
@@ -325,16 +294,60 @@ universe_t *universe_simulate(universe_t *universe, const args_t *args)
   return (universe);
 }
 
+universe_t *universe_iterate(universe_t *universe, const args_t *args)
+{
+  size_t i; /* Iterator */
+
+  /* We update the position vector first, as part of the Velocity-Verley integration */
+  for (i=0; i<(universe->part_nb); ++i)
+    if (particle_update_pos(universe, args, i) == NULL)
+      return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+
+  /* We enforce the periodic boundary conditions */
+  for (i=0; i<(universe->part_nb); ++i)
+    if (particle_enforce_pbc(universe, i) == NULL)
+      return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+
+  /* Update the force vectors */
+  /* By numerically differentiating the potential energy... */
+  if (args->numerical == MODE_NUMERICAL)
+  {
+    for (i=0; i<(universe->part_nb); ++i)
+      if (particle_update_frc_numerical(universe, i) == NULL)
+        return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+  }
+  
+  /* Or analytically solving for force */
+  else
+  {
+    for (i=0; i<(universe->part_nb); ++i)
+      if (particle_update_frc_analytical(universe, i) == NULL)
+        return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+  }
+
+  /* Update the acceleration vectors */
+  for (i=0; i<(universe->part_nb); ++i)
+    if (particle_update_acc(universe, i) == NULL)
+      return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+
+  /* Update the speed vectors */
+  for (i=0; i<(universe->part_nb); ++i)
+    if (particle_update_spd(universe, args, i) == NULL)
+      return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+
+  return (universe);
+}
+
 /* Print the system's state to the .xyz file */
 universe_t *universe_printstate(universe_t *universe)
 {
-  size_t i;
+  size_t i; /* Iterator */
 
   /* Print in the .xyz */
-  fprintf(universe->output_file_xyz, "%ld\n%ld\n", universe->part_nb, universe->iterations);
+  fprintf(universe->output_file, "%ld\n%ld\n", universe->part_nb, universe->iterations);
   for (i=0; i<(universe->part_nb); ++i)
   {
-    fprintf(universe->output_file_xyz,
+    fprintf(universe->output_file,
             "%s\t%.15lf\t%.15lf\t%.15lf\n",
             model_symbol(universe->particle[i].element),
             universe->particle[i].pos.x*1E10,
@@ -347,8 +360,8 @@ universe_t *universe_printstate(universe_t *universe)
 /* Compute the system's total kinetic energy */
 universe_t *universe_energy_kinetic(universe_t *universe, double *energy)
 {
-  size_t i;
-  double vel;
+  size_t i;   /* Iterator */
+  double vel; /* Particle velocity (m/s) */
 
   *energy = 0.0;
   for (i=0; i<(universe->part_nb); ++i)
@@ -363,8 +376,8 @@ universe_t *universe_energy_kinetic(universe_t *universe, double *energy)
 /* Compute the system's total potential energy */
 universe_t *universe_energy_potential(universe_t *universe, double *energy)
 {
-  size_t i;
-  double potential;
+  size_t i;         /* Iterator */
+  double potential; /* Total potential energy */
 
   *energy = 0.0;
   for (i=0; i<(universe->part_nb); ++i)
@@ -380,14 +393,18 @@ universe_t *universe_energy_potential(universe_t *universe, double *energy)
 /* Compute the total system energy */
 universe_t *universe_energy_total(universe_t *universe, double *energy)
 {
-  double kinetic;
-  double potential;
+  double kinetic;   /* Total kinetic energy */
+  double potential; /* Total potential energy */
 
+  /* Get the kinetic energy */
   if (universe_energy_kinetic(universe, &kinetic) == NULL)
       return (retstr(NULL, TEXT_UNIVERSE_ENERGY_TOTAL_FAILURE, __FILE__, __LINE__));
+
+  /* Get the potential energy */
   if (universe_energy_potential(universe, &potential) == NULL)
       return (retstr(NULL, TEXT_UNIVERSE_ENERGY_TOTAL_FAILURE, __FILE__, __LINE__));
 
+  /* Get the total energy */
   *energy = kinetic + potential;
   return (universe);
 }
@@ -395,14 +412,15 @@ universe_t *universe_energy_total(universe_t *universe, double *energy)
 /* Apply random transformations to lower the system's potential energy */
 universe_t *universe_montecarlo(universe_t *universe)
 {
-  double potential;
-  double potential_new;
-  double pos_offset_mag;
-  uint64_t part_id;
-  uint64_t tries;
-  vec3d_t pos_offset;
-  vec3d_t pos_backup;
+  double potential;      /* Pre-transformation potential energy */
+  double potential_new;  /* Post-transformation potential energy */
+  double pos_offset_mag; /* Magnitude of the position offset vector */
+  uint64_t part_id;      /* ID of the particle currently being offset */
+  uint64_t tries;        /* How many times we tried to offset the particle */
+  vec3d_t pos_offset;    /* Position offset vector */
+  vec3d_t pos_backup;    /* A backup of the pre-transformation position vector */
 
+  /* For each particle in the universe */
   for (part_id=0; part_id<(universe->part_nb); ++part_id)
   {
     pos_offset_mag = 1E-9;

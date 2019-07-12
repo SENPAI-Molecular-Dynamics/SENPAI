@@ -92,6 +92,10 @@ universe_t *force_lennardjones(vec3d_t *frc, universe_t *universe, const size_t 
   sigma = sqrt((universe->particle[p1].sigma)*(universe->particle[p2].sigma));
   epsilon = sqrt((universe->particle[p1].epsilon)*(universe->particle[p2].epsilon));
 
+  /* Don't compute beyond the cutoff distance */
+  if (dst > LENNARDJONES_CUTOFF*sigma)
+    return (universe);
+
   /* Compute the LJ force */
   /* And scale from kJ.mol-1.ang-1 to N */
   force = 48*epsilon*((POW12(sigma)/POW13(dst)) - 0.5*(POW6(sigma)/POW7(dst)));

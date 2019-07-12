@@ -9,18 +9,21 @@
 
 #include "util.h"
 
+/* Prints str, with extra info (__FILE__ and __LINE__) before returning ret */
 void *retstr(void *ret, const char *str, const char *file, const int line)
 {
   fprintf(stderr, "%s (%s:%d)\n", str, file, line);
   return (ret);
 }
 
+/* Prints str, with extra info (__FILE__ and __LINE__) before returning ret */
 int retstri(int ret, const char *str, const char *file, const int line)
 {
   fprintf(stderr, "%s (%s:%d)\n", str, file, line);
   return (ret);
 }
 
+/* Prints str, with extra info (__FILE__ and __LINE__) before returning ret */
 double retstrf(double ret, const char *str, const char *file, const int line)
 {
   fprintf(stderr, "%s (%s:%d)\n", str, file, line);

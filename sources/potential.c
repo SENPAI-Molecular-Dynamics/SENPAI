@@ -82,6 +82,10 @@ universe_t *potential_lennardjones(double *pot, universe_t *universe, const size
   sigma = sqrt((universe->particle[p1].sigma)*(universe->particle[p2].sigma));
   epsilon = sqrt((universe->particle[p1].epsilon)*(universe->particle[p2].epsilon));
 
+  /* Don't compute beyond the cutoff distance */
+  if (dst > LENNARDJONES_CUTOFF*sigma)
+    return (universe);
+
   /* Compute the potential */
   /* And scale from kJ.mol-1 to J */
   *pot = 4*epsilon*(POW12(sigma/dst)-POW6(sigma/dst));

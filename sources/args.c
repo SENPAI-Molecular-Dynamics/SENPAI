@@ -24,7 +24,7 @@ args_t *args_init(args_t *args)
   args->timestep = ARGS_TIMESTEP_DEFAULT;
   args->max_time = ARGS_MAX_TIME_DEFAULT;
   args->temperature = ARGS_TEMPERATURE_DEFAULT;
-  args->molecules = ARGS_MOLECULES_DEFAULT;
+  args->copies = ARGS_COPIES_DEFAULT;
   args->pressure = ARGS_PRESSURE_DEFAULT;
   args->frameskip = ARGS_FRAMESKIP_DEFAULT;
   args->montecarlo = ARGS_MONTECARLO_DEFAULT;
@@ -49,8 +49,8 @@ args_t *args_parse(args_t *args, int argc, char **argv)
       args->timestep = atof(argv[++i])*1E-15; /* Scale from femtoseconds */
     else if (!strcmp(argv[i], FLAG_TEMP) && (i+1)<argc)
       args->temperature = atof(argv[++i]);
-    else if (!strcmp(argv[i], FLAG_MOL) && (i+1)<argc)
-      args->molecules = strtoul(argv[++i], NULL, 10);
+    else if (!strcmp(argv[i], FLAG_COPIES) && (i+1)<argc)
+      args->copies = strtoul(argv[++i], NULL, 10);
     else if (!strcmp(argv[i], FLAG_PRESSURE) && (i+1)<argc)
       args->pressure = atof(argv[++i])*1E2; /* Scale from mbar */
     else if (!strcmp(argv[i], FLAG_FRAMESKIP) && (i+1)<argc)
@@ -61,7 +61,7 @@ args_t *args_parse(args_t *args, int argc, char **argv)
 
   if (args->path == NULL ||
       args->out_path == NULL ||
-      args->molecules < 1 ||
+      args->copies < 1 ||
       args->temperature <= 0.0 ||
       args->pressure < 0.0 ||
       args->timestep < 0.0)
