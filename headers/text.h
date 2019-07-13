@@ -41,11 +41,11 @@
 /* main.c */
 #define TEXT_MAIN_FAILURE                      TEXT_FAILURE "SENPAI failed to execute properly"
 
-/* particle.c */
-#define TEXT_PARTICLE_UPDATE_FRC_FAILURE       TEXT_FAILURE "particle_update_frc: Failed to update a particle's force"
-#define TEXT_PARTICLE_UPDATE_ACC_FAILURE       TEXT_FAILURE "particle_update_acc: Failed to update a particle's acceleration"
-#define TEXT_PARTICLE_UPDATE_VEL_FAILURE       TEXT_FAILURE "particle_update_vel: Failed to update a particle's velocity"
-#define TEXT_PARTICLE_UPDATE_POS_FAILURE       TEXT_FAILURE "particle_update_pos: Failed to update a particle's position"
+/* atom.c */
+#define TEXT_ATOM_UPDATE_FRC_FAILURE       TEXT_FAILURE "atom_update_frc: Failed to update a atom's force"
+#define TEXT_ATOM_UPDATE_ACC_FAILURE       TEXT_FAILURE "atom_update_acc: Failed to update a atom's acceleration"
+#define TEXT_ATOM_UPDATE_VEL_FAILURE       TEXT_FAILURE "atom_update_vel: Failed to update a atom's velocity"
+#define TEXT_ATOM_UPDATE_POS_FAILURE       TEXT_FAILURE "atom_update_pos: Failed to update a atom's position"
 
 /* potential.c */
 #define TEXT_POTENTIAL_BOND_FAILURE            TEXT_FAILURE "potential_bond: Failed to compute bond potential"

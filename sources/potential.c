@@ -15,72 +15,72 @@
 #include "util.h"
 #include "vec3d.h"
 
-universe_t *potential_bond(double *pot, universe_t *universe, const size_t p1, const size_t p2)
+universe_t *potential_bond(double *pot, universe_t *universe, const size_t a1, const size_t a2)
 {
   int bond_id;
   double spring_constant;
   double displacement;
-  double radius_p1;
-  double radius_p2;
+  double radius_a1;
+  double radius_a2;
   double dst;
   vec3d_t vec;
 
-  /* Get the distance between the particles */
-  vec3d_sub(&vec, &(universe->particle[p2].pos), &(universe->particle[p1].pos));
+  /* Get the distance between the atoms */
+  vec3d_sub(&vec, &(universe->atom[a2].pos), &(universe->atom[a1].pos));
   dst = vec3d_mag(&vec);
 
   /* Find the bond id */
-  for (bond_id=0; universe->particle[p1].bond[bond_id] != &(universe->particle[p2]); ++bond_id);
+  for (bond_id=0; universe->atom[a1].bond[bond_id] != &(universe->atom[a2]); ++bond_id);
 
   /* Compute the displacement */
-  radius_p1 = model_covalent_radius(universe->particle[p1].element);
-  radius_p2 = model_covalent_radius(universe->particle[p2].element);
-  displacement = dst - (radius_p1 + radius_p2);
+  radius_a1 = model_covalent_radius(universe->atom[a1].element);
+  radius_a2 = model_covalent_radius(universe->atom[a2].element);
+  displacement = dst - (radius_a1 + radius_a2);
 
   /* Compute the potential */
-  spring_constant = universe->particle[p1].bond_strength[bond_id];
+  spring_constant = universe->atom[a1].bond_strength[bond_id];
   *pot = 0.5*spring_constant*POW2(displacement);
 
   return (universe);
 }
 
-universe_t *potential_electrostatic(double *pot, universe_t *universe, const size_t p1, const size_t p2)
+universe_t *potential_electrostatic(double *pot, universe_t *universe, const size_t a1, const size_t a2)
 {
   double dst;
-  double charge_p1;
-  double charge_p2;
+  double charge_a1;
+  double charge_a2;
   vec3d_t vec;
 
-  /* Get the distance between the particles */
-  vec3d_sub(&vec, &(universe->particle[p2].pos), &(universe->particle[p1].pos));
+  /* Get the distance between the atoms */
+  vec3d_sub(&vec, &(universe->atom[a2].pos), &(universe->atom[a1].pos));
   dst = vec3d_mag(&vec);
 
   /* Compute the potential */
-  charge_p1 = universe->particle[p1].charge;
-  charge_p2 = universe->particle[p2].charge;
-  *pot = charge_p1*charge_p2/dst;
+  charge_a1 = universe->atom[a1].charge;
+  charge_a2 = universe->atom[a2].charge;
+  *pot = charge_a1*charge_a2/dst;
   *pot *= 1/(4*M_PI*C_VACUUMPERM);
 
   return (universe);
 }
 
-universe_t *potential_lennardjones(double *pot, universe_t *universe, const size_t p1, const size_t p2)
+universe_t *potential_lennardjones(double *pot, universe_t *universe, const size_t a1, const size_t a2)
 {
   double sigma;
   double epsilon;
   double dst;
   vec3d_t vec;
 
-  /* Get the distance between the particles */
+  /* Get the distance between the atoms */
   /* Scale dst to Angstroms */
-  vec3d_sub(&vec, &(universe->particle[p2].pos), &(universe->particle[p1].pos));
+  vec3d_sub(&vec, &(universe->atom[a2].pos), &(universe->atom[a1].pos));
   dst = 1E10 * vec3d_mag(&vec);
 
   /* Compute the Lennard-Jones parameters
    * (Duffy, E. M.; Severance, D. L.; Jorgensen, W. L.; Isr. J. Chem.1993, 33,  323)
    */
-  sigma = sqrt((universe->particle[p1].sigma)*(universe->particle[p2].sigma));
-  epsilon = sqrt((universe->particle[p1].epsilon)*(universe->particle[p2].epsilon));
+  sigma = sqrt((universe->atom[a1].sigma)*(universe->atom[a2].sigma));
+  epsilon = sqrt((universe->atom[a1].epsilon)*(universe->atom[a2].epsilon));
 
   /* Don't compute beyond the cutoff distance */
   if (dst > LENNARDJONES_CUTOFF*sigma)
@@ -94,15 +94,15 @@ universe_t *potential_lennardjones(double *pot, universe_t *universe, const size
   return (universe);
 }
 
-universe_t *potential_angle(double *pot, universe_t *universe, const size_t p1, const size_t p2)
+universe_t *potential_angle(double *pot, universe_t *universe, const size_t a1, const size_t a2)
 {
   /* This function is a bit complex so here is a rundown:
-   * p1 is bonded to p2, but p2 can be bonded to more atoms.
+   * a1 is bonded to a2, but a2 can be bonded to more atoms.
    *
-   * The bonds p2 forms with its atoms are represented as vectors
-   * going from p2 to each atom.
+   * The bonds a2 forms with its atoms are represented as vectors
+   * going from a2 to each atom.
    *
-   * p2 has an equilibrium angle (p2->angle, a double, in radians)
+   * a2 has an equilibrium angle (a2->angle, a double, in radians)
    * and will apply a torque to each of its atoms should the
    * angles be different from the equilibrium value.
    *
@@ -132,16 +132,16 @@ universe_t *potential_angle(double *pot, universe_t *universe, const size_t p1, 
   vec3d_t to_current;
   vec3d_t to_ligand;
   vec3d_t pos_backup;
-  particle_t *current;
-  particle_t *ligand;
-  particle_t *node;
+  atom_t *current;
+  atom_t *ligand;
+  atom_t *node;
 
   /* Initialize the potential */
   *pot = 0.0;
 
   /* Those are just shortcuts, making the code easier to read */
-  current = &(universe->particle[p1]);
-  node = &(universe->particle[p2]);
+  current = &(universe->atom[a1]);
+  node = &(universe->atom[a2]);
   angle_eq = model_bond_angle(node->element);
 
   /* Get the number of bonds on the node */
@@ -150,15 +150,15 @@ universe_t *potential_angle(double *pot, universe_t *universe, const size_t p1, 
     if (node->bond[i] != NULL)
       ++bond_nb;
 
-  /* If p1 isn't bonded to the node, there is nothing to compute */
-  if (!particle_is_bonded(current, node))
+  /* If a1 isn't bonded to the node, there is nothing to compute */
+  if (!atom_is_bonded(current, node))
     return (universe);
 
   /* If the node has no other ligand, don't bother either */
   if (bond_nb == 1)
     return (universe);
   
-  /* Get the vector going from the node to the current particle */
+  /* Get the vector going from the node to the current atom */
   vec3d_sub(&to_current, &(current->pos), &(node->pos));
 
   /* As well as its magnitude */
@@ -169,7 +169,7 @@ universe_t *potential_angle(double *pot, universe_t *universe, const size_t p1, 
   { 
     ligand = node->bond[bond_id];
 
-    /* If the ligand exists and isn't the current particle*/
+    /* If the ligand exists and isn't the current atom*/
     if (ligand != NULL && ligand != current)
     {
       /* Get the vector going from the node to the ligand */
@@ -227,38 +227,38 @@ universe_t *potential_total(double *pot, universe_t *universe, const size_t part
   /* Initialize the potential */
   *pot = 0.0;
 
-  /* For each particle */
-  for (i=0; i<(universe->part_nb); ++i)
+  /* For each atom */
+  for (i=0; i<(universe->atom_nb); ++i)
   {
     /* That isn't the same as the current one */
     if (i != part_id)
     {
       /* PERIODIC BOUNDARY CONDITIONS */
-      /* Backup the particle's coordinates */
-      pos_backup = universe->particle[i].pos;
+      /* Backup the atom's coordinates */
+      pos_backup = universe->atom[i].pos;
 
-      /* Get the vector going to the target particle */
-      vec3d_sub(&to_target, &(universe->particle[i].pos), &(universe->particle[part_id].pos));
+      /* Get the vector going to the target atom */
+      vec3d_sub(&to_target, &(universe->atom[i].pos), &(universe->atom[part_id].pos));
       
       /* Temporarily undo the PBC enforcement, if needed */
       if (to_target.x > 0.5*(universe->size))
-        universe->particle[i].pos.x -= universe->size;
+        universe->atom[i].pos.x -= universe->size;
       else if (to_target.x < -0.5*(universe->size))
-        universe->particle[i].pos.x += universe->size;
+        universe->atom[i].pos.x += universe->size;
 
       if (to_target.y > 0.5*(universe->size))
-        universe->particle[i].pos.y -= universe->size;
+        universe->atom[i].pos.y -= universe->size;
       else if (to_target.y < -0.5*(universe->size))
-        universe->particle[i].pos.y += universe->size;
+        universe->atom[i].pos.y += universe->size;
 
       if (to_target.z > 0.5*(universe->size))
-        universe->particle[i].pos.z -= universe->size;
+        universe->atom[i].pos.z -= universe->size;
       else if (to_target.z < -0.5*(universe->size))
-        universe->particle[i].pos.z += universe->size;
+        universe->atom[i].pos.z += universe->size;
       /* PERIODIC BOUNDARY CONDITIONS */
 
       /* Bonded interractions */
-      if (particle_is_bonded(&(universe->particle[part_id]), &(universe->particle[i])))
+      if (atom_is_bonded(&(universe->atom[part_id]), &(universe->atom[i])))
       {
         if (potential_bond(&pot_bond, universe, part_id, i) == NULL)
           return (retstr(NULL, TEXT_POTENTIAL_TOTAL_FAILURE, __FILE__, __LINE__));
@@ -284,7 +284,7 @@ universe_t *potential_total(double *pot, universe_t *universe, const size_t part
       }
 
       /* Restore the backup coordinates */
-      universe->particle[i].pos = pos_backup;
+      universe->atom[i].pos = pos_backup;
     }
   }
 

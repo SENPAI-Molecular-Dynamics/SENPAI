@@ -40,7 +40,7 @@ struct args_s
   double temperature;
   double pressure;
   uint8_t numerical;
-  uint64_t part_nb;
+  uint64_t atom_nb;
   uint64_t copies;
   uint64_t frameskip;
   uint64_t montecarlo;
