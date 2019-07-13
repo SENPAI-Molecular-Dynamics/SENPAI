@@ -26,6 +26,9 @@ universe_t *universe_init(universe_t *universe, const args_t *args)
   char *input_file_buffer; /* A memory copy of the input file */
 
   /* Initialize the variables */
+  universe->meta_name = UNIVERSE_META_NAME_DEFAULT;
+  universe->meta_author = UNIVERSE_META_AUTHOR_DEFAULT;
+  universe->meta_comment = UNIVERSE_META_COMMENT_DEFAULT;
   universe->sys_size = 0;
   universe->copy_nb = args->copies;
   universe->part_nb = 0;
@@ -227,7 +230,7 @@ universe_t *universe_setvelocity(universe_t *universe)
   {
     /* Apply the velocity in a random direction */
     vec3d_marsaglia(&vec);
-    vec3d_mul(&(universe->particle[i].spd), &vec, velocity);
+    vec3d_mul(&(universe->particle[i].vel), &vec, velocity);
   }
 
   return (universe);
@@ -254,16 +257,20 @@ universe_t *universe_simulate(universe_t *universe, const args_t *args)
     return (retstr(NULL, TEXT_UNIVERSE_SIMULATE_FAILURE, __FILE__, __LINE__));
 
   /* Print some useful information */
-  printf("System copies..........%ld\n", universe->copy_nb);
-  printf("Atoms..................%ld\n", universe->part_nb);
-  printf("Temperature............%lf K\n", universe->temperature);
-  printf("Pressure...............%lf hPa\n", args->pressure/1E2);
-  printf("Total system energy....%lf pJ\n", energy*1E12);
-  printf("Universe size  ........%lf pm\n", universe->size*1E12);
-  printf("Simulation time........%lf ns\n", args->max_time*1E9);
-  printf("Timestep...............%lf fs\n", args->timestep*1E15);
-  printf("Frameskip..............%ld\n", args->frameskip);
-  printf("Iterations.............%ld\n\n", (long)ceil(args->max_time/args->timestep));
+  printf(TEXT_INFO_NAME, universe->meta_name);
+  printf(TEXT_INFO_AUTHOR, universe->meta_author);
+  printf(TEXT_INFO_COMMENT, universe->meta_comment);
+  printf(TEXT_INFO_SYS_SIZE, universe->sys_size);
+  printf(TEXT_INFO_SYS_COPIES, universe->copy_nb);
+  printf(TEXT_INFO_ATOMS, universe->part_nb);
+  printf(TEXT_INFO_TEMPERATURE, universe->temperature);
+  printf(TEXT_INFO_PRESSURE, args->pressure/1E2);
+  printf(TEXT_INFO_TOTAL_ENERGY, energy*1E12);
+  printf(TEXT_INFO_UNIVERSE_SIZE, universe->size*1E12);
+  printf(TEXT_INFO_SIMULATION_TIME, args->max_time*1E9);
+  printf(TEXT_INFO_TIMESTEP, args->timestep*1E15);
+  printf(TEXT_INFO_FRAMESKIP, args->frameskip);
+  printf(TEXT_INFO_ITERATIONS, (long)ceil(args->max_time/args->timestep));
 
   /* Tell the user the simulation is starting */
   puts(TEXT_SIMSTART);
@@ -332,7 +339,7 @@ universe_t *universe_iterate(universe_t *universe, const args_t *args)
 
   /* Update the speed vectors */
   for (i=0; i<(universe->part_nb); ++i)
-    if (particle_update_spd(universe, args, i) == NULL)
+    if (particle_update_vel(universe, args, i) == NULL)
       return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
 
   return (universe);
@@ -366,7 +373,7 @@ universe_t *universe_energy_kinetic(universe_t *universe, double *energy)
   *energy = 0.0;
   for (i=0; i<(universe->part_nb); ++i)
   {
-    vel = vec3d_mag(&(universe->particle[i].spd));
+    vel = vec3d_mag(&(universe->particle[i].vel));
     *energy += 0.5*POW2(vel)*model_mass(universe->particle[i].element);
   }
 

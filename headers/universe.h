@@ -15,6 +15,10 @@
 #include "text.h"
 #include "args.h"
 
+#define UNIVERSE_META_NAME_DEFAULT    "??"
+#define UNIVERSE_META_AUTHOR_DEFAULT  "??"
+#define UNIVERSE_META_COMMENT_DEFAULT "??"
+
 typedef struct particle_s particle_t;
 struct particle_s
 {
@@ -29,7 +33,7 @@ struct particle_s
   double bond_strength[7]; /* Strength of each bond (spring constant) */
 
   vec3d_t pos;             /* Position */
-  vec3d_t spd;             /* Velocity */
+  vec3d_t vel;             /* Velocity */
   vec3d_t acc;             /* Acceleration */
   vec3d_t frc;             /* Force */
 };
@@ -37,6 +41,11 @@ struct particle_s
 typedef struct universe_s universe_t;
 struct universe_s
 {
+  /* Metadata from the input file */
+  const char *meta_name;      /* The name of the system */
+  const char *meta_author;    /* Who made the file */
+  const char *meta_comment;   /* Something from the author */
+
   uint64_t sys_size;    /* How many atoms in the loaded system */
   uint64_t copy_nb;     /* Number of copies of the loaded system to simulate */
   uint64_t part_nb;     /* Total number of atoms in the universe (=sys_size*copy_nb) */
@@ -57,7 +66,7 @@ particle_t *particle_init(particle_t *particle);
 universe_t *particle_update_frc_numerical(universe_t *universe, const uint64_t part_id);
 universe_t *particle_update_frc_analytical(universe_t *universe, const uint64_t part_id);
 universe_t *particle_update_acc(universe_t *universe, const uint64_t part_id);
-universe_t *particle_update_spd(universe_t *universe, const args_t *args, const uint64_t part_id);
+universe_t *particle_update_vel(universe_t *universe, const args_t *args, const uint64_t part_id);
 universe_t *particle_update_pos(universe_t *universe, const args_t *args, uint64_t part_id);
 universe_t *particle_enforce_pbc(universe_t *universe, const uint64_t part_id);
 int         particle_is_bonded(const particle_t *p1, const particle_t *p2);

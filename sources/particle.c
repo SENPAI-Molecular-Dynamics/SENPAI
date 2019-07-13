@@ -52,11 +52,11 @@ particle_t *particle_init(particle_t *particle)
   particle->pos.y = 0.0;
   particle->pos.z = 0.0;
 
-  particle->spd.x = 0.0;
-  particle->spd.y = 0.0;
-  particle->spd.z = 0.0;
+  particle->vel.x = 0.0;
+  particle->vel.y = 0.0;
+  particle->vel.z = 0.0;
 
-  particle->spd.x = 0.0;
+  particle->vel.x = 0.0;
   particle->acc.y = 0.0;
   particle->acc.z = 0.0;
 
@@ -139,17 +139,17 @@ universe_t *particle_update_acc(universe_t *universe, const uint64_t part_id)
 }
 
 /* Velocity-Verlet integrator */
-universe_t *particle_update_spd(universe_t *universe, const args_t *args, const uint64_t part_id)
+universe_t *particle_update_vel(universe_t *universe, const args_t *args, const uint64_t part_id)
 {
-  vec3d_t new_spd;
+  vec3d_t new_vel;
 
   /*
-   * new_spd = acc*dt*0.5
-   * spd += new_spd
+   * new_vel = acc*dt*0.5
+   * vel += new_vel
    */
    
-  vec3d_mul(&new_spd, &(universe->particle[part_id].acc), 0.5 * args->timestep);
-  vec3d_add(&(universe->particle[part_id].spd), &(universe->particle[part_id].spd), &new_spd);
+  vec3d_mul(&new_vel, &(universe->particle[part_id].acc), 0.5 * args->timestep);
+  vec3d_add(&(universe->particle[part_id].vel), &(universe->particle[part_id].vel), &new_vel);
 
   return (universe);
 }
@@ -161,13 +161,13 @@ universe_t *particle_update_pos(universe_t *universe, const args_t *args, const 
 
   /*
    * new_pos = acc*dt*0.5
-   * new_pos += spd
+   * new_pos += vel
    * new_pos *= dt
    * pos += new_pos
    */
    
   vec3d_mul(&temp, &(universe->particle[part_id].acc), args->timestep * 0.5);
-  vec3d_add(&temp, &temp, &(universe->particle[part_id].spd));
+  vec3d_add(&temp, &temp, &(universe->particle[part_id].vel));
   vec3d_mul(&temp, &temp, args->timestep);
   vec3d_add(&(universe->particle[part_id].pos), &(universe->particle[part_id].pos), &temp);
 

@@ -44,7 +44,7 @@
 /* particle.c */
 #define TEXT_PARTICLE_UPDATE_FRC_FAILURE       TEXT_FAILURE "particle_update_frc: Failed to update a particle's force"
 #define TEXT_PARTICLE_UPDATE_ACC_FAILURE       TEXT_FAILURE "particle_update_acc: Failed to update a particle's acceleration"
-#define TEXT_PARTICLE_UPDATE_SPD_FAILURE       TEXT_FAILURE "particle_update_spd: Failed to update a particle's velocity"
+#define TEXT_PARTICLE_UPDATE_VEL_FAILURE       TEXT_FAILURE "particle_update_vel: Failed to update a particle's velocity"
 #define TEXT_PARTICLE_UPDATE_POS_FAILURE       TEXT_FAILURE "particle_update_pos: Failed to update a particle's position"
 
 /* potential.c */
@@ -55,6 +55,20 @@
 #define TEXT_POTENTIAL_TOTAL_FAILURE           TEXT_FAILURE "potential_total: Failed to compute total potential energy"
 
 /* universe.c */
+#define TEXT_INFO_NAME                                      "Name...................%s\n"
+#define TEXT_INFO_AUTHOR                                    "Author.................%s\n"
+#define TEXT_INFO_COMMENT                                   "Comment................%s\n"
+#define TEXT_INFO_SYS_SIZE                                  "System size............%ld\n"
+#define TEXT_INFO_SYS_COPIES                                "System copies..........%ld\n"
+#define TEXT_INFO_ATOMS                                     "Atoms..................%ld\n"
+#define TEXT_INFO_TEMPERATURE                               "Temperature............%lf K\n"
+#define TEXT_INFO_PRESSURE                                  "Pressure...............%lf hPa\n"
+#define TEXT_INFO_TOTAL_ENERGY                              "Total system energy....%lf pJ\n"
+#define TEXT_INFO_UNIVERSE_SIZE                             "Universe size  ........%lf pm\n"
+#define TEXT_INFO_SIMULATION_TIME                           "Simulation time........%lf ns\n"
+#define TEXT_INFO_TIMESTEP                                  "Timestep...............%lf fs\n"
+#define TEXT_INFO_FRAMESKIP                                 "Frameskip..............%ld\n"
+#define TEXT_INFO_ITERATIONS                                "Iterations.............%ld\n\n"
 #define TEXT_UNIVERSE_INIT_FAILURE             TEXT_FAILURE "universe_init: Failed to initialize the universe"
 #define TEXT_UNIVERSE_LOAD_FAILURE             TEXT_FAILURE "universe_load: Failed to load initial state"
 #define TEXT_UNIVERSE_POPULATE_FAILURE         TEXT_FAILURE "universe_populate: Failed to populate universe"
