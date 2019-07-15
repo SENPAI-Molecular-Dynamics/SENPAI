@@ -50,7 +50,7 @@ universe_t *force_bond(vec3d_t *frc, universe_t *universe, const size_t a1, cons
 
   /* Compute the force vector */
   spring_constant = atom_1->bond_strength[bond_id];
-  force = -spring_constant * displacement;
+  force = spring_constant * displacement;
   vec3d_mul(frc, &vec, force);
 
   return (universe);
@@ -242,7 +242,7 @@ universe_t *force_angle(vec3d_t *frc, universe_t *universe, const size_t a1, con
 
       /* Compute the force */
       angular_displacement = angle - angle_eq;
-      vec3d_mul(&temp, &e_phi, -1E-8*angular_displacement);
+      vec3d_mul(&temp, &e_phi, -C_AHO*angular_displacement);
 
       /* Sum it */
       vec3d_add(frc, frc, &temp);
@@ -320,9 +320,8 @@ universe_t *force_total(vec3d_t *frc, universe_t *universe, const size_t part_id
 
         /* Sum the forces */
         vec3d_add(frc, frc, &vec_electrostatic);
-        vec3d_add(frc, frc, &vec_lennardjones);
+        //vec3d_add(frc, frc, &vec_lennardjones);
       }
-
       /* Restore the backup coordinates */
       universe->atom[i].pos = pos_backup;
     }

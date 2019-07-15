@@ -58,7 +58,7 @@ int main(int argc, char **argv)
   printf(TEXT_INFO_COMMENT, universe.meta_comment);
   printf(TEXT_INFO_REF_ATOM_NB, universe.ref_atom_nb);
   printf(TEXT_INFO_REF_BOND_NB, universe.ref_bond_nb);
-  putc('\n', stdout);
+  printf("\n");
   puts(TEXT_INFO_SIMULATION);
   printf(TEXT_INFO_SYS_COPIES, universe.copy_nb);
   printf(TEXT_INFO_ATOMS, universe.atom_nb);

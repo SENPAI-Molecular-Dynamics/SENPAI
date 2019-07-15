@@ -20,6 +20,7 @@
 
 universe_t *universe_init(universe_t *universe, const args_t *args)
 {
+  size_t i;
   size_t input_file_len;   /* Size of the input file (bytes) */
   char *input_file_buffer; /* A memory copy of the input file */
 
@@ -66,12 +67,26 @@ universe_t *universe_init(universe_t *universe, const args_t *args)
   /* Free the input file buffer, we're done */
   free(input_file_buffer);
 
-  /* Initialize the universe size */
+  /* Initialize the remaining variables */
+  universe->atom_nb = (universe->ref_atom_nb) * (universe->copy_nb);
   universe->size = cbrt(C_BOLTZMANN*(universe->atom_nb)*(universe->temperature)/(args->pressure));
+
+  /* Allocate memory for the atoms */
+  if ((universe->atom = malloc (sizeof(atom_t)*(universe->atom_nb))) == NULL)
+    return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
+
+  /* Initialize the atom memory */
+  for (i=0; i<(universe->atom_nb); ++i)
+    atom_init(&(universe->atom[i]));
   
   /* Populate the universe with extra molecules */
   if (universe_populate(universe) == NULL)
     return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
+
+  /* Enforce the PBC */
+  for (i=0; i<(universe->atom_nb); ++i)
+    if (atom_enforce_pbc(universe, i) == NULL)
+      return (retstr(NULL, TEXT_UNIVERSE_MONTECARLO_FAILURE, __FILE__, __LINE__));
 
   /* Apply initial velocities */
   if (universe_setvelocity(universe) == NULL)
@@ -134,7 +149,14 @@ universe_t *universe_load(universe_t *universe, char *input_file_buffer)
            &(universe->ref_atom[i].charge),
            &(universe->ref_atom[i].epsilon),
            &(universe->ref_atom[i].sigma));
-
+    printf("LOADED x=%lf y=%lf z=%lf el=%s q=%lf eps=%lf sig=%lf\n",
+      universe->ref_atom[i].pos.x,
+      universe->ref_atom[i].pos.y,
+      universe->ref_atom[i].pos.z,
+      model_symbol(universe->ref_atom[i].element),
+      universe->ref_atom[i].charge,
+      universe->ref_atom[i].epsilon,
+      universe->ref_atom[i].sigma);
     /* Scale the atom's position vector from Angstroms to metres */
     vec3d_mul(&(universe->ref_atom[i].pos), &(universe->ref_atom[i].pos), 1E-10);
   }
@@ -144,7 +166,7 @@ universe_t *universe_load(universe_t *universe, char *input_file_buffer)
     return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
   if ((a2 = malloc(sizeof(uint64_t) * (universe->ref_bond_nb))) == NULL)
     return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
-  if ((bond_strength = malloc(sizeof(uint64_t) * (universe->ref_bond_nb))) == NULL)
+  if ((bond_strength = malloc(sizeof(double) * (universe->ref_bond_nb))) == NULL)
     return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
   if ((bond_index = malloc(sizeof(uint64_t) * (universe->ref_atom_nb))) == NULL)
     return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
@@ -181,6 +203,12 @@ universe_t *universe_load(universe_t *universe, char *input_file_buffer)
 
     universe->ref_atom[first].bond[bond_index[first]] = second;
     universe->ref_atom[first].bond_strength[bond_index[first]] = bond_strength[i];
+
+    universe->ref_atom[second].bond[bond_index[second]] = first;
+    universe->ref_atom[second].bond_strength[bond_index[second]] = bond_strength[i];
+
+    ++bond_index[first];
+    ++bond_index[second];
   }
 
   /* Free the temporary bond information storage */
@@ -201,22 +229,11 @@ universe_t *universe_populate(universe_t *universe)
   atom_t *reference;
   atom_t *duplicate;
 
-  /* Get the total number of particles */
-  universe->atom_nb = (universe->ref_atom_nb) * (universe->copy_nb);
-
-  /* Allocate memory for the atoms */
-  if ((universe->atom = malloc (sizeof(atom_t)*(universe->atom_nb))) == NULL)
-    return (retstr(NULL, TEXT_UNIVERSE_POPULATE_FAILURE, __FILE__, __LINE__));
-
-  /* Initialize the atom memory */
-  for (i=0; i<(universe->atom_nb); ++i)
-    atom_init(&(universe->atom[i]));
-
   for (i=0; i<(universe->copy_nb); ++i)
   {
     /* Generate a random position vector to load the system at */
     vec3d_marsaglia(&pos_offset);
-    vec3d_mul(&pos_offset, &pos_offset, universe->size);
+    vec3d_mul(&pos_offset, &pos_offset, cos(rand())*universe->size);
 
     /* Load each atom from the reference system into the universe */
     for (ii=0; ii<(universe->ref_atom_nb); ++ii)
@@ -257,7 +274,7 @@ universe_t *universe_populate(universe_t *universe)
       for (iii=0; iii<(duplicate->bond_nb); ++iii)
       {
         duplicate->bond[iii] = reference->bond[iii] + (i*(universe->ref_atom_nb));
-        duplicate->bond[iii] = reference->bond_strength[iii];
+        duplicate->bond_strength[iii] = reference->bond_strength[iii];
       }
     }
   }
