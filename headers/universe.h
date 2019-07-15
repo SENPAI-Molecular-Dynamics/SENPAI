@@ -28,9 +28,8 @@ struct atom_s
   double sigma;            /* Lennard-Jones parameter (angstrom) */
 
   uint8_t bond_nb;         /* Number of covalent bonds */
-  atom_t *bond[7];     /* Points to the bonded atoms  */
-  int64_t bond_id[7];      /* IDs of the bonded atoms */
-  double bond_strength[7]; /* Strength of each bond (spring constant) */
+  uint64_t *bond;          /* IDs of the bonded atoms */
+  double *bond_strength;   /* Strength of each bond (spring constant) */
 
   vec3d_t pos;             /* Position */
   vec3d_t vel;             /* Velocity */
@@ -42,13 +41,15 @@ typedef struct universe_s universe_t;
 struct universe_s
 {
   /* Metadata from the input file */
-  const char *meta_name;      /* The name of the system */
-  const char *meta_author;    /* Who made the file */
-  const char *meta_comment;   /* Something from the author */
+  char *meta_name;      /* The name of the system */
+  char *meta_author;    /* Who made the file */
+  char *meta_comment;   /* Something from the author */
 
-  uint64_t sys_size;    /* How many atoms in the loaded system */
+  uint64_t ref_atom_nb; /* The number of atoms in the loaded system */
+  uint64_t ref_bond_nb; /* The number of covalent bonds in the loaded system */
+
   uint64_t copy_nb;     /* Number of copies of the loaded system to simulate */
-  uint64_t atom_nb;     /* Total number of atoms in the universe (=sys_size*copy_nb) */
+  uint64_t atom_nb;     /* Total number of atoms in the universe */
 
   double size;          /* The universe is a cube, that's how long a side is (m) */
   double time;          /* Current time (s) */
@@ -56,20 +57,23 @@ struct universe_s
   double pressure;      /* Initial pressure (Pa) */
   uint64_t iterations;  /* How many iterations have been rendered so far */
 
-  FILE *input_file;     /* The input file (.nh4) */
   FILE *output_file;    /* The output file (.xyz) */
+  FILE *input_file;     /* The input file (.nh4) */
 
-  atom_t *atom;         /* The atoms in the universe */
+  atom_t *ref_atom;     /* The original system loaded from the file */
+  atom_t *atom;         /* The universe to simulate*/
 };
 
-atom_t *atom_init(atom_t *atom);
+void        atom_init(atom_t *atom);
+void        atom_clean(atom_t *atom);
+int         atom_is_bonded(universe_t *universe, const uint8_t a1, const uint8_t a2);
 universe_t *atom_update_frc_numerical(universe_t *universe, const uint64_t part_id);
 universe_t *atom_update_frc_analytical(universe_t *universe, const uint64_t part_id);
 universe_t *atom_update_acc(universe_t *universe, const uint64_t part_id);
 universe_t *atom_update_vel(universe_t *universe, const args_t *args, const uint64_t part_id);
 universe_t *atom_update_pos(universe_t *universe, const args_t *args, uint64_t part_id);
 universe_t *atom_enforce_pbc(universe_t *universe, const uint64_t part_id);
-int         atom_is_bonded(const atom_t *a1, const atom_t *a2);
+
 universe_t *universe_init(universe_t *universe, const args_t *args);
 void        universe_clean(universe_t *universe);
 universe_t *universe_populate(universe_t *universe);

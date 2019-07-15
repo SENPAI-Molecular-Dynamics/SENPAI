@@ -61,7 +61,6 @@ args_t *args_parse(args_t *args, int argc, char **argv)
 
   if (args->path == NULL ||
       args->out_path == NULL ||
-      args->copies < 1 ||
       args->temperature <= 0.0 ||
       args->pressure < 0.0 ||
       args->timestep < 0.0)

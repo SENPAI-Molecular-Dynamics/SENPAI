@@ -17,10 +17,11 @@
 
 int main(int argc, char **argv)
 {
-  size_t i;
-  void *exit_state;
-  args_t args;
-  universe_t universe;
+  size_t i;            /* Iterator */
+  void *exit_state;    /* Was the simulation a success or a failure? This boy will tell you. */
+  args_t args;         /* Program arguments (from argv) */
+  universe_t universe; /* The universe itself (wow) */
+  double energy;       /* The universe's energy */
 
   srand((unsigned int)time(NULL));
 
@@ -45,10 +46,35 @@ int main(int argc, char **argv)
         return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));
   }
 
+  /* Get the system's initial energy */
+  if (universe_energy_total(&universe, &energy) == NULL)
+    return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));
+
+  /* Print some useful information */
+  puts(TEXT_INFO_REFERENCE);
+  printf(TEXT_INFO_PATH, args.path);
+  printf(TEXT_INFO_NAME, universe.meta_name);
+  printf(TEXT_INFO_AUTHOR, universe.meta_author);
+  printf(TEXT_INFO_COMMENT, universe.meta_comment);
+  printf(TEXT_INFO_REF_ATOM_NB, universe.ref_atom_nb);
+  printf(TEXT_INFO_REF_BOND_NB, universe.ref_bond_nb);
+  putc('\n', stdout);
+  puts(TEXT_INFO_SIMULATION);
+  printf(TEXT_INFO_SYS_COPIES, universe.copy_nb);
+  printf(TEXT_INFO_ATOMS, universe.atom_nb);
+  printf(TEXT_INFO_TEMPERATURE, universe.temperature);
+  printf(TEXT_INFO_PRESSURE, args.pressure/1E2);
+  printf(TEXT_INFO_TOTAL_ENERGY, energy*1E12);
+  printf(TEXT_INFO_UNIVERSE_SIZE, universe.size*1E12);
+  printf(TEXT_INFO_SIMULATION_TIME, args.max_time*1E9);
+  printf(TEXT_INFO_TIMESTEP, args.timestep*1E15);
+  printf(TEXT_INFO_FRAMESKIP, args.frameskip);
+  printf(TEXT_INFO_ITERATIONS, (long)ceil(args.max_time/args.timestep));
+
   /* Let's roll */
   exit_state = universe_simulate(&universe, &args);
-
   universe_clean(&universe);
+
   if (exit_state == NULL)
     return (EXIT_FAILURE);
   return (EXIT_SUCCESS);

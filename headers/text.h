@@ -19,7 +19,7 @@
                     "  ____) | |____| |\\  | |  / ____ \\ _| |_ \n"\
                     " |_____/|______|_| \\_|_| /_/    \\_\\_____|  Simplified Evolutive N-body Processing and Analytics for Integration\n\n"\
 					"<< 2018-2019 Thomas MURGIA - SENPAI and its source code are licensed under the terms of the MIT license >>\n" \
-					"<< thomas.murgia@univ-tlse3.fr | https://github.com/Garuda1/senpai >>\n"
+					"<< thomas.murgia@univ-tlse3.fr | https://github.com/Garuda1/senpai >> \n"
 
 
 #define TEXT_FAILURE                           "[" COLOUR_RED "FAILURE" COLOUR_RESET "] "
@@ -42,10 +42,10 @@
 #define TEXT_MAIN_FAILURE                      TEXT_FAILURE "SENPAI failed to execute properly"
 
 /* atom.c */
-#define TEXT_ATOM_UPDATE_FRC_FAILURE       TEXT_FAILURE "atom_update_frc: Failed to update a atom's force"
-#define TEXT_ATOM_UPDATE_ACC_FAILURE       TEXT_FAILURE "atom_update_acc: Failed to update a atom's acceleration"
-#define TEXT_ATOM_UPDATE_VEL_FAILURE       TEXT_FAILURE "atom_update_vel: Failed to update a atom's velocity"
-#define TEXT_ATOM_UPDATE_POS_FAILURE       TEXT_FAILURE "atom_update_pos: Failed to update a atom's position"
+#define TEXT_ATOM_UPDATE_FRC_FAILURE           TEXT_FAILURE "atom_update_frc: Failed to update an atom's force"
+#define TEXT_ATOM_UPDATE_ACC_FAILURE           TEXT_FAILURE "atom_update_acc: Failed to update an atom's acceleration"
+#define TEXT_ATOM_UPDATE_VEL_FAILURE           TEXT_FAILURE "atom_update_vel: Failed to update an atom's velocity"
+#define TEXT_ATOM_UPDATE_POS_FAILURE           TEXT_FAILURE "atom_update_pos: Failed to update an atom's position"
 
 /* potential.c */
 #define TEXT_POTENTIAL_BOND_FAILURE            TEXT_FAILURE "potential_bond: Failed to compute bond potential"
@@ -55,11 +55,16 @@
 #define TEXT_POTENTIAL_TOTAL_FAILURE           TEXT_FAILURE "potential_total: Failed to compute total potential energy"
 
 /* universe.c */
+#define TEXT_INFO_BORDER                                    "+---------------------+"
+#define TEXT_INFO_REFERENCE                TEXT_INFO_BORDER "\n|         FILE        |\n" TEXT_INFO_BORDER
+#define TEXT_INFO_SIMULATION               TEXT_INFO_BORDER "\n|       UNIVERSE      |\n" TEXT_INFO_BORDER
+#define TEXT_INFO_PATH                                      "Path...................%s\n"
 #define TEXT_INFO_NAME                                      "Name...................%s\n"
 #define TEXT_INFO_AUTHOR                                    "Author.................%s\n"
 #define TEXT_INFO_COMMENT                                   "Comment................%s\n"
-#define TEXT_INFO_SYS_SIZE                                  "System size............%ld\n"
-#define TEXT_INFO_SYS_COPIES                                "System copies..........%ld\n"
+#define TEXT_INFO_REF_ATOM_NB                               "Atoms..................%ld\n"
+#define TEXT_INFO_REF_BOND_NB                               "Bonds..................%ld\n"
+#define TEXT_INFO_SYS_COPIES                                "Duplicates to simulate.%ld\n"
 #define TEXT_INFO_ATOMS                                     "Atoms..................%ld\n"
 #define TEXT_INFO_TEMPERATURE                               "Temperature............%lf K\n"
 #define TEXT_INFO_PRESSURE                                  "Pressure...............%lf hPa\n"

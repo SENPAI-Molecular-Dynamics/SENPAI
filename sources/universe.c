@@ -20,18 +20,18 @@
 
 universe_t *universe_init(universe_t *universe, const args_t *args)
 {
-  int32_t c;               /* Used as a character buffer for getc */
-  size_t i;                /* Iterator */
   size_t input_file_len;   /* Size of the input file (bytes) */
   char *input_file_buffer; /* A memory copy of the input file */
 
   /* Initialize the variables */
-  universe->meta_name = UNIVERSE_META_NAME_DEFAULT;
-  universe->meta_author = UNIVERSE_META_AUTHOR_DEFAULT;
-  universe->meta_comment = UNIVERSE_META_COMMENT_DEFAULT;
-  universe->sys_size = 0;
+  universe->meta_name = NULL;
+  universe->meta_author = NULL;
+  universe->meta_comment = NULL;
+  universe->ref_atom_nb = 0;
+  universe->ref_bond_nb = 0;
   universe->copy_nb = args->copies;
   universe->atom_nb = 0;
+  universe->size = 0.0;
   universe->time = 0.0;
   universe->temperature = args->temperature;
   universe->pressure = args->pressure;
@@ -44,12 +44,6 @@ universe_t *universe_init(universe_t *universe, const args_t *args)
   /* Open the input file */
   if ((universe->input_file = fopen(args->path, "r")) == NULL)
     return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
-
-  /* Count the lines in the input file to get the molecule size */
-  while ((c = getc(universe->input_file)) != EOF)
-     if (c == '\n')
-       ++(universe->sys_size);
-   universe->atom_nb = (universe->copy_nb)*(universe->sys_size);
 
   /* Get the file's size */
   fseek(universe->input_file, 0, SEEK_END);
@@ -65,20 +59,11 @@ universe_t *universe_init(universe_t *universe, const args_t *args)
     return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
   input_file_buffer[input_file_len] = '\0';
 
-  /* Allocate memory for the atoms */
-  if ((universe->atom = malloc((universe->atom_nb)*sizeof(atom_t))) == NULL)
-    return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
-
-  /* Initialize the atom memory */
-  for (i=0; i<(universe->atom_nb); ++i)
-    if (atom_init(&(universe->atom[i])) == NULL)
-      return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
-
   /* Load the initial state from the input file */
   if (universe_load(universe, input_file_buffer) == NULL)
     return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
   
-  /* Free the buffer, we're done */
+  /* Free the input file buffer, we're done */
   free(input_file_buffer);
 
   /* Initialize the universe size */
@@ -98,114 +83,185 @@ universe_t *universe_init(universe_t *universe, const args_t *args)
 universe_t *universe_load(universe_t *universe, char *input_file_buffer)
 {
   size_t i;
-  size_t ii;
-  int bond_id[7];
   char *tok;
-  atom_t *temp;
-  
-  /* Load the initial state from the input file */
+  /* Used when reading the bond block */
+  uint64_t *a1;
+  uint64_t *a2;
+  double *bond_strength;
+  uint8_t *bond_index;
+  uint64_t first;
+  uint64_t second;
+
+  /* Get the name line and load the system's name from it */
   tok = strtok(input_file_buffer, "\n");
-  for (i=0; i<(universe->sys_size); ++i)
+  if ((universe->meta_name = malloc(sizeof(char)*(strlen(tok)+1))) == NULL)
+    return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
+  strcpy(universe->meta_name, tok);
+
+  /* Get the author line and load the author's name from it */
+  tok = strtok(NULL, "\n");
+  if ((universe->meta_author = malloc(sizeof(char)*(strlen(tok)+1))) == NULL)
+    return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
+  strcpy(universe->meta_author, tok);
+
+  /* Get the comment line and load the author's comment from it */
+  tok = strtok(NULL, "\n");
+  if ((universe->meta_comment = malloc(sizeof(char)*(strlen(tok)+1))) == NULL)
+    return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
+  strcpy(universe->meta_comment, tok);
+
+  /* Get the count line and the atom/bond nb from it  */
+  tok = strtok(NULL, "\n");
+  sscanf(tok, "%ld %ld", &(universe->ref_atom_nb), &(universe->ref_bond_nb));
+
+  /* Allocate memory for the atoms */
+  if ((universe->ref_atom = malloc (sizeof(atom_t)*(universe->ref_atom_nb))) == NULL)
+    return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
+
+  /* Initialize the atom memory */
+  for (i=0; i<(universe->ref_atom_nb); ++i)
+    atom_init(&(universe->ref_atom[i]));
+
+  /* Read the atom block */
+  for (i=0; i<(universe->ref_atom_nb); ++i)
   {
-    temp = &(universe->atom[i]);
-    if (sscanf(tok,
-               "%hhu,%lf,%lf,%lf,%d,%d,%d,%d,%d,%d,%d,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n",
-               &(temp->element),
-               &(temp->charge),
-               &(temp->epsilon),
-               &(temp->sigma),
-               &(bond_id[0]),
-               &(bond_id[1]),
-               &(bond_id[2]),
-               &(bond_id[3]),
-               &(bond_id[4]),
-               &(bond_id[5]),
-               &(bond_id[6]),
-               &(temp->bond_strength[0]),
-               &(temp->bond_strength[1]),
-               &(temp->bond_strength[2]),
-               &(temp->bond_strength[3]),
-               &(temp->bond_strength[4]),
-               &(temp->bond_strength[5]),
-               &(temp->bond_strength[6]),
-               &(temp->pos.x),
-               &(temp->pos.y),
-               &(temp->pos.z)) < 0)
+    tok = strtok(NULL, "\n");
+    sscanf(tok, "%lf %lf %lf %hhu %lf %lf %lf",
+           &(universe->ref_atom[i].pos.x),
+           &(universe->ref_atom[i].pos.y),
+           &(universe->ref_atom[i].pos.z),
+           &(universe->ref_atom[i].element),
+           &(universe->ref_atom[i].charge),
+           &(universe->ref_atom[i].epsilon),
+           &(universe->ref_atom[i].sigma));
+
+    /* Scale the atom's position vector from Angstroms to metres */
+    vec3d_mul(&(universe->ref_atom[i].pos), &(universe->ref_atom[i].pos), 1E-10);
+  }
+
+  /* Allocate memory for the temporary bond information storage */
+  if ((a1 = malloc(sizeof(uint64_t) * (universe->ref_bond_nb))) == NULL)
+    return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
+  if ((a2 = malloc(sizeof(uint64_t) * (universe->ref_bond_nb))) == NULL)
+    return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
+  if ((bond_strength = malloc(sizeof(uint64_t) * (universe->ref_bond_nb))) == NULL)
+    return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
+  if ((bond_index = malloc(sizeof(uint64_t) * (universe->ref_atom_nb))) == NULL)
+    return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
+
+  /* Zero the allocated memory */
+  memset(bond_index, 0, universe->ref_bond_nb);
+
+  /* Read the bond block and get the number of bonds for each atom */
+  for (i=0; i<(universe->ref_bond_nb); ++i)
+  {
+    tok = strtok(NULL, "\n");
+    sscanf(tok, "%ld %ld %lf", &(a1[i]), &(a2[i]), &(bond_strength[i]));
+    ++(universe->ref_atom[a1[i] - 1].bond_nb);
+    ++(universe->ref_atom[a2[i] - 1].bond_nb);
+  }
+
+  /* Allocate memory for the bond information */
+  for (i=0; i<(universe->ref_atom_nb); ++i)
+  {
+    /* For the bond nodes */
+    if ((universe->ref_atom[i].bond = malloc(sizeof(uint64_t) * universe->ref_atom[i].bond_nb)) == NULL)
       return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
 
-    /* Scale from elementary charges to Coulombs */
-    temp->charge *= 1.602176634E-19;
-
-    /* Scale from Angstroms to metres */
-    temp->pos.x *= 1E-10;
-    temp->pos.y *= 1E-10;
-    temp->pos.z *= 1E-10;
-
-    /* Set up the bonds */
-    for (ii=0; ii<7; ++ii)
-    {
-      temp->bond_id[ii] = bond_id[ii];
-
-      if (bond_id[ii] < 0)
-        temp->bond[ii] = NULL;
-      else
-        temp->bond[ii] = &(universe->atom[bond_id[ii]]);
-    }
-    
-    tok = strtok(NULL, "\n");
+    /* For the bond strengths */
+    if ((universe->ref_atom[i].bond_strength = malloc(sizeof(double) * universe->ref_atom[i].bond_nb)) == NULL)
+      return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
   }
+
+  /* Load the bond information */
+  for (i=0; i<(universe->ref_bond_nb); ++i)
+  {
+    first = a1[i] - 1;
+    second = a2[i] - 1;
+
+    universe->ref_atom[first].bond[bond_index[first]] = second;
+    universe->ref_atom[first].bond_strength[bond_index[first]] = bond_strength[i];
+  }
+
+  /* Free the temporary bond information storage */
+  free(a1);
+  free(a2);
+  free(bond_strength);
+  free(bond_index);
+
   return (universe);
 }
 
 universe_t *universe_populate(universe_t *universe)
 {
-  size_t i;              /* Iterator */
-  size_t ii;             /* Iterator */
-  size_t iii;            /* Iterator */
-  size_t id_offset;      /* ID offset in the (universe.atom) array */
-  vec3d_t pos_offset;    /* Physical position offset */
-  atom_t *reference; /* Reference atom */
-  atom_t *current;   /* Cloned atom */
-  
-  /* For every molecule */
-  for (i=1; i<(universe->copy_nb); ++i) /* i=1 because we already have a molecule loaded at atom[0] */
-  { 
-    id_offset = (universe->sys_size)*i;
+  size_t i;
+  size_t ii;
+  size_t iii;
+  vec3d_t pos_offset;
+  atom_t *reference;
+  atom_t *duplicate;
 
-    /* Generate a random vector */
+  /* Get the total number of particles */
+  universe->atom_nb = (universe->ref_atom_nb) * (universe->copy_nb);
+
+  /* Allocate memory for the atoms */
+  if ((universe->atom = malloc (sizeof(atom_t)*(universe->atom_nb))) == NULL)
+    return (retstr(NULL, TEXT_UNIVERSE_POPULATE_FAILURE, __FILE__, __LINE__));
+
+  /* Initialize the atom memory */
+  for (i=0; i<(universe->atom_nb); ++i)
+    atom_init(&(universe->atom[i]));
+
+  for (i=0; i<(universe->copy_nb); ++i)
+  {
+    /* Generate a random position vector to load the system at */
     vec3d_marsaglia(&pos_offset);
-    vec3d_mul(&pos_offset, &pos_offset, (0.1*(universe->size)) + (0.8*(universe->size)*cos(rand())));
-    
-    /* For every atom in the molecule */
-    for (ii=0; ii<(universe->sys_size); ++ii)
+    vec3d_mul(&pos_offset, &pos_offset, universe->size);
+
+    /* Load each atom from the reference system into the universe */
+    for (ii=0; ii<(universe->ref_atom_nb); ++ii)
     {
-      /* Clone the reference atom */
-      reference = &(universe->atom[ii]);
-      current = &(universe->atom[ii+id_offset]);
-      *current = *reference;
-      
-      /* Displace the atom to the random vector */
-      vec3d_add(&(current->pos), &(current->pos), &pos_offset);
-      
-      /* For every bond in the displaced atom */
-      for (iii=0; iii<7; ++iii)
+      /* Just shortcuts, they make the code cleaner */
+      reference = &(universe->ref_atom[ii]);
+      duplicate = &(universe->atom[(i*(universe->ref_atom_nb)) + ii]);
+
+      duplicate->element = reference->element;
+      duplicate->charge = reference->charge;
+      duplicate->epsilon = reference->epsilon;
+      duplicate->sigma = reference->sigma;
+
+      duplicate->bond_nb = reference->bond_nb;
+
+      duplicate->vel.x = reference->vel.x;
+      duplicate->vel.x = reference->vel.y;
+      duplicate->vel.x = reference->vel.z;
+
+      duplicate->acc.x = reference->acc.x;
+      duplicate->acc.x = reference->acc.y;
+      duplicate->acc.x = reference->acc.z;
+
+      duplicate->frc.x = reference->frc.x;
+      duplicate->frc.x = reference->frc.y;
+      duplicate->frc.x = reference->frc.z;
+
+      /* Load the atom's location */
+      vec3d_add(&(duplicate->pos), &(reference->pos), &pos_offset);
+
+      /* Allocate memory for the bond information */
+      if ((duplicate->bond = malloc(sizeof(uint64_t)*(reference->bond_nb))) == NULL)
+        return (retstr(NULL, TEXT_UNIVERSE_POPULATE_FAILURE, __FILE__, __LINE__));
+      if ((duplicate->bond_strength = malloc(sizeof(double)*(reference->bond_nb))) == NULL)
+        return (retstr(NULL, TEXT_UNIVERSE_POPULATE_FAILURE, __FILE__, __LINE__));
+
+      /* Load the bond information */
+      for (iii=0; iii<(duplicate->bond_nb); ++iii)
       {
-        if (current->bond_id[iii] < 0)
-          current->bond[iii] = NULL;
-        else
-        {
-          current->bond_id[iii] = reference->bond_id[iii] + id_offset;
-          current->bond[iii] = &(universe->atom[current->bond_id[iii]]);
-        }
+        duplicate->bond[iii] = reference->bond[iii] + (i*(universe->ref_atom_nb));
+        duplicate->bond[iii] = reference->bond_strength[iii];
       }
     }
   }
 
-  /* Enforce the PBC */
-  for (i=0; i<(universe->atom_nb); ++i)
-    if (atom_enforce_pbc(universe, i) == NULL)
-      return (retstr(NULL, TEXT_UNIVERSE_POPULATE_FAILURE, __FILE__, __LINE__));
-    
   return (universe);
 }
 
@@ -219,7 +275,7 @@ universe_t *universe_setvelocity(universe_t *universe)
 
   /* Get the molecular mass */
   mass_mol = 0;
-  for (i=0; i<(universe->sys_size); ++i)
+  for (i=0; i<(universe->ref_atom_nb); ++i)
     mass_mol += model_mass(universe->atom[i].element);
 
   /* Get the average velocity */
@@ -238,11 +294,25 @@ universe_t *universe_setvelocity(universe_t *universe)
 
 void universe_clean(universe_t *universe)
 {
+  size_t i;
+
+  /* Clean each atom in the reference system */
+  for (i=0; i<(universe->ref_atom_nb); ++i)
+    atom_clean(&(universe->ref_atom[i]));
+
+  /* Clean each atom in the universe */
+  for (i=0; i<(universe->atom_nb); ++i)
+    atom_clean(&(universe->atom[i]));
+
   /* Close the file pointers */
   fclose(universe->output_file);
   fclose(universe->input_file);
 
   /* Free allocated memory */
+  free(universe->meta_name);
+  free(universe->meta_author);
+  free(universe->meta_comment);
+  free(universe->ref_atom);
   free(universe->atom);
 }
 
@@ -250,27 +320,6 @@ void universe_clean(universe_t *universe)
 universe_t *universe_simulate(universe_t *universe, const args_t *args)
 {
   uint64_t frame_nb; /* Used for frameskipping */
-  double energy;     /* The system's energy */
-
-  /* Get the system's initial energy */
-  if (universe_energy_total(universe, &energy) == NULL)
-    return (retstr(NULL, TEXT_UNIVERSE_SIMULATE_FAILURE, __FILE__, __LINE__));
-
-  /* Print some useful information */
-  printf(TEXT_INFO_NAME, universe->meta_name);
-  printf(TEXT_INFO_AUTHOR, universe->meta_author);
-  printf(TEXT_INFO_COMMENT, universe->meta_comment);
-  printf(TEXT_INFO_SYS_SIZE, universe->sys_size);
-  printf(TEXT_INFO_SYS_COPIES, universe->copy_nb);
-  printf(TEXT_INFO_ATOMS, universe->atom_nb);
-  printf(TEXT_INFO_TEMPERATURE, universe->temperature);
-  printf(TEXT_INFO_PRESSURE, args->pressure/1E2);
-  printf(TEXT_INFO_TOTAL_ENERGY, energy*1E12);
-  printf(TEXT_INFO_UNIVERSE_SIZE, universe->size*1E12);
-  printf(TEXT_INFO_SIMULATION_TIME, args->max_time*1E9);
-  printf(TEXT_INFO_TIMESTEP, args->timestep*1E15);
-  printf(TEXT_INFO_FRAMESKIP, args->frameskip);
-  printf(TEXT_INFO_ITERATIONS, (long)ceil(args->max_time/args->timestep));
 
   /* Tell the user the simulation is starting */
   puts(TEXT_SIMSTART);
@@ -355,7 +404,7 @@ universe_t *universe_printstate(universe_t *universe)
   for (i=0; i<(universe->atom_nb); ++i)
   {
     fprintf(universe->output_file,
-            "%s\t%.15lf\t%.15lf\t%.15lf\n",
+            "%s\t%lf\t%lf\t%lf\n",
             model_symbol(universe->atom[i].element),
             universe->atom[i].pos.x*1E10,
             universe->atom[i].pos.y*1E10,

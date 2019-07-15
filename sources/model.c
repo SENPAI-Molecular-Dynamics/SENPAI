@@ -29,6 +29,7 @@ char const *model_symbol(uint8_t atom)
     case ATOM_OSP2: return ("O");  break;
     case ATOM_F:    return ("F");  break;
     case ATOM_NE:   return ("Ne"); break;
+    case ATOM_CL:   return ("Cl"); break;
     default:        return ("??"); break;
   }
 }
@@ -52,7 +53,8 @@ double model_mass(uint8_t atom)
     case ATOM_OSP3: return (2.6569E-26); break;
     case ATOM_OSP2: return (2.6569E-26); break;
     case ATOM_F:    return (3.1550E-26); break;
-    case ATOM_NE:   return (3.3211e-26); break;
+    case ATOM_NE:   return (3.3211E-26); break;
+    case ATOM_CL:   return (5.8118E-26); break;
     default:        return (0.0);        break;
   }
 }
@@ -77,6 +79,7 @@ double model_covalent_radius(uint8_t atom)
     case ATOM_OSP2: return (66E-12); break;
     case ATOM_F:    return (64E-12); break;
     case ATOM_NE:   return (58E-12); break;
+    case ATOM_CL:   return (102E-12); break;
     default:        return (0.0);    break;
   }
 }
@@ -100,6 +103,7 @@ double model_vdw_radius(uint8_t atom)
     case ATOM_OSP2: return (152E-12); break;
     case ATOM_F:    return (135E-12); break;
     case ATOM_NE:   return (154E-12); break;
+    case ATOM_CL:   return (175E-12); break;
     default:        return (0.0);    break;
   }
 }

@@ -27,6 +27,7 @@
 #define ATOM_OSP2 14
 #define ATOM_F    15
 #define ATOM_NE   16
+#define ATOM_CL   17
 
 extern char const *model_symbol(uint8_t atom);
 extern double      model_mass(uint8_t atom);

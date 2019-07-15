@@ -8,6 +8,8 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+#include <stdint.h>
+
 #define ROOT_MACHINE_EPSILON (double) 1.48996644E-8
 #define LENNARDJONES_CUTOFF 2.5
 #define MODE_ANALYTICAL 0
@@ -32,5 +34,8 @@
 void *retstr(void *ret, const char *str, const char *file, const int line);
 int retstri(int ret, const char *str, const char *file, const int line);
 double retstrf(double ret, const char *str, const char *file, const int line);
+
+/* Returns the number of lines in str */
+uint64_t line_nb(const char *str);
 
 #endif

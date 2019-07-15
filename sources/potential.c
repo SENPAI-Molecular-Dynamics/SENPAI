@@ -17,28 +17,40 @@
 
 universe_t *potential_bond(double *pot, universe_t *universe, const size_t a1, const size_t a2)
 {
-  int bond_id;
-  double spring_constant;
-  double displacement;
+  atom_t *atom_1;
+  atom_t *atom_2;
   double radius_a1;
   double radius_a2;
+  double spring_constant;
+  double displacement;
+  int bond_id;
   double dst;
   vec3d_t vec;
 
+  /* Makes the code easier to read */
+  atom_1 = &(universe->atom[a1]);
+  atom_2 = &(universe->atom[a2]);
+
   /* Get the distance between the atoms */
-  vec3d_sub(&vec, &(universe->atom[a2].pos), &(universe->atom[a1].pos));
+  vec3d_sub(&vec, &(atom_2->pos), &(atom_1->pos));
   dst = vec3d_mag(&vec);
 
+  /* Turn it into its unit vector */
+  if (vec3d_unit(&vec, &vec) == NULL)
+    return (retstr(NULL, TEXT_FORCE_BOND_FAILURE, __FILE__, __LINE__));
+
   /* Find the bond id */
-  for (bond_id=0; universe->atom[a1].bond[bond_id] != &(universe->atom[a2]); ++bond_id);
+  for (bond_id=0; bond_id<(atom_1->bond_nb); ++bond_id)
+    if (atom_1->bond[bond_id] == a2)
+      break;
 
   /* Compute the displacement */
-  radius_a1 = model_covalent_radius(universe->atom[a1].element);
-  radius_a2 = model_covalent_radius(universe->atom[a2].element);
+  radius_a1 = model_covalent_radius(atom_1->element);
+  radius_a2 = model_covalent_radius(atom_2->element);
   displacement = dst - (radius_a1 + radius_a2);
 
   /* Compute the potential */
-  spring_constant = universe->atom[a1].bond_strength[bond_id];
+  spring_constant = atom_1->bond_strength[bond_id];
   *pot = 0.5*spring_constant*POW2(displacement);
 
   return (universe);
@@ -46,50 +58,69 @@ universe_t *potential_bond(double *pot, universe_t *universe, const size_t a1, c
 
 universe_t *potential_electrostatic(double *pot, universe_t *universe, const size_t a1, const size_t a2)
 {
-  double dst;
+  atom_t *atom_1;
+  atom_t *atom_2;
   double charge_a1;
   double charge_a2;
+  double dst;
   vec3d_t vec;
 
+  /* Makes the code easier to read */
+  atom_1 = &(universe->atom[a1]);
+  atom_2 = &(universe->atom[a2]);
+
   /* Get the distance between the atoms */
-  vec3d_sub(&vec, &(universe->atom[a2].pos), &(universe->atom[a1].pos));
+  vec3d_sub(&vec, &(atom_2->pos), &(atom_1->pos));
   dst = vec3d_mag(&vec);
 
+  /* Turn it into its unit vector */
+  if (vec3d_unit(&vec, &vec) == NULL)
+    return (retstr(NULL, TEXT_FORCE_BOND_FAILURE, __FILE__, __LINE__));
+
   /* Compute the potential */
-  charge_a1 = universe->atom[a1].charge;
-  charge_a2 = universe->atom[a2].charge;
-  *pot = charge_a1*charge_a2/dst;
-  *pot *= 1/(4*M_PI*C_VACUUMPERM);
+  charge_a1 = 1.60217646E-19 * atom_1->charge; /* Scale from e to C */
+  charge_a2 = 1.60217646E-19 * atom_2->charge; /* Scale from e to C */
+  *pot = (charge_a1*charge_a2) / (dst*4*M_PI*C_VACUUMPERM);
 
   return (universe);
 }
 
 universe_t *potential_lennardjones(double *pot, universe_t *universe, const size_t a1, const size_t a2)
 {
+  atom_t *atom_1;
+  atom_t *atom_2;
   double sigma;
   double epsilon;
   double dst;
   vec3d_t vec;
 
+  /* Makes the code easier to read */
+  atom_1 = &(universe->atom[a1]);
+  atom_2 = &(universe->atom[a2]);
+
   /* Get the distance between the atoms */
-  /* Scale dst to Angstroms */
-  vec3d_sub(&vec, &(universe->atom[a2].pos), &(universe->atom[a1].pos));
-  dst = 1E10 * vec3d_mag(&vec);
+  vec3d_sub(&vec, &(atom_2->pos), &(atom_1->pos));
+  dst = vec3d_mag(&vec);
+
+  /* Turn it into its unit vector */
+  if (vec3d_unit(&vec, &vec) == NULL)
+    return (retstr(NULL, TEXT_FORCE_LENNARDJONES_FAILURE, __FILE__, __LINE__));
 
   /* Compute the Lennard-Jones parameters
    * (Duffy, E. M.; Severance, D. L.; Jorgensen, W. L.; Isr. J. Chem.1993, 33,  323)
+   *
+   * Also, scale sigma from angstroms to metres
+   * and scale epsilon from kJ/mol to J
    */
-  sigma = sqrt((universe->atom[a1].sigma)*(universe->atom[a2].sigma));
-  epsilon = sqrt((universe->atom[a1].epsilon)*(universe->atom[a2].epsilon));
+  sigma = 1E-10 * sqrt((universe->atom[a1].sigma)*(universe->atom[a2].sigma));
+  epsilon = (1000/C_AVOGADRO) * sqrt((universe->atom[a1].epsilon)*(universe->atom[a2].epsilon));
 
   /* Don't compute beyond the cutoff distance */
   if (dst > LENNARDJONES_CUTOFF*sigma)
     return (universe);
 
   /* Compute the potential */
-  /* And scale from kJ.mol-1 to J */
   *pot = 4*epsilon*(POW12(sigma/dst)-POW6(sigma/dst));
-  *pot *= 1000/C_AVOGADRO;
 
   return (universe);
 }
@@ -110,20 +141,17 @@ universe_t *potential_angle(double *pot, universe_t *universe, const size_t a1, 
    * pi rad. If the angle it forms with its ligands is smaller, it
    * each ligand will have a repelling radial force applied to them.
    *
-   * The force vector, in cylindrical coordinates, is expressed as:
-   * F_angle = -k(alpha-alpha_eq)*e_phi
+   * The potential is expressed as:
+   * U_angle = -0.5*k*(alpha-alpha_eq)^2
    *
-   * Where F_angle is the force (in Newtons)
+   * Where U_angle is the potential (in Joules)
    *       k is the "spring" constant (in Newtons per meter)
    *       alpha is the current angle (in radians)
    *       alpha_eq is the equilibrium angle (in radians)
-   *       e_phi is the azimuth-normal cylindrical unit vector
    *
    */
 
   size_t i;
-  size_t bond_nb;
-  size_t bond_id;
   double angle;
   double angle_eq;
   double angular_displacement;
@@ -144,18 +172,8 @@ universe_t *potential_angle(double *pot, universe_t *universe, const size_t a1, 
   node = &(universe->atom[a2]);
   angle_eq = model_bond_angle(node->element);
 
-  /* Get the number of bonds on the node */
-  bond_nb = 0;
-  for (i=0; i<7; ++i)
-    if (node->bond[i] != NULL)
-      ++bond_nb;
-
-  /* If a1 isn't bonded to the node, there is nothing to compute */
-  if (!atom_is_bonded(current, node))
-    return (universe);
-
   /* If the node has no other ligand, don't bother either */
-  if (bond_nb == 1)
+  if (node->bond_nb == 1)
     return (universe);
   
   /* Get the vector going from the node to the current atom */
@@ -165,9 +183,9 @@ universe_t *potential_angle(double *pot, universe_t *universe, const size_t a1, 
   to_current_mag = vec3d_mag(&to_current);
 
   /* For all ligands */
-  for (bond_id=0; bond_id<7; ++bond_id)
+  for (i=0; i<(node->bond_nb); ++i)
   { 
-    ligand = node->bond[bond_id];
+    ligand = &(universe->atom[node->bond[i]]);
 
     /* If the ligand exists and isn't the current atom*/
     if (ligand != NULL && ligand != current)
@@ -204,7 +222,7 @@ universe_t *potential_angle(double *pot, universe_t *universe, const size_t a1, 
 
       /* Compute the potential */
       angular_displacement = angle - angle_eq;
-      *pot += 0.5*5E-8*POW2(angular_displacement);
+      *pot += 0.5*1E-8*POW2(angular_displacement);
 
       /* Restore the backup coordinates */
       ligand->pos = pos_backup;
@@ -258,7 +276,7 @@ universe_t *potential_total(double *pot, universe_t *universe, const size_t part
       /* PERIODIC BOUNDARY CONDITIONS */
 
       /* Bonded interractions */
-      if (atom_is_bonded(&(universe->atom[part_id]), &(universe->atom[i])))
+      if (atom_is_bonded(universe, part_id, i))
       {
         if (potential_bond(&pot_bond, universe, part_id, i) == NULL)
           return (retstr(NULL, TEXT_POTENTIAL_TOTAL_FAILURE, __FILE__, __LINE__));

@@ -5,6 +5,7 @@
  *
  */
 
+#include <stdlib.h>
 #include <string.h>
 
 #include "force.h"
@@ -15,38 +16,16 @@
 #include "vec3d.h"
 
 /* Initialise a atom's memory */
-atom_t *atom_init(atom_t *atom)
+void atom_init(atom_t *atom)
 {
   atom->element = ATOM_NULL;
   atom->charge = 0.0;
   atom->epsilon = 0.0;
   atom->sigma = 0.0;
 
-  atom->bond_nb = 7;
-
-  atom->bond[0] = NULL;
-  atom->bond[1] = NULL;
-  atom->bond[2] = NULL;
-  atom->bond[3] = NULL;
-  atom->bond[4] = NULL;
-  atom->bond[5] = NULL;
-  atom->bond[6] = NULL;
-
-  atom->bond_id[0] = -1;
-  atom->bond_id[1] = -1;
-  atom->bond_id[2] = -1;
-  atom->bond_id[3] = -1;
-  atom->bond_id[4] = -1;
-  atom->bond_id[5] = -1;
-  atom->bond_id[6] = -1;
-
-  atom->bond_strength[0] = 0.0;
-  atom->bond_strength[1] = 0.0;
-  atom->bond_strength[2] = 0.0;
-  atom->bond_strength[3] = 0.0;
-  atom->bond_strength[4] = 0.0;
-  atom->bond_strength[5] = 0.0;
-  atom->bond_strength[6] = 0.0;
+  atom->bond_nb = 0;
+  atom->bond = NULL;
+  atom->bond_strength = NULL;
 
   atom->pos.x = 0.0;
   atom->pos.y = 0.0;
@@ -63,8 +42,13 @@ atom_t *atom_init(atom_t *atom)
   atom->frc.x = 0.0;
   atom->frc.y = 0.0;
   atom->frc.z = 0.0;
+}
 
-  return (atom);
+/* Cleans an atom structure */
+void atom_clean(atom_t *atom)
+{
+  free(atom->bond);
+  free(atom->bond_strength);
 }
 
 /* Get the force through numerical differentiation */
@@ -196,22 +180,14 @@ universe_t *atom_enforce_pbc(universe_t *universe, const uint64_t part_id)
 }
 
 /* Returns 0 if a1 is not bonded to a2, returns 1 if it is bonded to a2 */
-int atom_is_bonded(const atom_t *a1, const atom_t *a2)
+int atom_is_bonded(universe_t *universe, const uint8_t a1, const uint8_t a2)
 {
-  if (a1 != a2->bond[0] &&
-      a1 != a2->bond[1] &&
-      a1 != a2->bond[2] &&
-      a1 != a2->bond[3] &&
-      a1 != a2->bond[4] &&
-      a1 != a2->bond[5] &&
-      a1 != a2->bond[6] &&
-      a2 != a1->bond[0] &&
-      a2 != a1->bond[1] &&
-      a2 != a1->bond[2] &&
-      a2 != a1->bond[3] &&
-      a2 != a1->bond[4] &&
-      a2 != a1->bond[5] &&
-      a2 != a1->bond[6])
-    return (0);
-  return (1);
+  atom_t *atom_1;
+  size_t i;
+
+  atom_1 = &(universe->atom[a1]);
+  for (i=0; i<(atom_1->bond_nb); ++i)
+    if (atom_1->bond[i] == a2)
+      return (1);
+  return (0);
 }
