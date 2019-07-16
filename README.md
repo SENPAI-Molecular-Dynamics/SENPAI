@@ -52,7 +52,7 @@ Options:
 
 - `--pressure` Specifies the pressure of the system (mbar) (defaults to `1 atm`)
 
-- `--mol` Specifies the number of molecules to be inserted in the simulation
+- `--copy` Specifies how many copies of the loaded system are to be inserted in the simulation
 
 - `--frameskip` Sets a frameskip to reduce I/O usage. Disabled by default
 
@@ -60,9 +60,9 @@ Options:
 
 ## Example use
 
-`./senpai.bin --in examples/DES.mol --out render.xyz --time 1000 --dt 0.5 --mol 512`
+`./senpai.bin --in examples/DES.mol --out render.xyz --time 1000 --dt 0.5`
 
-This will tell SENPAI to simulate 512 benzene molecules at STP for one nanosecond using a half femtosecond timestep. The rendered simulation will be saved in `render.xyz` for further analysis.
+This will tell SENPAI to simulate the contents of `examples/DES.mol` at STP for one nanosecond using a half femtosecond timestep. The rendered simulation will be saved in `render.xyz` for further analysis.
 
 ## Questions and Answers
 
