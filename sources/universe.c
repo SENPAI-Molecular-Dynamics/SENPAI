@@ -149,14 +149,6 @@ universe_t *universe_load(universe_t *universe, char *input_file_buffer)
            &(universe->ref_atom[i].charge),
            &(universe->ref_atom[i].epsilon),
            &(universe->ref_atom[i].sigma));
-    printf("LOADED x=%lf y=%lf z=%lf el=%s q=%lf eps=%lf sig=%lf\n",
-      universe->ref_atom[i].pos.x,
-      universe->ref_atom[i].pos.y,
-      universe->ref_atom[i].pos.z,
-      model_symbol(universe->ref_atom[i].element),
-      universe->ref_atom[i].charge,
-      universe->ref_atom[i].epsilon,
-      universe->ref_atom[i].sigma);
     /* Scale the atom's position vector from Angstroms to metres */
     vec3d_mul(&(universe->ref_atom[i].pos), &(universe->ref_atom[i].pos), 1E-10);
   }

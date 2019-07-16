@@ -99,8 +99,10 @@ universe_t *potential_lennardjones(double *pot, universe_t *universe, const size
   atom_2 = &(universe->atom[a2]);
 
   /* Get the distance between the atoms */
+  /* Scale it to Angstroms */
   vec3d_sub(&vec, &(atom_2->pos), &(atom_1->pos));
   dst = vec3d_mag(&vec);
+  dst *= 1E10;
 
   /* Turn it into its unit vector */
   if (vec3d_unit(&vec, &vec) == NULL)
@@ -109,18 +111,17 @@ universe_t *potential_lennardjones(double *pot, universe_t *universe, const size
   /* Compute the Lennard-Jones parameters
    * (Duffy, E. M.; Severance, D. L.; Jorgensen, W. L.; Isr. J. Chem.1993, 33,  323)
    *
-   * Also, scale sigma from angstroms to metres
-   * and scale epsilon from kJ/mol to J
    */
-  sigma = 1E-10 * sqrt((universe->atom[a1].sigma)*(universe->atom[a2].sigma));
-  epsilon = (1000/C_AVOGADRO) * sqrt((universe->atom[a1].epsilon)*(universe->atom[a2].epsilon));
+  sigma = sqrt((universe->atom[a1].sigma)*(universe->atom[a2].sigma));
+  epsilon = sqrt((universe->atom[a1].epsilon)*(universe->atom[a2].epsilon));
 
   /* Don't compute beyond the cutoff distance */
-  if (dst > LENNARDJONES_CUTOFF*sigma)
-    return (universe);
-
-  /* Compute the potential */
-  *pot = 4*epsilon*(POW12(sigma/dst)-POW6(sigma/dst));
+  if (dst < LENNARDJONES_CUTOFF*sigma)
+  {
+    /* Compute the potential and scale it to Joules */
+    *pot = 4*epsilon*(POW12(sigma/dst)-POW6(sigma/dst));
+    *pot *= 1.66053892103219E-21;
+  }
 
   return (universe);
 }
@@ -298,7 +299,7 @@ universe_t *potential_total(double *pot, universe_t *universe, const size_t part
 
         /* Sum the potentials */
         *pot += pot_electrostatic;
-        //*pot += pot_lennardjones;
+        *pot += pot_lennardjones;
       }
 
       /* Restore the backup coordinates */

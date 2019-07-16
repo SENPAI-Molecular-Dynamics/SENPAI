@@ -97,34 +97,35 @@ universe_t *force_lennardjones(vec3d_t *frc, universe_t *universe, const size_t 
   double dst;
   vec3d_t vec;
 
+  /* Initialize the resulting force vector */
+  frc->x = 0.0;
+  frc->y = 0.0;
+  frc->z = 0.0;
+
   /* Makes the code easier to read */
   atom_1 = &(universe->atom[a1]);
   atom_2 = &(universe->atom[a2]);
 
   /* Get the distance between the atoms */
+  /* Scale it to Angstroms */
   vec3d_sub(&vec, &(atom_2->pos), &(atom_1->pos));
   dst = vec3d_mag(&vec);
-
-  /* Turn it into its unit vector */
-  if (vec3d_unit(&vec, &vec) == NULL)
-    return (retstr(NULL, TEXT_FORCE_LENNARDJONES_FAILURE, __FILE__, __LINE__));
+  dst *= 1E10;
 
   /* Compute the Lennard-Jones parameters
    * (Duffy, E. M.; Severance, D. L.; Jorgensen, W. L.; Isr. J. Chem.1993, 33,  323)
-   *
-   * Also, scale sigma from angstroms to metres
-   * and scale epsilon from kJ/mol to J
    */
-  sigma = 1E-10 * sqrt((universe->atom[a1].sigma)*(universe->atom[a2].sigma));
-  epsilon = (1000/C_AVOGADRO) * sqrt((universe->atom[a1].epsilon)*(universe->atom[a2].epsilon));
+  sigma = sqrt((universe->atom[a1].sigma)*(universe->atom[a2].sigma));
+  epsilon = sqrt((universe->atom[a1].epsilon)*(universe->atom[a2].epsilon));
 
   /* Don't compute beyond the cutoff distance */
-  if (dst > LENNARDJONES_CUTOFF*sigma)
-    return (universe);
-
-  /* Compute the LJ force */
-  force = 48*epsilon*((POW12(sigma)/POW13(dst)) - 0.5*(POW6(sigma)/POW7(dst)));
-  vec3d_mul(frc, &vec, force);
+  if (dst < LENNARDJONES_CUTOFF*sigma)
+  {
+    /* Compute the force and scale it to Newtons */
+    force = 48*epsilon*((POW12(sigma)/POW13(dst)) - 0.5*(POW6(sigma)/POW7(dst)));
+    force *= 1.66053892103219E-11;
+    vec3d_mul(frc, &vec, force/dst); /* Divide by dst to get the unit vector */
+  }
 
   return (universe);
 }
@@ -320,7 +321,7 @@ universe_t *force_total(vec3d_t *frc, universe_t *universe, const size_t part_id
 
         /* Sum the forces */
         vec3d_add(frc, frc, &vec_electrostatic);
-        //vec3d_add(frc, frc, &vec_lennardjones);
+        vec3d_add(frc, frc, &vec_lennardjones);
       }
       /* Restore the backup coordinates */
       universe->atom[i].pos = pos_backup;
