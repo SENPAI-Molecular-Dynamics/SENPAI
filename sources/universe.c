@@ -69,7 +69,7 @@ universe_t *universe_init(universe_t *universe, const args_t *args)
 
   /* Initialize the remaining variables */
   universe->atom_nb = (universe->ref_atom_nb) * (universe->copy_nb);
-  universe->size = cbrt(C_BOLTZMANN*(universe->atom_nb)*(universe->temperature)/(args->pressure));
+  universe->size = cbrt(C_BOLTZMANN*(universe->copy_nb)*(universe->temperature)/(args->pressure));
 
   /* Allocate memory for the atoms */
   if ((universe->atom = malloc (sizeof(atom_t)*(universe->atom_nb))) == NULL)
@@ -285,7 +285,7 @@ universe_t *universe_setvelocity(universe_t *universe)
   /* Get the molecular mass */
   mass_mol = 0;
   for (i=0; i<(universe->ref_atom_nb); ++i)
-    mass_mol += model_mass(universe->atom[i].element);
+    mass_mol += model_mass(universe->ref_atom[i].element);
 
   /* Get the average velocity */
   velocity = sqrt(3*C_BOLTZMANN*(universe->temperature)/mass_mol);
