@@ -199,17 +199,17 @@ universe_t *potential_angle(double *pot, universe_t *universe, const size_t a1, 
 
       if (to_ligand.x > 0.5*(universe->size))
         ligand->pos.x -= universe->size;
-      else if (to_ligand.x < -0.5*(universe->size))
+      else if (to_ligand.x <= -0.5*(universe->size))
         ligand->pos.x += universe->size;
 
       if (to_ligand.y > 0.5*(universe->size))
         ligand->pos.y -= universe->size;
-      else if (to_ligand.y < -0.5*(universe->size))
+      else if (to_ligand.y <= -0.5*(universe->size))
         ligand->pos.y += universe->size;
 
       if (to_ligand.z > 0.5*(universe->size))
         ligand->pos.z -= universe->size;
-      else if (to_ligand.z < -0.5*(universe->size))
+      else if (to_ligand.z <= -0.5*(universe->size))
         ligand->pos.z += universe->size;
       /* PERIODIC BOUNDARY CONDITIONS */
 
@@ -262,17 +262,17 @@ universe_t *potential_total(double *pot, universe_t *universe, const size_t part
       /* Temporarily undo the PBC enforcement, if needed */
       if (to_target.x > 0.5*(universe->size))
         universe->atom[i].pos.x -= universe->size;
-      else if (to_target.x < -0.5*(universe->size))
+      else if (to_target.x <= -0.5*(universe->size))
         universe->atom[i].pos.x += universe->size;
 
       if (to_target.y > 0.5*(universe->size))
         universe->atom[i].pos.y -= universe->size;
-      else if (to_target.y < -0.5*(universe->size))
+      else if (to_target.y <= -0.5*(universe->size))
         universe->atom[i].pos.y += universe->size;
 
       if (to_target.z > 0.5*(universe->size))
         universe->atom[i].pos.z -= universe->size;
-      else if (to_target.z < -0.5*(universe->size))
+      else if (to_target.z <= -0.5*(universe->size))
         universe->atom[i].pos.z += universe->size;
       /* PERIODIC BOUNDARY CONDITIONS */
 
@@ -286,7 +286,7 @@ universe_t *potential_total(double *pot, universe_t *universe, const size_t part
 
         /* Sum the potentials */
         *pot += pot_bond;
-        //*pot += pot_angle;
+        *pot += pot_angle;
       }
 
       /* Non-bonded interractions */

@@ -206,17 +206,17 @@ universe_t *force_angle(vec3d_t *frc, universe_t *universe, const size_t a1, con
 
       if (to_ligand.x > 0.5*(universe->size))
         ligand->pos.x -= universe->size;
-      else if (to_ligand.x < -0.5*(universe->size))
+      else if (to_ligand.x <= -0.5*(universe->size))
         ligand->pos.x += universe->size;
 
       if (to_ligand.y > 0.5*(universe->size))
         ligand->pos.y -= universe->size;
-      else if (to_ligand.y < -0.5*(universe->size))
+      else if (to_ligand.y <= -0.5*(universe->size))
         ligand->pos.y += universe->size;
 
       if (to_ligand.z > 0.5*(universe->size))
         ligand->pos.z -= universe->size;
-      else if (to_ligand.z < -0.5*(universe->size))
+      else if (to_ligand.z <= -0.5*(universe->size))
         ligand->pos.z += universe->size;
       /* PERIODIC BOUNDARY CONDITIONS */
 
@@ -282,17 +282,17 @@ universe_t *force_total(vec3d_t *frc, universe_t *universe, const size_t part_id
       /* Temporarily undo the PBC enforcement, if needed */
       if (to_target.x > 0.5*(universe->size))
         universe->atom[i].pos.x -= universe->size;
-      else if (to_target.x < -0.5*(universe->size))
+      else if (to_target.x <= -0.5*(universe->size))
         universe->atom[i].pos.x += universe->size;
 
       if (to_target.y > 0.5*(universe->size))
         universe->atom[i].pos.y -= universe->size;
-      else if (to_target.y < -0.5*(universe->size))
+      else if (to_target.y <= -0.5*(universe->size))
         universe->atom[i].pos.y += universe->size;
 
       if (to_target.z > 0.5*(universe->size))
         universe->atom[i].pos.z -= universe->size;
-      else if (to_target.z < -0.5*(universe->size))
+      else if (to_target.z <= -0.5*(universe->size))
         universe->atom[i].pos.z += universe->size;
       /* PERIODIC BOUNDARY CONDITIONS */
 
