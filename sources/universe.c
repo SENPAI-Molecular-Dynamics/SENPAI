@@ -480,13 +480,14 @@ universe_t *universe_montecarlo(universe_t *universe)
   double potential;      /* Pre-transformation potential energy */
   double potential_new;  /* Post-transformation potential energy */
   double pos_offset_mag; /* Magnitude of the position offset vector */
-  uint64_t part_id;      /* ID of the atom currently being offset */
+  uint64_t part_id;      /* ID (in the ref. system) of the atom currently being offset */
+  uint64_t copy_id;      /* ID of the system copy being offset */
+  uint64_t index;        /* ID of the atom currently being relocated */
   uint64_t tries;        /* How many times we tried to offset the atom */
   vec3d_t pos_offset;    /* Position offset vector */
-  vec3d_t pos_backup;    /* A backup of the pre-transformation position vector */
 
-  /* For each atom in the universe */
-  for (part_id=0; part_id<(universe->atom_nb); ++part_id)
+  /* For each copy in the universe */
+  for (copy_id=0; copy_id<(universe->copy_nb); ++copy_id)
   {
     pos_offset_mag = 1E-9;
 
@@ -505,17 +506,22 @@ universe_t *universe_montecarlo(universe_t *universe)
         pos_offset_mag *= 0.1; /* Refine the random displacement */
       }
 
-      /* Back up the coordinates */
-      pos_backup = universe->atom[part_id].pos;
-
       /* Apply a random transformation */
       vec3d_marsaglia(&pos_offset);
       vec3d_mul(&pos_offset, &pos_offset, pos_offset_mag);
-      vec3d_add(&(universe->atom[part_id].pos), &(universe->atom[part_id].pos), &pos_offset);
+      for (part_id=0; part_id<(universe->ref_atom_nb); ++part_id)
+      {
+        index = part_id + copy_id*(universe->ref_atom_nb);
+        vec3d_add(&(universe->atom[index].pos), &(universe->atom[index].pos), &pos_offset);
+      }
 
       /* Enforce the PBC */
-      if (atom_enforce_pbc(universe, part_id) == NULL)
-        return (retstr(NULL, TEXT_UNIVERSE_MONTECARLO_FAILURE, __FILE__, __LINE__));
+      for (part_id=0; part_id<(universe->ref_atom_nb); ++part_id)
+      {
+        index = part_id + copy_id*(universe->ref_atom_nb);
+        if (atom_enforce_pbc(universe, index) == NULL)
+          return (retstr(NULL, TEXT_UNIVERSE_MONTECARLO_FAILURE, __FILE__, __LINE__));
+      }
 
       /* Get the system's total potential energy */
       if (universe_energy_potential(universe, &potential_new) == NULL)
@@ -526,7 +532,11 @@ universe_t *universe_montecarlo(universe_t *universe)
         break;
 
       /* Otherwise, discard the transformation */
-      universe->atom[part_id].pos = pos_backup;
+      for (part_id=0; part_id<(universe->ref_atom_nb); ++part_id)
+      {
+        index = part_id + copy_id*(universe->ref_atom_nb);
+        vec3d_sub(&(universe->atom[index].pos), &(universe->atom[index].pos), &pos_offset);
+      }
     }
   }
 
