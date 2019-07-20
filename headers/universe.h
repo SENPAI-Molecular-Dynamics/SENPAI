@@ -67,12 +67,12 @@ struct universe_s
 void        atom_init(atom_t *atom);
 void        atom_clean(atom_t *atom);
 int         atom_is_bonded(universe_t *universe, const uint8_t a1, const uint8_t a2);
-universe_t *atom_update_frc_numerical(universe_t *universe, const uint64_t part_id);
-universe_t *atom_update_frc_analytical(universe_t *universe, const uint64_t part_id);
-universe_t *atom_update_acc(universe_t *universe, const uint64_t part_id);
-universe_t *atom_update_vel(universe_t *universe, const args_t *args, const uint64_t part_id);
-universe_t *atom_update_pos(universe_t *universe, const args_t *args, uint64_t part_id);
-universe_t *atom_enforce_pbc(universe_t *universe, const uint64_t part_id);
+universe_t *atom_update_frc_numerical(universe_t *universe, const uint64_t atom_id);
+universe_t *atom_update_frc_analytical(universe_t *universe, const uint64_t atom_id);
+universe_t *atom_update_acc(universe_t *universe, const uint64_t atom_id);
+universe_t *atom_update_vel(universe_t *universe, const args_t *args, const uint64_t atom_id);
+universe_t *atom_update_pos(universe_t *universe, const args_t *args, uint64_t atom_id);
+universe_t *atom_enforce_pbc(universe_t *universe, const uint64_t atom_id);
 
 universe_t *universe_init(universe_t *universe, const args_t *args);
 void        universe_clean(universe_t *universe);

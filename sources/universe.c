@@ -480,7 +480,7 @@ universe_t *universe_montecarlo(universe_t *universe)
   double potential;      /* Pre-transformation potential energy */
   double potential_new;  /* Post-transformation potential energy */
   double pos_offset_mag; /* Magnitude of the position offset vector */
-  uint64_t part_id;      /* ID (in the ref. system) of the atom currently being offset */
+  uint64_t atom_id;      /* ID (in the ref. system) of the atom currently being offset */
   uint64_t copy_id;      /* ID of the system copy being offset */
   uint64_t index;        /* ID of the atom currently being relocated */
   uint64_t tries;        /* How many times we tried to offset the atom */
@@ -489,7 +489,7 @@ universe_t *universe_montecarlo(universe_t *universe)
   /* For each copy in the universe */
   for (copy_id=0; copy_id<(universe->copy_nb); ++copy_id)
   {
-    pos_offset_mag = 1E-9;
+    pos_offset_mag = universe->size;
 
     /* Get the system's total potential energy */
     if (universe_energy_potential(universe, &potential) == NULL)
@@ -509,16 +509,16 @@ universe_t *universe_montecarlo(universe_t *universe)
       /* Apply a random transformation */
       vec3d_marsaglia(&pos_offset);
       vec3d_mul(&pos_offset, &pos_offset, pos_offset_mag);
-      for (part_id=0; part_id<(universe->ref_atom_nb); ++part_id)
+      for (atom_id=0; atom_id<(universe->ref_atom_nb); ++atom_id)
       {
-        index = part_id + copy_id*(universe->ref_atom_nb);
+        index = atom_id + copy_id*(universe->ref_atom_nb);
         vec3d_add(&(universe->atom[index].pos), &(universe->atom[index].pos), &pos_offset);
       }
 
       /* Enforce the PBC */
-      for (part_id=0; part_id<(universe->ref_atom_nb); ++part_id)
+      for (atom_id=0; atom_id<(universe->ref_atom_nb); ++atom_id)
       {
-        index = part_id + copy_id*(universe->ref_atom_nb);
+        index = atom_id + copy_id*(universe->ref_atom_nb);
         if (atom_enforce_pbc(universe, index) == NULL)
           return (retstr(NULL, TEXT_UNIVERSE_MONTECARLO_FAILURE, __FILE__, __LINE__));
       }
@@ -532,9 +532,9 @@ universe_t *universe_montecarlo(universe_t *universe)
         break;
 
       /* Otherwise, discard the transformation */
-      for (part_id=0; part_id<(universe->ref_atom_nb); ++part_id)
+      for (atom_id=0; atom_id<(universe->ref_atom_nb); ++atom_id)
       {
-        index = part_id + copy_id*(universe->ref_atom_nb);
+        index = atom_id + copy_id*(universe->ref_atom_nb);
         vec3d_sub(&(universe->atom[index].pos), &(universe->atom[index].pos), &pos_offset);
       }
     }

@@ -52,94 +52,100 @@ void atom_clean(atom_t *atom)
 }
 
 /* Get the force through numerical differentiation */
-universe_t *atom_update_frc_numerical(universe_t *universe, const uint64_t part_id)
+universe_t *atom_update_frc_numerical(universe_t *universe, const uint64_t atom_id)
 {
   double potential;
   double potential_new;
   double h;
 
   /* Reset the force vector */
-  universe->atom[part_id].frc.x = 0.0;
-  universe->atom[part_id].frc.y = 0.0;
-  universe->atom[part_id].frc.z = 0.0;
+  universe->atom[atom_id].frc.x = 0.0;
+  universe->atom[atom_id].frc.y = 0.0;
+  universe->atom[atom_id].frc.z = 0.0;
 
   /* Differentiate potential over x axis */
-  h = ROOT_MACHINE_EPSILON * (universe->atom[part_id].pos.x);
-  universe->atom[part_id].pos.x -= h;
-  if (potential_total(&potential, universe, part_id) == NULL)
+  h = ROOT_MACHINE_EPSILON * (universe->atom[atom_id].pos.x);
+  universe->atom[atom_id].pos.x -= h;
+  if (potential_total(&potential, universe, atom_id) == NULL)
     return (retstr(NULL, TEXT_ATOM_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
-  universe->atom[part_id].pos.x += 2*h;
-  if (potential_total(&potential_new, universe, part_id) == NULL)
+  universe->atom[atom_id].pos.x += 2*h;
+  if (potential_total(&potential_new, universe, atom_id) == NULL)
     return (retstr(NULL, TEXT_ATOM_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
-  universe->atom[part_id].frc.x = -(potential_new - potential)/(2*h);
-  universe->atom[part_id].pos.x -= h;
+  universe->atom[atom_id].frc.x = -(potential_new - potential)/(2*h);
+  universe->atom[atom_id].pos.x -= h;
   
   /* Differentiate potential over y axis */
-  h = ROOT_MACHINE_EPSILON * (universe->atom[part_id].pos.y);
-  universe->atom[part_id].pos.y -= h;
-  if (potential_total(&potential, universe, part_id) == NULL)
+  h = ROOT_MACHINE_EPSILON * (universe->atom[atom_id].pos.y);
+  universe->atom[atom_id].pos.y -= h;
+  if (potential_total(&potential, universe, atom_id) == NULL)
     return (retstr(NULL, TEXT_ATOM_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
-  universe->atom[part_id].pos.y += 2*h;
-  if (potential_total(&potential_new, universe, part_id) == NULL)
+  universe->atom[atom_id].pos.y += 2*h;
+  if (potential_total(&potential_new, universe, atom_id) == NULL)
     return (retstr(NULL, TEXT_ATOM_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
-  universe->atom[part_id].frc.y = -(potential_new - potential)/(2*h);
-  universe->atom[part_id].pos.y -= h;
+  universe->atom[atom_id].frc.y = -(potential_new - potential)/(2*h);
+  universe->atom[atom_id].pos.y -= h;
 
   /* Differentiate potential over z axis */
-  h = ROOT_MACHINE_EPSILON * (universe->atom[part_id].pos.z);
-  universe->atom[part_id].pos.z -= h;
-  if (potential_total(&potential, universe, part_id) == NULL)
+  h = ROOT_MACHINE_EPSILON * (universe->atom[atom_id].pos.z);
+  universe->atom[atom_id].pos.z -= h;
+  if (potential_total(&potential, universe, atom_id) == NULL)
     return (retstr(NULL, TEXT_ATOM_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
-  universe->atom[part_id].pos.z += 2*h;
-  if (potential_total(&potential_new, universe, part_id) == NULL)
+  universe->atom[atom_id].pos.z += 2*h;
+  if (potential_total(&potential_new, universe, atom_id) == NULL)
     return (retstr(NULL, TEXT_ATOM_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
-  universe->atom[part_id].frc.z = -(potential_new - potential)/(2*h);
-  universe->atom[part_id].pos.z -= h;
+  universe->atom[atom_id].frc.z = -(potential_new - potential)/(2*h);
+  universe->atom[atom_id].pos.z -= h;
 
   return (universe);
 }
 
 /* Get the force through analytical solving */
-universe_t *atom_update_frc_analytical(universe_t *universe, const uint64_t part_id)
+universe_t *atom_update_frc_analytical(universe_t *universe, const uint64_t atom_id)
 {
   /* Reset the force vector */
-  universe->atom[part_id].frc.x = 0.0;
-  universe->atom[part_id].frc.y = 0.0;
-  universe->atom[part_id].frc.z = 0.0;
+  universe->atom[atom_id].frc.x = 0.0;
+  universe->atom[atom_id].frc.y = 0.0;
+  universe->atom[atom_id].frc.z = 0.0;
 
-  if (force_total(&(universe->atom[part_id].frc), universe, part_id) == NULL)
+  if (force_total(&(universe->atom[atom_id].frc), universe, atom_id) == NULL)
     return (retstr(NULL, TEXT_POTENTIAL_TOTAL_FAILURE, __FILE__, __LINE__));
 
   return (universe);
 }
 
 /* Velocity-Verlet integrator */
-universe_t *atom_update_acc(universe_t *universe, const uint64_t part_id)
+universe_t *atom_update_acc(universe_t *universe, const uint64_t atom_id)
 {
-  if (vec3d_div(&(universe->atom[part_id].acc), &(universe->atom[part_id].frc), model_mass(universe->atom[part_id].element)) == NULL)
+  if (vec3d_div(&(universe->atom[atom_id].acc), &(universe->atom[atom_id].frc), model_mass(universe->atom[atom_id].element)) == NULL)
     return (retstr(NULL, TEXT_ATOM_UPDATE_ACC_FAILURE, __FILE__, __LINE__));
 
   return (universe);
 }
 
 /* Velocity-Verlet integrator */
-universe_t *atom_update_vel(universe_t *universe, const args_t *args, const uint64_t part_id)
+universe_t *atom_update_vel(universe_t *universe, const args_t *args, const uint64_t atom_id)
 {
   vec3d_t new_vel;
+  double mag;
 
   /*
    * new_vel = acc*dt*0.5
    * vel += new_vel
    */
    
-  vec3d_mul(&new_vel, &(universe->atom[part_id].acc), 0.5 * args->timestep);
-  vec3d_add(&(universe->atom[part_id].vel), &(universe->atom[part_id].vel), &new_vel);
+  vec3d_mul(&new_vel, &(universe->atom[atom_id].acc), 0.5 * args->timestep);
+  vec3d_add(&(universe->atom[atom_id].vel), &(universe->atom[atom_id].vel), &new_vel);
+
+  /* Enforce velocity limits */
+  mag = vec3d_mag(&(universe->atom[atom_id].vel));
+  if (mag > 1)
+    vec3d_mul(&(universe->atom[atom_id].vel), &(universe->atom[atom_id].vel), 1E3/mag); 
 
   return (universe);
 }
 
 /* Velocity-Verlet integrator */
-universe_t *atom_update_pos(universe_t *universe, const args_t *args, const uint64_t part_id)
+universe_t *atom_update_pos(universe_t *universe, const args_t *args, const uint64_t atom_id)
 {
   vec3d_t temp;
 
@@ -150,31 +156,31 @@ universe_t *atom_update_pos(universe_t *universe, const args_t *args, const uint
    * pos += new_pos
    */
    
-  vec3d_mul(&temp, &(universe->atom[part_id].acc), args->timestep * 0.5);
-  vec3d_add(&temp, &temp, &(universe->atom[part_id].vel));
+  vec3d_mul(&temp, &(universe->atom[atom_id].acc), args->timestep * 0.5);
+  vec3d_add(&temp, &temp, &(universe->atom[atom_id].vel));
   vec3d_mul(&temp, &temp, args->timestep);
-  vec3d_add(&(universe->atom[part_id].pos), &(universe->atom[part_id].pos), &temp);
+  vec3d_add(&(universe->atom[atom_id].pos), &(universe->atom[atom_id].pos), &temp);
 
   return (universe);
 }
 
 /* Enforce the periodic boundary conditions by relocating the atom, if required */
-universe_t *atom_enforce_pbc(universe_t *universe, const uint64_t part_id)
+universe_t *atom_enforce_pbc(universe_t *universe, const uint64_t atom_id)
 {
-  if (universe->atom[part_id].pos.x >= 0.5*(universe->size))
-    universe->atom[part_id].pos.x -= universe->size;
-  else if (universe->atom[part_id].pos.x < -0.5*(universe->size))
-    universe->atom[part_id].pos.x += universe->size;
+  if (universe->atom[atom_id].pos.x >= 0.5*(universe->size))
+    universe->atom[atom_id].pos.x -= universe->size;
+  else if (universe->atom[atom_id].pos.x < -0.5*(universe->size))
+    universe->atom[atom_id].pos.x += universe->size;
 
-  if (universe->atom[part_id].pos.y >= 0.5*(universe->size))
-    universe->atom[part_id].pos.y -= universe->size;
-  else if (universe->atom[part_id].pos.y < -0.5*(universe->size))
-    universe->atom[part_id].pos.y += universe->size;
+  if (universe->atom[atom_id].pos.y >= 0.5*(universe->size))
+    universe->atom[atom_id].pos.y -= universe->size;
+  else if (universe->atom[atom_id].pos.y < -0.5*(universe->size))
+    universe->atom[atom_id].pos.y += universe->size;
 
-  if (universe->atom[part_id].pos.z >= 0.5*(universe->size))
-    universe->atom[part_id].pos.z -= universe->size;
-  else if (universe->atom[part_id].pos.z < -0.5*(universe->size))
-    universe->atom[part_id].pos.z += universe->size;
+  if (universe->atom[atom_id].pos.z >= 0.5*(universe->size))
+    universe->atom[atom_id].pos.z -= universe->size;
+  else if (universe->atom[atom_id].pos.z < -0.5*(universe->size))
+    universe->atom[atom_id].pos.z += universe->size;
 
   return (universe);
 }

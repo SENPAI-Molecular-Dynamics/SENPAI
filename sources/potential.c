@@ -233,7 +233,7 @@ universe_t *potential_angle(double *pot, universe_t *universe, const size_t a1, 
   return (universe);
 }
 
-universe_t *potential_total(double *pot, universe_t *universe, const size_t part_id)
+universe_t *potential_total(double *pot, universe_t *universe, const size_t atom_id)
 {
   size_t i;
   vec3d_t to_target;
@@ -250,14 +250,14 @@ universe_t *potential_total(double *pot, universe_t *universe, const size_t part
   for (i=0; i<(universe->atom_nb); ++i)
   {
     /* That isn't the same as the current one */
-    if (i != part_id)
+    if (i != atom_id)
     {
       /* PERIODIC BOUNDARY CONDITIONS */
       /* Backup the atom's coordinates */
       pos_backup = universe->atom[i].pos;
 
       /* Get the vector going to the target atom */
-      vec3d_sub(&to_target, &(universe->atom[i].pos), &(universe->atom[part_id].pos));
+      vec3d_sub(&to_target, &(universe->atom[i].pos), &(universe->atom[atom_id].pos));
       
       /* Temporarily undo the PBC enforcement, if needed */
       if (to_target.x > 0.5*(universe->size))
@@ -277,11 +277,11 @@ universe_t *potential_total(double *pot, universe_t *universe, const size_t part
       /* PERIODIC BOUNDARY CONDITIONS */
 
       /* Bonded interractions */
-      if (atom_is_bonded(universe, part_id, i))
+      if (atom_is_bonded(universe, atom_id, i))
       {
-        if (potential_bond(&pot_bond, universe, part_id, i) == NULL)
+        if (potential_bond(&pot_bond, universe, atom_id, i) == NULL)
           return (retstr(NULL, TEXT_POTENTIAL_TOTAL_FAILURE, __FILE__, __LINE__));
-        if (potential_angle(&pot_angle, universe, part_id, i) == NULL)
+        if (potential_angle(&pot_angle, universe, atom_id, i) == NULL)
           return (retstr(NULL, TEXT_POTENTIAL_TOTAL_FAILURE, __FILE__, __LINE__));
 
         /* Sum the potentials */
@@ -292,9 +292,9 @@ universe_t *potential_total(double *pot, universe_t *universe, const size_t part
       /* Non-bonded interractions */
       else
       {
-        if (potential_electrostatic(&pot_electrostatic, universe, part_id, i) == NULL)
+        if (potential_electrostatic(&pot_electrostatic, universe, atom_id, i) == NULL)
           return (retstr(NULL, TEXT_POTENTIAL_TOTAL_FAILURE, __FILE__, __LINE__));
-        if (potential_lennardjones(&pot_lennardjones, universe, part_id, i) == NULL)
+        if (potential_lennardjones(&pot_lennardjones, universe, atom_id, i) == NULL)
           return (retstr(NULL, TEXT_POTENTIAL_TOTAL_FAILURE, __FILE__, __LINE__));
 
         /* Sum the potentials */
