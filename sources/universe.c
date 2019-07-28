@@ -242,16 +242,16 @@ universe_t *universe_populate(universe_t *universe)
       duplicate->bond_nb = reference->bond_nb;
 
       duplicate->vel.x = reference->vel.x;
-      duplicate->vel.x = reference->vel.y;
-      duplicate->vel.x = reference->vel.z;
+      duplicate->vel.y = reference->vel.y;
+      duplicate->vel.z = reference->vel.z;
 
       duplicate->acc.x = reference->acc.x;
-      duplicate->acc.x = reference->acc.y;
-      duplicate->acc.x = reference->acc.z;
+      duplicate->acc.y = reference->acc.y;
+      duplicate->acc.z = reference->acc.z;
 
       duplicate->frc.x = reference->frc.x;
-      duplicate->frc.x = reference->frc.y;
-      duplicate->frc.x = reference->frc.z;
+      duplicate->frc.y = reference->frc.y;
+      duplicate->frc.z = reference->frc.z;
 
       /* Load the atom's location */
       vec3d_add(&(duplicate->pos), &(reference->pos), &pos_offset);

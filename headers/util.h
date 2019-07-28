@@ -24,10 +24,10 @@
 #define C_AHO        (double)(5E-8)             /* Angular Harmonic Oscillator constant */
 
 /* Raises x to the corresponding power */
-#define POW2(x) (x*x)
-#define POW3(x) (x*POW2(x))
-#define POW6(x) (POW3(x)*POW3(x))
-#define POW7(x) (x*POW6(x))
+#define POW2(x)  (x*x)
+#define POW3(x)  (x*POW2(x))
+#define POW6(x)  (POW3(x)*POW3(x))
+#define POW7(x)  (x*POW6(x))
 #define POW12(x) (POW6(x)*POW6(x))
 #define POW13(x) (x*POW12(x))
 

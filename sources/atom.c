@@ -126,7 +126,6 @@ universe_t *atom_update_acc(universe_t *universe, const uint64_t atom_id)
 universe_t *atom_update_vel(universe_t *universe, const args_t *args, const uint64_t atom_id)
 {
   vec3d_t new_vel;
-  double mag;
 
   /*
    * new_vel = acc*dt*0.5
@@ -135,11 +134,6 @@ universe_t *atom_update_vel(universe_t *universe, const args_t *args, const uint
    
   vec3d_mul(&new_vel, &(universe->atom[atom_id].acc), 0.5 * args->timestep);
   vec3d_add(&(universe->atom[atom_id].vel), &(universe->atom[atom_id].vel), &new_vel);
-
-  /* Enforce velocity limits */
-  mag = vec3d_mag(&(universe->atom[atom_id].vel));
-  if (mag > 1)
-    vec3d_mul(&(universe->atom[atom_id].vel), &(universe->atom[atom_id].vel), 1E3/mag); 
 
   return (universe);
 }
