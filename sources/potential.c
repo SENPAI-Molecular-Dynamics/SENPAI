@@ -223,7 +223,7 @@ universe_t *potential_angle(double *pot, universe_t *universe, const size_t a1, 
 
       /* Compute the potential */
       angular_displacement = angle - angle_eq;
-      *pot += 0.5*C_AHO*POW2(angular_displacement);
+      *pot += -0.5*C_AHO*POW2(angular_displacement);
 
       /* Restore the backup coordinates */
       ligand->pos = pos_backup;
