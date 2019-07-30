@@ -238,8 +238,8 @@ universe_t *force_angle(vec3d_t *frc, universe_t *universe, const size_t a1, con
 
       /* Get the current angle */
       angle = acos(vec3d_dot(&to_current, &to_ligand)/(to_current_mag*to_ligand_mag));
-      if (angle > M_PI)
-        angle = -(2*M_PI-angle);
+      if (angle > 2*(angle_eq))
+        angle = fmod(angle, angle_eq);
 
       /* Compute the force */
       angular_displacement = angle - angle_eq;
