@@ -139,16 +139,8 @@ universe_t *potential_angle(double *pot, universe_t *universe, const size_t a1, 
    * angles be different from the equilibrium value.
    *
    * As an example, an sp carbon will have an equilibrium angle of
-   * pi rad. If the angle it forms with its ligands is smaller, it
-   * each ligand will have a repelling radial force applied to them.
-   *
-   * The potential is expressed as:
-   * U_angle = -0.5*k*(alpha-alpha_eq)^2
-   *
-   * Where U_angle is the potential (in Joules)
-   *       k is the "spring" constant (in Newtons per meter)
-   *       alpha is the current angle (in radians)
-   *       alpha_eq is the equilibrium angle (in radians)
+   * pi rad. If the angle it forms with its ligands is smaller,
+   * each ligand will have a repelling torque applied to them.
    *
    */
 
@@ -221,7 +213,7 @@ universe_t *potential_angle(double *pot, universe_t *universe, const size_t a1, 
       if (angle > 2*(angle_eq))
         angle = fmod(angle, angle_eq);
 
-      /* Compute the potential */
+      /* Compute the potential U=(k/2)*(angle^2) */
       angular_displacement = angle - angle_eq;
       *pot += 0.5*C_AHO*POW2(angular_displacement);
 

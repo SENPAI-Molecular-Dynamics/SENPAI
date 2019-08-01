@@ -21,7 +21,7 @@
 #define C_IDEALGAS   (double)(8.31446261)       /* Ideal gas constant */
 #define C_VACUUMPERM (double)(8.8541878128E-12) /* Vacuum permitivity */
 #define C_COULOMB    (double)(8.98755*10E9)     /* Coulomb constant */
-#define C_AHO        (double)(5E-8)             /* Angular Harmonic Oscillator constant */
+#define C_AHO        (double)(5E-18)            /* Torsion constant (Nm/rad) */
 
 /* Raises x to the corresponding power */
 #define POW2(x)  (x*x)

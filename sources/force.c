@@ -143,17 +143,8 @@ universe_t *force_angle(vec3d_t *frc, universe_t *universe, const size_t a1, con
    * angles be different from the equilibrium value.
    *
    * As an example, an sp carbon will have an equilibrium angle of
-   * pi rad. If the angle it forms with its ligands is smaller, it
-   * each ligand will have a repelling radial force applied to them.
-   *
-   * The force vector, in cylindrical coordinates, is expressed as:
-   * F_angle = -k(alpha-alpha_eq)*e_phi
-   *
-   * Where F_angle is the force (in Newtons)
-   *       k is the "spring" constant (in Newtons per meter)
-   *       alpha is the current angle (in radians)
-   *       alpha_eq is the equilibrium angle (in radians)
-   *       e_phi is the azimuth-normal cylindrical unit vector
+   * pi rad. If the angle it forms with its ligands is smaller,
+   * each ligand will have a repelling torque applied to them.
    *
    */
 
@@ -161,8 +152,10 @@ universe_t *force_angle(vec3d_t *frc, universe_t *universe, const size_t a1, con
   double angle;
   double angle_eq;
   double angular_displacement;
-  double to_current_mag;
-  double to_ligand_mag;
+  double to_current_mag; /* Distance from the node to the current atom */
+  double to_ligand_mag; /* Distance from the node to the ligand */
+  double torque; /* Torque applied to a1 */
+  double force; /* Force applied to a1, derived from the torque */
   vec3d_t to_current;
   vec3d_t to_ligand;
   vec3d_t e_phi;
@@ -243,7 +236,9 @@ universe_t *force_angle(vec3d_t *frc, universe_t *universe, const size_t a1, con
 
       /* Compute the force */
       angular_displacement = angle - angle_eq;
-      vec3d_mul(&temp, &e_phi, -C_AHO*angular_displacement);
+      torque = -C_AHO*angular_displacement;
+      force = torque/to_current_mag;
+      vec3d_mul(&temp, &e_phi, force);
 
       /* Sum it */
       vec3d_add(frc, frc, &temp);
