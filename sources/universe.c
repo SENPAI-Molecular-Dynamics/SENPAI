@@ -23,6 +23,7 @@ universe_t *universe_init(universe_t *universe, const args_t *args)
   size_t i;
   size_t input_file_len;   /* Size of the input file (bytes) */
   char *input_file_buffer; /* A memory copy of the input file */
+  double universe_mass; /* Total mass of the universe */
 
   /* Initialize the variables */
   universe->meta_name = NULL;
@@ -67,9 +68,8 @@ universe_t *universe_init(universe_t *universe, const args_t *args)
   /* Free the input file buffer, we're done */
   free(input_file_buffer);
 
-  /* Initialize the remaining variables */
+  /* Initialize the atom number */
   universe->atom_nb = (universe->ref_atom_nb) * (universe->copy_nb);
-  universe->size = cbrt(C_BOLTZMANN*(universe->copy_nb)*(universe->temperature)/(args->pressure));
 
   /* Allocate memory for the atoms */
   if ((universe->atom = malloc (sizeof(atom_t)*(universe->atom_nb))) == NULL)
@@ -83,10 +83,17 @@ universe_t *universe_init(universe_t *universe, const args_t *args)
   if (universe_populate(universe) == NULL)
     return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
 
+  /* Compute the universe's size from the system density */
+  /* size = cbrt(universe_mass / system_density) */
+  universe_mass = 0.0;
+  for (i=0; i<(universe->atom_nb); ++i)
+    universe_mass += model_mass(universe->atom[i].element);
+  universe->size = cbrt((universe_mass) / (args->density));
+
   /* Enforce the PBC */
   for (i=0; i<(universe->atom_nb); ++i)
     if (atom_enforce_pbc(universe, i) == NULL)
-      return (retstr(NULL, TEXT_UNIVERSE_MONTECARLO_FAILURE, __FILE__, __LINE__));
+      return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
 
   /* Apply initial velocities */
   if (universe_setvelocity(universe) == NULL)
@@ -125,7 +132,7 @@ universe_t *universe_load(universe_t *universe, char *input_file_buffer)
     return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
   strcpy(universe->meta_comment, tok);
 
-  /* Get the count line and the atom/bond nb from it  */
+  /* Get the count line, and the atom/bond nb from it  */
   tok = strtok(NULL, "\n");
   sscanf(tok, "%ld %ld", &(universe->ref_atom_nb), &(universe->ref_bond_nb));
 
@@ -225,7 +232,7 @@ universe_t *universe_populate(universe_t *universe)
   {
     /* Generate a random position vector to load the system at */
     vec3d_marsaglia(&pos_offset);
-    vec3d_mul(&pos_offset, &pos_offset, cos(rand())*universe->size);
+    vec3d_mul(&pos_offset, &pos_offset, 1E-8*cos(rand()));
 
     /* Load each atom from the reference system into the universe */
     for (ii=0; ii<(universe->ref_atom_nb); ++ii)
@@ -474,70 +481,34 @@ universe_t *universe_energy_total(universe_t *universe, double *energy)
   return (universe);
 }
 
-/* Apply random transformations to lower the system's potential energy */
-universe_t *universe_montecarlo(universe_t *universe)
+/* Apply transformations to lower the system's potential energy (Gradient descent) */
+universe_t *universe_reducepot(args_t *args, universe_t *universe)
 {
-  double potential;      /* Pre-transformation potential energy */
-  double potential_new;  /* Post-transformation potential energy */
-  double pos_offset_mag; /* Magnitude of the position offset vector */
-  uint64_t atom_id;      /* ID (in the ref. system) of the atom currently being offset */
-  uint64_t copy_id;      /* ID of the system copy being offset */
-  uint64_t index;        /* ID of the atom currently being relocated */
-  uint64_t tries;        /* How many times we tried to offset the atom */
-  vec3d_t pos_offset;    /* Position offset vector */
+  size_t i;
+  double step_magnitude;
+  vec3d_t temp;
 
-  /* For each copy in the universe */
-  for (copy_id=0; copy_id<(universe->copy_nb); ++copy_id)
+  /* For each atom */
+  for (i=0; i<(universe->atom_nb); ++i)
   {
-    pos_offset_mag = universe->size;
+    /* Compute the potential gradient with respect to the atom's coordinates (=force) */
+    if (atom_update_frc_analytical(universe, i) == NULL)
+      return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FAILURE, __FILE__, __LINE__));
 
-    /* Get the system's total potential energy */
-    if (universe_energy_potential(universe, &potential) == NULL)
-      return (retstr(NULL, TEXT_UNIVERSE_ENERGY_TOTAL_FAILURE, __FILE__, __LINE__));
+    /* "Take a step" toward the local minima*/
+    /* The magnitude is derived from the displacement resulting from a constant acceleration */
+    /* displacement = acceleration * t^2 * 0.5 */
+    /*              = force * t^2 / (2 * mass) */
+    /* The direction in which the step is taken is derived from the force vector, since force = -nabla*potential */
+    /* Motion is just fancy gradient descent that instead of bleeding potential conserves it as kinetic energy */
+    /* Think of this algorithm as a simulation without motion, we're just reaching equilibrium without motion */
+    step_magnitude = POW2(args->timestep)/(2*model_mass(universe->atom[i].element));
+    vec3d_mul(&temp, &(universe->atom[i].frc), step_magnitude);
+    vec3d_add(&(universe->atom[i].pos), &(universe->atom[i].pos), &temp);
 
-    tries = 0;
-    while (1)
-    {
-      if (tries < 50)
-        ++tries;
-      else
-      {
-        tries = 0;
-        pos_offset_mag *= 0.1; /* Refine the random displacement */
-      }
-
-      /* Apply a random transformation */
-      vec3d_marsaglia(&pos_offset);
-      vec3d_mul(&pos_offset, &pos_offset, pos_offset_mag);
-      for (atom_id=0; atom_id<(universe->ref_atom_nb); ++atom_id)
-      {
-        index = atom_id + copy_id*(universe->ref_atom_nb);
-        vec3d_add(&(universe->atom[index].pos), &(universe->atom[index].pos), &pos_offset);
-      }
-
-      /* Enforce the PBC */
-      for (atom_id=0; atom_id<(universe->ref_atom_nb); ++atom_id)
-      {
-        index = atom_id + copy_id*(universe->ref_atom_nb);
-        if (atom_enforce_pbc(universe, index) == NULL)
-          return (retstr(NULL, TEXT_UNIVERSE_MONTECARLO_FAILURE, __FILE__, __LINE__));
-      }
-
-      /* Get the system's total potential energy */
-      if (universe_energy_potential(universe, &potential_new) == NULL)
-        return (retstr(NULL, TEXT_UNIVERSE_ENERGY_TOTAL_FAILURE, __FILE__, __LINE__));
-
-      /* If the transformation decreases the potential, we're done */
-      if (potential_new < potential)
-        break;
-
-      /* Otherwise, discard the transformation */
-      for (atom_id=0; atom_id<(universe->ref_atom_nb); ++atom_id)
-      {
-        index = atom_id + copy_id*(universe->ref_atom_nb);
-        vec3d_sub(&(universe->atom[index].pos), &(universe->atom[index].pos), &pos_offset);
-      }
-    }
+    /* Enforce PBCs */
+    if (atom_enforce_pbc(universe, i) == NULL)
+      return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FAILURE, __FILE__, __LINE__));
   }
 
   return (universe);

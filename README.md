@@ -52,6 +52,8 @@ Options:
 
 - `--pressure` Specifies the pressure of the system (mbar) (defaults to `1 atm`)
 
+- `--density` Specifies the density of the system (g.cm-1) (defaults to `1 g.cm-1`)
+
 - `--copy` Specifies how many copies of the loaded system are to be inserted in the simulation
 
 - `--frameskip` Sets a frameskip to reduce I/O usage. Disabled by default

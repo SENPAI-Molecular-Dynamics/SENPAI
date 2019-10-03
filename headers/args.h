@@ -16,8 +16,9 @@
 #define ARGS_COPIES_DEFAULT      (uint64_t)1          /* Number of copies of the loaded system */
 #define ARGS_TEMPERATURE_DEFAULT (uint64_t)273.15     /* Temperature of the universe */
 #define ARGS_PRESSURE_DEFAULT    (double)1E5          /* Pressure of the universe */
+#define ARGS_DENSITY_DEFAULT     (double)1E3          /* One gram per cubic centimetre */
 #define ARGS_FRAMESKIP_DEFAULT   (uint64_t)0          /* Frameskip */
-#define ARGS_MONTECARLO_DEFAULT  (uint64_t)0          /* Monte Carlo potential reduction cycles to run before simulating */
+#define ARGS_REDUCEPOT_DEFAULT   (uint64_t)0          /* Potential reduction cycles to run before simulating */
 
 #define FLAG_NUMERICAL  "--numerical"
 #define FLAG_INPUT      "--in"
@@ -27,23 +28,27 @@
 #define FLAG_COPIES     "--copy"
 #define FLAG_TEMP       "--temp"
 #define FLAG_PRESSURE   "--pressure"
+#define FLAG_DENSITY    "--density"
 #define FLAG_FRAMESKIP  "--frameskip"
-#define FLAG_MONTECARLO "--montecarlo"
+#define FLAG_REDUCEPOT  "--reduce_potential"
 
 typedef struct args_s args_t;
 struct args_s
 {
-  char *path;
-  char *out_path;
-  double timestep;  
-  double max_time;
+  /* Simulation parameters */
+  char *path;                /* Path to input file */
+  char *out_path;            /* Path to output file */
+  double timestep;           /* Timestep used during integration */
+  double max_time;           /* Time at which the simulation stops */
+  uint64_t reduce_potential; /* Number of potential reduction cycles to run */
+  uint64_t frameskip;        /* How many frames to skip */
+  uint8_t numerical;         /* Computation mode */
+
+  /* Chemical properties, thermodynamics */
+  uint64_t copies;
   double temperature;
   double pressure;
-  uint8_t numerical;
-  uint64_t atom_nb;
-  uint64_t copies;
-  uint64_t frameskip;
-  uint64_t montecarlo;
+  double density;
 };
 
 args_t *args_init(args_t *args);

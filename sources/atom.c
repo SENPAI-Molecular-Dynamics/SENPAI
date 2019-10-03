@@ -108,7 +108,7 @@ universe_t *atom_update_frc_analytical(universe_t *universe, const uint64_t atom
   universe->atom[atom_id].frc.z = 0.0;
 
   if (force_total(&(universe->atom[atom_id].frc), universe, atom_id) == NULL)
-    return (retstr(NULL, TEXT_POTENTIAL_TOTAL_FAILURE, __FILE__, __LINE__));
+    return (retstr(NULL, TEXT_ATOM_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
 
   return (universe);
 }
@@ -161,19 +161,19 @@ universe_t *atom_update_pos(universe_t *universe, const args_t *args, const uint
 /* Enforce the periodic boundary conditions by relocating the atom, if required */
 universe_t *atom_enforce_pbc(universe_t *universe, const uint64_t atom_id)
 {
-  if (universe->atom[atom_id].pos.x >= 0.5*(universe->size))
+  while (universe->atom[atom_id].pos.x >= 0.5*(universe->size))
     universe->atom[atom_id].pos.x -= universe->size;
-  else if (universe->atom[atom_id].pos.x < -0.5*(universe->size))
+  while (universe->atom[atom_id].pos.x < -0.5*(universe->size))
     universe->atom[atom_id].pos.x += universe->size;
 
-  if (universe->atom[atom_id].pos.y >= 0.5*(universe->size))
+  while (universe->atom[atom_id].pos.y >= 0.5*(universe->size))
     universe->atom[atom_id].pos.y -= universe->size;
-  else if (universe->atom[atom_id].pos.y < -0.5*(universe->size))
+  while (universe->atom[atom_id].pos.y < -0.5*(universe->size))
     universe->atom[atom_id].pos.y += universe->size;
 
-  if (universe->atom[atom_id].pos.z >= 0.5*(universe->size))
+  while (universe->atom[atom_id].pos.z >= 0.5*(universe->size))
     universe->atom[atom_id].pos.z -= universe->size;
-  else if (universe->atom[atom_id].pos.z < -0.5*(universe->size))
+  while (universe->atom[atom_id].pos.z < -0.5*(universe->size))
     universe->atom[atom_id].pos.z += universe->size;
 
   return (universe);

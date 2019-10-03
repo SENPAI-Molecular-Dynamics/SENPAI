@@ -25,7 +25,7 @@
 #define TEXT_FAILURE                           "[" COLOUR_RED "FAILURE" COLOUR_RESET "] "
 #define TEXT_SIMSTART                          "Simulation started"
 #define TEXT_SIMEND                            "Simulation ended"
-#define TEXT_MONTECARLO                        "Running %ld Monte Carlo potential reduction cycles\n"
+#define TEXT_REDUCEPOT                         "Running %ld potential reduction cycles\n"
 
 /* args.c */
 #define TEXT_ARGS_INIT_FAILURE                 TEXT_FAILURE "args_init: Argument initialisation failed"
@@ -68,6 +68,7 @@
 #define TEXT_INFO_ATOMS                                     "Atoms..................%ld\n"
 #define TEXT_INFO_TEMPERATURE                               "Temperature............%lf K\n"
 #define TEXT_INFO_PRESSURE                                  "Pressure...............%lf hPa\n"
+#define TEXT_INFO_DENSITY                                   "Density................%lf g.cm-1\n"
 #define TEXT_INFO_TOTAL_ENERGY                              "Total system energy....%lf pJ\n"
 #define TEXT_INFO_UNIVERSE_SIZE                             "Universe size  ........%lf pm\n"
 #define TEXT_INFO_SIMULATION_TIME                           "Simulation time........%lf ns\n"
@@ -83,7 +84,7 @@
 #define TEXT_UNIVERSE_ENERGY_KINETIC_FAILURE   TEXT_FAILURE "universe_energy_kinetic: Failed to compute kinetic system energy"
 #define TEXT_UNIVERSE_ENERGY_POTENTIAL_FAILURE TEXT_FAILURE "universe_energy_potential: Failed to compute potential system energy"
 #define TEXT_UNIVERSE_ENERGY_TOTAL_FAILURE     TEXT_FAILURE "universe_energy_total: Failed to compute total system energy"
-#define TEXT_UNIVERSE_MONTECARLO_FAILURE       TEXT_FAILURE "universe_montecarlo: Failed to minimise potential energy"
+#define TEXT_UNIVERSE_REDUCEPOT_FAILURE        TEXT_FAILURE "universe_reducepot: Failed to lower the system's potential"
 
 /* vec3d.c */
 #define TEXT_VEC3D_ADD_FAILURE                 TEXT_FAILURE "vec3d_add: Failed to perform vector addition"

@@ -37,12 +37,12 @@ int main(int argc, char **argv)
   if (universe_init(&universe, &args) == NULL)
     return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));
 
-  /* Run some Monte Carlo to reduce the system's potential */
-  if (args.montecarlo)
+  /* Reduce the system's potential */
+  if (args.reduce_potential)
   {
-    printf(TEXT_MONTECARLO, args.montecarlo);
-    for (i=0; i<(args.montecarlo); ++i)
-      if (universe_montecarlo(&universe) == NULL)
+    printf(TEXT_REDUCEPOT, args.reduce_potential);
+    for (i=0; i<(args.reduce_potential); ++i)
+      if (universe_reducepot(&args, &universe) == NULL)
         return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));
   }
 
@@ -64,6 +64,7 @@ int main(int argc, char **argv)
   printf(TEXT_INFO_ATOMS, universe.atom_nb);
   printf(TEXT_INFO_TEMPERATURE, universe.temperature);
   printf(TEXT_INFO_PRESSURE, args.pressure/1E2);
+  printf(TEXT_INFO_DENSITY, args.density/1E3);
   printf(TEXT_INFO_TOTAL_ENERGY, energy*1E12);
   printf(TEXT_INFO_UNIVERSE_SIZE, universe.size*1E12);
   printf(TEXT_INFO_SIMULATION_TIME, args.max_time*1E9);

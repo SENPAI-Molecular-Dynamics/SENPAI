@@ -26,8 +26,9 @@ args_t *args_init(args_t *args)
   args->temperature = ARGS_TEMPERATURE_DEFAULT;
   args->copies = ARGS_COPIES_DEFAULT;
   args->pressure = ARGS_PRESSURE_DEFAULT;
+  args->density = ARGS_DENSITY_DEFAULT;
   args->frameskip = ARGS_FRAMESKIP_DEFAULT;
-  args->montecarlo = ARGS_MONTECARLO_DEFAULT;
+  args->reduce_potential = ARGS_REDUCEPOT_DEFAULT;
   return (args);
 }
 
@@ -53,16 +54,19 @@ args_t *args_parse(args_t *args, int argc, char **argv)
       args->copies = strtoul(argv[++i], NULL, 10);
     else if (!strcmp(argv[i], FLAG_PRESSURE) && (i+1)<argc)
       args->pressure = atof(argv[++i])*1E2; /* Scale from mbar */
+    else if (!strcmp(argv[i], FLAG_DENSITY) && (i+1)<argc)
+      args->density = atof(argv[++i])*1E3; /* Scale from g.cm-1 to kg.m-1 */
     else if (!strcmp(argv[i], FLAG_FRAMESKIP) && (i+1)<argc)
       args->frameskip = strtoul(argv[++i], NULL, 10);
-    else if (!strcmp(argv[i], FLAG_MONTECARLO) && (i+1)<argc)
-      args->montecarlo = strtoul(argv[++i], NULL, 10);
+    else if (!strcmp(argv[i], FLAG_REDUCEPOT) && (i+1)<argc)
+      args->reduce_potential = strtoul(argv[++i], NULL, 10);
   }
 
   if (args->path == NULL ||
       args->out_path == NULL ||
       args->temperature <= 0.0 ||
       args->pressure < 0.0 ||
+      args->density < 0.0 ||
       args->timestep < 0.0)
     return (retstr(NULL, TEXT_ARGS_PARSE_FAILURE, __FILE__, __LINE__));
   return (args);
