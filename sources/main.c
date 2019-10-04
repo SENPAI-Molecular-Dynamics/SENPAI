@@ -38,13 +38,10 @@ int main(int argc, char **argv)
     return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));
 
   /* Reduce the system's potential */
-  if (args.reduce_potential)
-  {
-    printf(TEXT_REDUCEPOT, args.reduce_potential);
-    for (i=0; i<(args.reduce_potential); ++i)
-      if (universe_reducepot(&args, &universe) == NULL)
-        return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));
-  }
+  printf(TEXT_REDUCEPOT, args.reduce_potential);
+  for (i=0; i<(args.reduce_potential); ++i)
+    if (universe_reducepot(&universe) == NULL)
+      return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));
 
   /* Get the system's initial energy */
   if (universe_energy_total(&universe, &energy) == NULL)

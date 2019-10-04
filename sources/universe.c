@@ -482,7 +482,7 @@ universe_t *universe_energy_total(universe_t *universe, double *energy)
 }
 
 /* Apply transformations to lower the system's potential energy (Gradient descent) */
-universe_t *universe_reducepot(args_t *args, universe_t *universe)
+universe_t *universe_reducepot(universe_t *universe)
 {
   size_t i;
   double step_magnitude;
@@ -502,7 +502,8 @@ universe_t *universe_reducepot(args_t *args, universe_t *universe)
     /* The direction in which the step is taken is derived from the force vector, since force = -nabla*potential */
     /* Motion is just fancy gradient descent that instead of bleeding potential conserves it as kinetic energy */
     /* Think of this algorithm as a simulation without motion, we're just reaching equilibrium without motion */
-    step_magnitude = POW2(args->timestep)/(2*model_mass(universe->atom[i].element));
+	/* We are setting the timestep to 1ps in our case, as it speeds things up significantly and accuracy isn't much of a concern here. */
+    step_magnitude = 1E-12/(2*model_mass(universe->atom[i].element));
     vec3d_mul(&temp, &(universe->atom[i].frc), step_magnitude);
     vec3d_add(&(universe->atom[i].pos), &(universe->atom[i].pos), &temp);
 
