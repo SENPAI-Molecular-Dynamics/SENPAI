@@ -78,17 +78,17 @@ universe_t *universe_init(universe_t *universe, const args_t *args)
   /* Initialize the atom memory */
   for (i=0; i<(universe->atom_nb); ++i)
     atom_init(&(universe->atom[i]));
-  
-  /* Populate the universe with extra molecules */
-  if (universe_populate(universe) == NULL)
-    return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
 
   /* Compute the universe's size from the system density */
   /* size = cbrt(universe_mass / system_density) */
   universe_mass = 0.0;
-  for (i=0; i<(universe->atom_nb); ++i)
-    universe_mass += model_mass(universe->atom[i].element);
+  for (i=0; i<(universe->ref_atom_nb); ++i)
+    universe_mass += (args->copies)*model_mass(universe->ref_atom[i].element);
   universe->size = cbrt((universe_mass) / (args->density));
+  
+  /* Populate the universe with extra molecules */
+  if (universe_populate(universe) == NULL)
+    return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
 
   /* Enforce the PBC */
   for (i=0; i<(universe->atom_nb); ++i)
@@ -232,7 +232,7 @@ universe_t *universe_populate(universe_t *universe)
   {
     /* Generate a random position vector to load the system at */
     vec3d_marsaglia(&pos_offset);
-    vec3d_mul(&pos_offset, &pos_offset, 1E-8*cos(rand()));
+    vec3d_mul(&pos_offset, &pos_offset, 0.6*(universe->size)*cos(rand()) + 0.4*(universe->size));
 
     /* Load each atom from the reference system into the universe */
     for (ii=0; ii<(universe->ref_atom_nb); ++ii)
@@ -486,6 +486,8 @@ universe_t *universe_reducepot(universe_t *universe)
 {
   size_t i;
   double step_magnitude;
+  double pot_pre;
+  double pot_post;
   vec3d_t temp;
 
   /* For each atom */
@@ -502,10 +504,25 @@ universe_t *universe_reducepot(universe_t *universe)
     /* The direction in which the step is taken is derived from the force vector, since force = -nabla*potential */
     /* Motion is just fancy gradient descent that instead of bleeding potential conserves it as kinetic energy */
     /* Think of this algorithm as a simulation without motion, we're just reaching equilibrium without motion */
-	/* We are setting the timestep to 1ps in our case, as it speeds things up significantly and accuracy isn't much of a concern here. */
-    step_magnitude = 1E-12/(2*model_mass(universe->atom[i].element));
+	/* We are setting the timestep to 1 fs in our case, as it speeds things up significantly and accuracy isn't much of a concern here. */
+    step_magnitude = 1E-30/(2*model_mass(universe->atom[i].element));
     vec3d_mul(&temp, &(universe->atom[i].frc), step_magnitude);
+    //printf("Displacing atom #%ld by %lf Angstroms\n", i, 1E10*vec3d_mag(&temp));
+    
+    /* Compute the potential before the transformation */
+    if (potential_total(&pot_pre, universe, i) == NULL)
+      return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FAILURE, __FILE__, __LINE__));
+    
+    /* Apply the transformation */
     vec3d_add(&(universe->atom[i].pos), &(universe->atom[i].pos), &temp);
+    
+    /* Compute the potential after the transformation */
+    if (potential_total(&pot_post, universe, i) == NULL)
+      return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FAILURE, __FILE__, __LINE__));
+    
+    /* If the potential increased, discard the transformation */
+    if (pot_post > pot_pre)
+      vec3d_sub(&(universe->atom[i].pos), &(universe->atom[i].pos), &temp);
 
     /* Enforce PBCs */
     if (atom_enforce_pbc(universe, i) == NULL)
