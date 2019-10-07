@@ -33,7 +33,7 @@ args_t *args_init(args_t *args)
   return (args);
 }
 
-args_t *args_check(const args_t *args)
+args_t *args_check(args_t *args)
 {
   /* An input path MUST be specified */
   if (args->path == NULL)
@@ -68,7 +68,7 @@ args_t *args_check(const args_t *args)
   if (args->density <= 0.0)  
     return (retstr(NULL, TEXT_ARGS_DENSITY_FAILURE, __FILE__, __LINE__));
 
-  return (NULL);
+  return (args);
 }
 
 args_t *args_parse(args_t *args, int argc, char **argv)

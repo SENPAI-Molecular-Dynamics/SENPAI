@@ -11,12 +11,12 @@
 #include <stdint.h>
 
 #define ARGS_NUMERICAL_DEFAULT   MODE_ANALYTICAL      /* Disable numerical differentiation solving by default */
-#define ARGS_TIMESTEP_DEFAULT    (double)1E-15        /* Use 1 femtosecond steps */
-#define ARGS_MAX_TIME_DEFAULT    (double)1E-9         /* Simulate 1 nanosecond */
+#define ARGS_TIMESTEP_DEFAULT    (double)1            /* Use 1 femtosecond steps */
+#define ARGS_MAX_TIME_DEFAULT    (double)1            /* Simulate 1 nanosecond */
 #define ARGS_COPIES_DEFAULT      (uint64_t)1          /* Number of copies of the loaded system */
 #define ARGS_TEMPERATURE_DEFAULT (uint64_t)273.15     /* Temperature of the universe */
-#define ARGS_PRESSURE_DEFAULT    (double)1E5          /* Pressure of the universe */
-#define ARGS_DENSITY_DEFAULT     (double)1E3          /* One gram per cubic centimetre */
+#define ARGS_PRESSURE_DEFAULT    (double)1            /* Pressure of the universe */
+#define ARGS_DENSITY_DEFAULT     (double)1            /* One gram per cubic centimetre */
 #define ARGS_FRAMESKIP_DEFAULT   (uint64_t)0          /* Frameskip */
 #define ARGS_REDUCEPOT_DEFAULT   (uint64_t)0          /* Potential reduction cycles to run before simulating */
 
@@ -52,7 +52,7 @@ struct args_s
 };
 
 args_t *args_init(args_t *args);
-args_t *args_check(const args_t *args);
+args_t *args_check(args_t *args);
 args_t *args_parse(args_t *args, int argc, char **argv);
 
 #endif
