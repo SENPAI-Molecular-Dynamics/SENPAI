@@ -28,8 +28,17 @@
 #define TEXT_REDUCEPOT                         "Running %ld potential reduction cycles\n"
 
 /* args.c */
+#define TEXT_ARG_INVALIDARG                    TEXT_FAILURE "args_init: Unknown argument (\"%s\"). Did you read README.md?\n"
 #define TEXT_ARGS_INIT_FAILURE                 TEXT_FAILURE "args_init: Argument initialisation failed"
 #define TEXT_ARGS_PARSE_FAILURE                TEXT_FAILURE "argse_parse: Arguments couldn't be parsed"
+#define TEXT_ARGS_PATH_FAILURE                 TEXT_FAILURE "args_check: Invalid input path..."
+#define TEXT_ARGS_OUT_PATH_FAILURE             TEXT_FAILURE "args_check: Invalid output path..."
+#define TEXT_ARGS_TIMESTEP_FAILURE             TEXT_FAILURE "args_check: The timestep cannot be negative!"
+#define TEXT_ARGS_TIME_FAILURE                 TEXT_FAILURE "args_check: The simulation cannot be shorter than one timestep!"
+#define TEXT_ARGS_COPY_FAILURE                 TEXT_FAILURE "args_check: Negative or null number of particles"
+#define TEXT_ARGS_TEMPERATURE_FAILURE          TEXT_FAILURE "args_check: The system temperature cannot be negative!"
+#define TEXT_ARGS_PRESSURE_FAILURE             TEXT_FAILURE "args_check: The system pressure must be positive!"
+#define TEXT_ARGS_DENSITY_FAILURE              TEXT_FAILURE "args_check: The system's density must be positive!"
 
 /* force.c */
 #define TEXT_FORCE_BOND_FAILURE                TEXT_FAILURE "force_bond: Failed to compute the bond force"

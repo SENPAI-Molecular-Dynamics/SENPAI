@@ -52,6 +52,7 @@ struct args_s
 };
 
 args_t *args_init(args_t *args);
+args_t *args_check(const args_t *args);
 args_t *args_parse(args_t *args, int argc, char **argv);
 
 #endif
