@@ -489,10 +489,16 @@ universe_t *universe_reducepot(universe_t *universe)
   double pot_pre;
   double pot_post;
   vec3d_t step;
+  vec3d_t pos_pre;
 
   /* For each atom */
   for (i=0; i<(universe->atom_nb); ++i)
   {
+    /* Backup the coordinates */
+    pos_pre.x = universe->atom[i].pos.x;
+    pos_pre.y = universe->atom[i].pos.y;
+    pos_pre.z = universe->atom[i].pos.z;
+    
     /* Compute the potential gradient with respect to the atom's coordinates (=force) */
     if (atom_update_frc_analytical(universe, i) == NULL)
       return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FAILURE, __FILE__, __LINE__));
@@ -513,7 +519,7 @@ universe_t *universe_reducepot(universe_t *universe)
       vec3d_mul(&step, &step, vec3d_mag(&step)/1E-10);
     
     /* Compute the potential before the transformation */
-    if (potential_total(&pot_pre, universe, i) == NULL)
+    if (universe_energy_potential(universe, &pot_pre) == NULL)
       return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FAILURE, __FILE__, __LINE__));
     
     /* Apply the transformation */
@@ -524,17 +530,15 @@ universe_t *universe_reducepot(universe_t *universe)
       return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FAILURE, __FILE__, __LINE__));
     
     /* Compute the potential after the transformation */
-    if (potential_total(&pot_post, universe, i) == NULL)
+    if (universe_energy_potential(universe, &pot_post) == NULL)
       return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FAILURE, __FILE__, __LINE__));
     
     /* If the potential increased, discard the transformation */
     if (pot_post > pot_pre)
     {
-      vec3d_sub(&(universe->atom[i].pos), &(universe->atom[i].pos), &step);
-
-      /* Enforce PBCs */
-      if (atom_enforce_pbc(universe, i) == NULL)
-        return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FAILURE, __FILE__, __LINE__));
+      universe->atom[i].pos.x = pos_pre.x;
+      universe->atom[i].pos.y = pos_pre.y;
+      universe->atom[i].pos.z = pos_pre.z;
     }
   }
 
