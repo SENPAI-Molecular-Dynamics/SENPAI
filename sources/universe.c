@@ -529,11 +529,13 @@ universe_t *universe_reducepot(universe_t *universe)
     
     /* If the potential increased, discard the transformation */
     if (pot_post > pot_pre)
+    {
       vec3d_sub(&(universe->atom[i].pos), &(universe->atom[i].pos), &step);
 
-    /* Enforce PBCs */
-    if (atom_enforce_pbc(universe, i) == NULL)
-      return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FAILURE, __FILE__, __LINE__));
+      /* Enforce PBCs */
+      if (atom_enforce_pbc(universe, i) == NULL)
+        return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FAILURE, __FILE__, __LINE__));
+    }
   }
 
   return (universe);
