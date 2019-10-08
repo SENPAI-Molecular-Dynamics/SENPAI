@@ -15,7 +15,7 @@
 #include "util.h"
 #include "vec3d.h"
 
-/* Initialise a atom's memory */
+/* Initialise an atom's memory */
 void atom_init(atom_t *atom)
 {
   atom->element = ATOM_NULL;

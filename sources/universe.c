@@ -488,7 +488,7 @@ universe_t *universe_reducepot(universe_t *universe)
   double step_magnitude;
   double pot_pre;
   double pot_post;
-  vec3d_t temp;
+  vec3d_t step;
 
   /* For each atom */
   for (i=0; i<(universe->atom_nb); ++i)
@@ -504,17 +504,24 @@ universe_t *universe_reducepot(universe_t *universe)
     /* The direction in which the step is taken is derived from the force vector, since force = -nabla*potential */
     /* Motion is just fancy gradient descent that instead of bleeding potential conserves it as kinetic energy */
     /* Think of this algorithm as a simulation without motion, we're just reaching equilibrium without motion */
-	/* We are setting the timestep to 1 fs in our case, as it speeds things up significantly and accuracy isn't much of a concern here. */
+	  /* We are setting the timestep to 1 fs in our case */
     step_magnitude = 1E-30/(2*model_mass(universe->atom[i].element));
-    vec3d_mul(&temp, &(universe->atom[i].frc), step_magnitude);
-    //printf("Displacing atom #%ld by %lf Angstroms\n", i, 1E10*vec3d_mag(&temp));
+    vec3d_mul(&step, &(universe->atom[i].frc), step_magnitude);
+
+    /* Limit the maximum displacement to 1 Angstrom */
+    if (vec3d_mag(&step) > 1E-10)
+      vec3d_mul(&step, &step, vec3d_mag(&step)/1E-10);
     
     /* Compute the potential before the transformation */
     if (potential_total(&pot_pre, universe, i) == NULL)
       return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FAILURE, __FILE__, __LINE__));
     
     /* Apply the transformation */
-    vec3d_add(&(universe->atom[i].pos), &(universe->atom[i].pos), &temp);
+    vec3d_add(&(universe->atom[i].pos), &(universe->atom[i].pos), &step);
+
+    /* Enforce PBCs */
+    if (atom_enforce_pbc(universe, i) == NULL)
+      return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FAILURE, __FILE__, __LINE__));
     
     /* Compute the potential after the transformation */
     if (potential_total(&pot_post, universe, i) == NULL)
@@ -522,7 +529,7 @@ universe_t *universe_reducepot(universe_t *universe)
     
     /* If the potential increased, discard the transformation */
     if (pot_post > pot_pre)
-      vec3d_sub(&(universe->atom[i].pos), &(universe->atom[i].pos), &temp);
+      vec3d_sub(&(universe->atom[i].pos), &(universe->atom[i].pos), &step);
 
     /* Enforce PBCs */
     if (atom_enforce_pbc(universe, i) == NULL)
