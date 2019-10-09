@@ -17,11 +17,10 @@
 
 int main(int argc, char **argv)
 {
-  size_t i;            /* Iterator */
   void *exit_state;    /* Was the simulation a success or a failure? This boy will tell you. */
   args_t args;         /* Program arguments (from argv) */
   universe_t universe; /* The universe itself (wow) */
-  double energy;       /* The universe's energy */
+  double potential;       /* The universe's potential energy */
 
   srand((unsigned int)time(NULL));
 
@@ -37,15 +36,24 @@ int main(int argc, char **argv)
   if (universe_init(&universe, &args) == NULL)
     return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));
 
+  /* Get the system's potential energy */
+  if (universe_energy_potential(&universe, &potential) == NULL)
+    return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));
+  
+  /* Print it */
+  printf(TEXT_POTENTIAL, potential*1E12);
+
   /* Reduce the system's potential */
-  printf(TEXT_REDUCEPOT, args.reduce_potential);
-  for (i=0; i<(args.reduce_potential); ++i)
+  printf(TEXT_REDUCEPOT, args.reduce_potential*1E12);
+  while (potential > args.reduce_potential)
+  {
     if (universe_reducepot(&universe) == NULL)
       return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));
-
-  /* Get the system's initial energy */
-  if (universe_energy_total(&universe, &energy) == NULL)
-    return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));
+    
+    /* Update the system's potential energy */
+    if (universe_energy_total(&universe, &potential) == NULL)
+      return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));
+  }
 
   /* Print some useful information */
   puts(TEXT_INFO_REFERENCE);
@@ -62,7 +70,7 @@ int main(int argc, char **argv)
   printf(TEXT_INFO_TEMPERATURE, universe.temperature);
   printf(TEXT_INFO_PRESSURE, args.pressure/1E2);
   printf(TEXT_INFO_DENSITY, args.density/1E3);
-  printf(TEXT_INFO_TOTAL_ENERGY, energy*1E12);
+  printf(TEXT_INFO_POTENTIAL_ENERGY, potential*1E12);
   printf(TEXT_INFO_UNIVERSE_SIZE, universe.size*1E12);
   printf(TEXT_INFO_SIMULATION_TIME, args.max_time*1E9);
   printf(TEXT_INFO_TIMESTEP, args.timestep*1E15);

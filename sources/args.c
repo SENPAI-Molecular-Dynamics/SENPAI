@@ -38,7 +38,7 @@ args_t *args_check(args_t *args)
   /* An input path MUST be specified */
   if (args->path == NULL)
     return (retstr(NULL, TEXT_ARGS_PATH_FAILURE, __FILE__, __LINE__));
-  
+
   /* And so must an output path */
   if (args->out_path == NULL)
     return (retstr(NULL, TEXT_ARGS_OUT_PATH_FAILURE, __FILE__, __LINE__));
@@ -59,14 +59,18 @@ args_t *args_check(args_t *args)
   /* Negative temperatures are invalid */
   if (args->temperature < 0.0)
     return (retstr(NULL, TEXT_ARGS_TEMPERATURE_FAILURE, __FILE__, __LINE__));
-  
+
   /* The pressure cannot be negative */
   if (args->pressure <= 0.0)
     return (retstr(NULL, TEXT_ARGS_PRESSURE_FAILURE, __FILE__, __LINE__));
-  
+
   /* Just like the density */
   if (args->density <= 0.0)  
     return (retstr(NULL, TEXT_ARGS_DENSITY_FAILURE, __FILE__, __LINE__));
+
+  /* A negative potential has no meaning here */
+  if (args->reduce_potential <= 0.0)
+    return (retstr(NULL, TEXT_ARGS_REDUCEPOT_FAILURE, __FILE__, __LINE__));
 
   return (args);
 }
@@ -108,7 +112,7 @@ args_t *args_parse(args_t *args, int argc, char **argv)
       args->frameskip = strtoul(argv[++i], NULL, 10);
     
     else if (!strcmp(argv[i], FLAG_REDUCEPOT) && (i+1)<argc)
-      args->reduce_potential = strtoul(argv[++i], NULL, 10);
+      args->reduce_potential = atof(argv[++i]);
     
     else if (i == (argc-1))
     {
@@ -118,10 +122,11 @@ args_t *args_parse(args_t *args, int argc, char **argv)
   }
 
   /* Convert units */
-  args->max_time *= 1E-9;  /* Scale from ns to s */
-  args->timestep *= 1E-15; /* Scale from fs to s */
-  args->pressure *= 1E2;   /* Scale from mbar to Pa */
-  args->density  *= 1E3;   /* Scale from g.cm-1 to kg.m-1 */
+  args->max_time *= 1E-9;          /* Scale from ns to s */
+  args->timestep *= 1E-15;         /* Scale from fs to s */
+  args->pressure *= 1E2;           /* Scale from mbar to Pa */
+  args->density  *= 1E3;           /* Scale from g.cm-1 to kg.m-1 */
+  args->reduce_potential *= 1E-12; /* Scale from pJ to J */
 
   if (args_check(args) == NULL)
     return (retstr(NULL, TEXT_ARGS_PARSE_FAILURE, __FILE__, __LINE__));

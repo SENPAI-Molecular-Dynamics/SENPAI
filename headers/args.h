@@ -18,7 +18,7 @@
 #define ARGS_PRESSURE_DEFAULT    (double)1            /* Pressure of the universe */
 #define ARGS_DENSITY_DEFAULT     (double)1            /* One gram per cubic centimetre */
 #define ARGS_FRAMESKIP_DEFAULT   (uint64_t)0          /* Frameskip */
-#define ARGS_REDUCEPOT_DEFAULT   (uint64_t)0          /* Potential reduction cycles to run before simulating */
+#define ARGS_REDUCEPOT_DEFAULT   (double)10.0         /* Maximum potential energy before simulating (pJ) */
 
 #define FLAG_NUMERICAL  "--numerical"
 #define FLAG_INPUT      "--in"
@@ -40,7 +40,7 @@ struct args_s
   char *out_path;            /* Path to output file */
   double timestep;           /* Timestep used during integration */
   double max_time;           /* Time at which the simulation stops */
-  uint64_t reduce_potential; /* Number of potential reduction cycles to run */
+  double reduce_potential;   /* Number of potential reduction cycles to run */
   uint64_t frameskip;        /* How many frames to skip */
   uint8_t numerical;         /* Computation mode */
 

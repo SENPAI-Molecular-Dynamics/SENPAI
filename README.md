@@ -58,13 +58,17 @@ Options:
 
 - `--frameskip` Sets a frameskip to reduce I/O usage. Disabled by default
 
-- `--montecarlo` Sets a number of potential reduction cycles to apply. Defaults to 0.
+- `--reduce_potential` Reduces the potential energy to the provided value (pJ) or lower (really time consuming) (defaults to 10 pJ)
 
 ## Example use
 
-`./senpai.bin --in examples/DES.mol --out render.xyz --time 1000 --dt 0.5`
+`./senpai.bin --in examples/DES.mol --out render.xyz`
 
-This will tell SENPAI to simulate the contents of `examples/DES.mol` at STP for one nanosecond using a half femtosecond timestep. The rendered simulation will be saved in `render.xyz` for further analysis.
+This will tell SENPAI to simulate the contents of `examples/DES.mol` at STP for one nanosecond using a one femtosecond timestep. The rendered simulation will be saved in `render.xyz` for further analysis.
+
+`./senpai.bin --in examples/water.mol --out water_render.xyz --copy 5000 --reduce_potential 100 --temp 300`
+
+This will have SENPAI load 1000 water molecules from `examples/water.mol`, arrange them so that the total potential energy is lower than 100 pJ, and finally simulate the system at 300 Kelvin for 1 ns, saving the render in `water_render.xyz`.
 
 ## Questions and Answers
 

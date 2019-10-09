@@ -25,7 +25,8 @@
 #define TEXT_FAILURE                           "[" COLOUR_RED "FAILURE" COLOUR_RESET "] "
 #define TEXT_SIMSTART                          "Simulation started"
 #define TEXT_SIMEND                            "Simulation ended"
-#define TEXT_REDUCEPOT                         "Running %ld potential reduction cycles\n"
+#define TEXT_REDUCEPOT                         "Lowering potential energy to %lf pJ...\n"
+#define TEXT_POTENTIAL                         "Current potential energy is %lf pJ\n"
 
 /* args.c */
 #define TEXT_ARG_INVALIDARG                    TEXT_FAILURE "args_init: Unknown argument (\"%s\"). Did you read README.md?\n"
@@ -39,6 +40,7 @@
 #define TEXT_ARGS_TEMPERATURE_FAILURE          TEXT_FAILURE "args_check: The system temperature cannot be negative!"
 #define TEXT_ARGS_PRESSURE_FAILURE             TEXT_FAILURE "args_check: The system pressure must be positive!"
 #define TEXT_ARGS_DENSITY_FAILURE              TEXT_FAILURE "args_check: The system's density must be positive!"
+#define TEXT_ARGS_REDUCEPOT_FAILURE            TEXT_FAILURE "args_check: The target potential must be positive!"
 
 /* force.c */
 #define TEXT_FORCE_BOND_FAILURE                TEXT_FAILURE "force_bond: Failed to compute the bond force"
@@ -78,7 +80,7 @@
 #define TEXT_INFO_TEMPERATURE                               "Temperature............%lf K\n"
 #define TEXT_INFO_PRESSURE                                  "Pressure...............%lf hPa\n"
 #define TEXT_INFO_DENSITY                                   "Density................%lf g.cm-1\n"
-#define TEXT_INFO_TOTAL_ENERGY                              "Total system energy....%lf pJ\n"
+#define TEXT_INFO_POTENTIAL_ENERGY                          "Total potential energy.%lf pJ\n"
 #define TEXT_INFO_UNIVERSE_SIZE                             "Universe size  ........%lf pm\n"
 #define TEXT_INFO_SIMULATION_TIME                           "Simulation time........%lf ns\n"
 #define TEXT_INFO_TIMESTEP                                  "Timestep...............%lf fs\n"
