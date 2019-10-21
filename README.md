@@ -1,4 +1,4 @@
-# SENPAI - Simplified Evolutive N-body Processing and Analytics for Integration
+# SENPAI/ONICHaN - Simplified Evolutive N-body Processing and Analytics for Integration
 
 SENPAI is a molecular dynamics (MD) simulation software aimed at simulating organic systems. It handles  the following interractions:
 
@@ -80,7 +80,7 @@ A: The sun can't simulate deep eutectic solvents.
 
 Q: Who are you?
 
-A: Thomas Murgia, 19y old at the time of writing this. I'm a second year undergraduate student of chemistry at the Université Toulouse 3 in France.
+A: Thomas Murgia, 19y old at the time of writing this. I'm a second year undergraduate student of chemistry at the UniversitÃ© Toulouse 3 in France.
 
 I plan to keep going with projects like those and hopefully get involved in purely academic and fundamental research in chemistry until the end of my days.
 
