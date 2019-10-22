@@ -80,14 +80,20 @@ vec3d_t *vec3d_cross(vec3d_t *dest, const vec3d_t *v1, const vec3d_t *v2)
 vec3d_t *vec3d_unit(vec3d_t *dest, const vec3d_t *v)
 {
   double mag;
-  vec3d_t *res;
 
-  mag = vec3d_mag(v);
+  /* Avoid a function call and directly compute the magnitude */
+  /* Most compilers SHOULD optimise anyway */
+  mag = sqrt((v->x * v->x) + (v->y * v->y) + (v->z * v->z));
 
-  if ((res = vec3d_div(dest, v, mag)) == NULL)
+  if (mag < DIV_THRESHOLD)
     return (retstr(NULL, TEXT_VEC3D_UNIT_FAILURE, __FILE__, __LINE__));
 
-  return (res);
+  /* Again, avoid a function call and do the maths locally */
+  dest->x = (v->x) / mag;
+  dest->y = (v->y) / mag;
+  dest->z = (v->z) / mag;
+
+  return (dest);
 }
 
 /* Generate a random vector from the unit sphere*/
