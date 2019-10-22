@@ -20,12 +20,12 @@
 
 universe_t *universe_init(universe_t *universe, const args_t *args)
 {
-  size_t i;
+  size_t i;                /* Iterator */
   size_t input_file_len;   /* Size of the input file (bytes) */
   char *input_file_buffer; /* A memory copy of the input file */
-  double universe_mass; /* Total mass of the universe */
+  double universe_mass;    /* Total mass of the universe */
 
-  /* Initialize the variables */
+  /* Initialize the structure variables */
   universe->meta_name = NULL;
   universe->meta_author = NULL;
   universe->meta_comment = NULL;
@@ -51,7 +51,7 @@ universe_t *universe_init(universe_t *universe, const args_t *args)
   fseek(universe->input_file, 0, SEEK_END);
   input_file_len = ftell(universe->input_file);
   rewind(universe->input_file);
-  
+
   /* Initialize the memory buffer for the file */
   if ((input_file_buffer = (char*)malloc(input_file_len+1)) == NULL)
     return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
@@ -64,7 +64,7 @@ universe_t *universe_init(universe_t *universe, const args_t *args)
   /* Load the initial state from the input file */
   if (universe_load(universe, input_file_buffer) == NULL)
     return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
-  
+
   /* Free the input file buffer, we're done */
   free(input_file_buffer);
 
@@ -85,7 +85,7 @@ universe_t *universe_init(universe_t *universe, const args_t *args)
   for (i=0; i<(universe->ref_atom_nb); ++i)
     universe_mass += (args->copies)*model_mass(universe->ref_atom[i].element);
   universe->size = cbrt((universe_mass) / (args->density));
-  
+
   /* Populate the universe with extra molecules */
   if (universe_populate(universe) == NULL)
     return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
@@ -388,7 +388,7 @@ universe_t *universe_iterate(universe_t *universe, const args_t *args)
       if (atom_update_frc_numerical(universe, i) == NULL)
         return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
   }
-  
+
   /* Or analytically solving for force */
   else
   {
@@ -498,7 +498,7 @@ universe_t *universe_reducepot(universe_t *universe)
     pos_pre.x = universe->atom[i].pos.x;
     pos_pre.y = universe->atom[i].pos.y;
     pos_pre.z = universe->atom[i].pos.z;
-    
+
     /* Compute the potential gradient with respect to the atom's coordinates (=force) */
     if (atom_update_frc_analytical(universe, i) == NULL)
       return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FAILURE, __FILE__, __LINE__));
@@ -517,22 +517,22 @@ universe_t *universe_reducepot(universe_t *universe)
     /* Limit the maximum displacement to 1 Angstrom */
     if (vec3d_mag(&step) > 1E-10)
       vec3d_mul(&step, &step, vec3d_mag(&step)/1E-10);
-    
+
     /* Compute the potential before the transformation */
     if (universe_energy_potential(universe, &pot_pre) == NULL)
       return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FAILURE, __FILE__, __LINE__));
-    
+
     /* Apply the transformation */
     vec3d_add(&(universe->atom[i].pos), &(universe->atom[i].pos), &step);
 
     /* Enforce PBCs */
     if (atom_enforce_pbc(universe, i) == NULL)
       return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FAILURE, __FILE__, __LINE__));
-    
+
     /* Compute the potential after the transformation */
     if (universe_energy_potential(universe, &pot_post) == NULL)
       return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FAILURE, __FILE__, __LINE__));
-    
+
     /* If the potential increased, discard the transformation */
     if (pot_post > pot_pre)
     {
