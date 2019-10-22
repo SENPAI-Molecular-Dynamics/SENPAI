@@ -24,7 +24,7 @@ The simulation is rendered in a cubic universe of constant size, enforcing perio
 
 - **Render as XYZ:** Keep it simple. Simulations are rendered using the XYZ format, and can be directly visualized with software like VMD.
 
-- **Integrated potential reduction:** SENPAI will reduce the system's potential energy with a user-selectable number of Monte Carlo cycles before starting the simulation.
+- **Integrated potential reduction:** SENPAI will reduce the system's potential energy with a user-selectable number of potential reduction cycles before starting the simulation.
 
 ## Installation
 
@@ -89,6 +89,6 @@ I plan to keep going with projects like those and hopefully get involved in pure
 Q: Are you looking for grad programs? Or even internships?
 
 A: Definitely. E-mail me at <thomas.murgia@univ-tlse3.fr> (academic email). I'm open to all offers :)
-    
+
 
 # Documentation currently unavailable, as things are constantly suspect to drastic changes
