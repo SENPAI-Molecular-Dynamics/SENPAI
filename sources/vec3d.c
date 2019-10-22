@@ -45,7 +45,7 @@ vec3d_t *vec3d_mul(vec3d_t *dest, const vec3d_t *v, const double lambda)
 /* dest = v/lambda */
 vec3d_t *vec3d_div(vec3d_t *dest, const vec3d_t *v, const double lambda)
 {
-  if (lambda < 10E-30)
+  if (lambda < DIV_THRESHOLD)
     return (retstr(NULL, TEXT_VEC3D_DIV_FAILURE, __FILE__, __LINE__));
 
   dest->x = (v->x / lambda);

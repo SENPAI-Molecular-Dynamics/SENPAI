@@ -10,6 +10,7 @@
 
 #include <stdint.h>
 
+#define DIV_THRESHOLD 1E-30 /* Diving by a value smaller than this will result in an error */
 #define ROOT_MACHINE_EPSILON (double) 1.48996644E-8
 #define LENNARDJONES_CUTOFF 2.5
 #define MODE_ANALYTICAL 0
