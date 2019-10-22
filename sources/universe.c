@@ -26,9 +26,9 @@ universe_t *universe_init(universe_t *universe, const args_t *args)
   double universe_mass;    /* Total mass of the universe */
 
   /* Initialize the structure variables */
-  universe->meta_name = NULL;
-  universe->meta_author = NULL;
-  universe->meta_comment = NULL;
+  universe->meta_name = UNIVERSE_META_NAME_DEFAULT;
+  universe->meta_author = UNIVERSE_META_AUTHOR_DEFAULT;
+  universe->meta_comment = UNIVERSE_META_COMMENT_DEFAULT;
   universe->ref_atom_nb = 0;
   universe->ref_bond_nb = 0;
   universe->copy_nb = args->copies;
