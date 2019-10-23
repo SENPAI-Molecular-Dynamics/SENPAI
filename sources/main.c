@@ -36,24 +36,13 @@ int main(int argc, char **argv)
   if (universe_init(&universe, &args) == NULL)
     return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));
 
-  /* Get the system's potential energy */
-  if (universe_energy_potential(&universe, &potential) == NULL)
+  /* Reduce the potential energy before simulating */
+   if (universe_reducepot(&universe, &args) == NULL)
     return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));
-  
-  /* Print it */
-  printf(TEXT_POTENTIAL, potential*1E12);
 
-  /* Reduce the system's potential */
-  printf(TEXT_REDUCEPOT, args.reduce_potential*1E12);
-  while (potential > args.reduce_potential)
-  {
-    if (universe_reducepot(&universe) == NULL)
-      return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));
-    
-    /* Update the system's potential energy */
-    if (universe_energy_total(&universe, &potential) == NULL)
-      return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));
-  }
+  /* Compute the potential energy */
+   if (universe_energy_potential(&universe, &potential) == NULL)
+     return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));
 
   /* Print some useful information */
   puts(TEXT_INFO_REFERENCE);

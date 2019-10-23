@@ -4,7 +4,7 @@
  * Licensed under MIT license
  *
  */
- 
+
 #ifndef TEXT_H
 #define TEXT_H
 
@@ -96,6 +96,8 @@
 #define TEXT_UNIVERSE_ENERGY_POTENTIAL_FAILURE TEXT_FAILURE "universe_energy_potential: Failed to compute potential system energy"
 #define TEXT_UNIVERSE_ENERGY_TOTAL_FAILURE     TEXT_FAILURE "universe_energy_total: Failed to compute total system energy"
 #define TEXT_UNIVERSE_REDUCEPOT_FAILURE        TEXT_FAILURE "universe_reducepot: Failed to lower the system's potential"
+#define TEXT_UNIVERSE_REDUCEPOT_COARSE_FAILURE TEXT_FAILURE "universe_reducepot_coarse: Failed to lower the system's potential"
+#define TEXT_UNIVERSE_REDUCEPOT_FINE_FAILURE   TEXT_FAILURE "universe_reducepot_fine: Failed to lower the system's potential"
 
 /* vec3d.c */
 #define TEXT_VEC3D_ADD_FAILURE                 TEXT_FAILURE "vec3d_add: Failed to perform vector addition"
