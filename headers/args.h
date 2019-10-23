@@ -10,15 +10,15 @@
 
 #include <stdint.h>
 
-#define ARGS_NUMERICAL_DEFAULT   MODE_ANALYTICAL      /* Disable numerical differentiation solving by default */
-#define ARGS_TIMESTEP_DEFAULT    (double)1            /* Use 1 femtosecond steps */
-#define ARGS_MAX_TIME_DEFAULT    (double)1            /* Simulate 1 nanosecond */
-#define ARGS_COPIES_DEFAULT      (uint64_t)1          /* Number of copies of the loaded system */
-#define ARGS_TEMPERATURE_DEFAULT (uint64_t)273.15     /* Temperature of the universe */
-#define ARGS_PRESSURE_DEFAULT    (double)1            /* Pressure of the universe */
-#define ARGS_DENSITY_DEFAULT     (double)1            /* One gram per cubic centimetre */
-#define ARGS_FRAMESKIP_DEFAULT   (uint64_t)0          /* Frameskip */
-#define ARGS_REDUCEPOT_DEFAULT   (double)10.0         /* Maximum potential energy before simulating (pJ) */
+#define ARGS_NUMERICAL_DEFAULT   MODE_ANALYTICAL      /* (unitless) Force computation mode */
+#define ARGS_TIMESTEP_DEFAULT    (double)1            /* (fs)       Simulation timestep */
+#define ARGS_MAX_TIME_DEFAULT    (double)1            /* (ns)       Simulation duration */
+#define ARGS_COPIES_DEFAULT      (uint64_t)1          /* (unitless) Substrate copies to be simulated*/
+#define ARGS_TEMPERATURE_DEFAULT (uint64_t)273.15     /* (K)        Universe thermodynamic temperature */
+#define ARGS_PRESSURE_DEFAULT    (double)1            /* (hPa)      Universe pressure */
+#define ARGS_DENSITY_DEFAULT     (double)1            /* (g.cm-3)   Universe density */
+#define ARGS_FRAMESKIP_DEFAULT   (uint64_t)0          /* (unitless) Frameskip */
+#define ARGS_REDUCEPOT_DEFAULT   (double)10.0         /* (pJ)       Maximum potential energy before simulating */
 
 #define FLAG_NUMERICAL  "--numerical"
 #define FLAG_INPUT      "--in"
