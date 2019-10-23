@@ -23,15 +23,20 @@
 typedef struct atom_s atom_t;
 struct atom_s
 {
-  uint8_t element;         /* Chemical element */
-  double charge;           /* Electrostatic charge (elementary charges) */
-  double epsilon;          /* Lennard-Jones parameter (kJ.mol-1) */
-  double sigma;            /* Lennard-Jones parameter (angstrom) */
+  /* MISC. INFORMATION */
+  uint8_t element;         /* Chemical element (as defined in model.h) */
 
+  /* BONDS */
   uint8_t bond_nb;         /* Number of covalent bonds */
   uint64_t *bond;          /* IDs of the bonded atoms */
-  double *bond_strength;   /* Strength of each bond (spring constant) */
 
+  /* INTERACTIONS */
+  double *bond_strength;   /* (N.m-1) Bond stength (indexed by bond nb) */
+  double charge;           /* (C.e-1)    Electric charge */
+  double epsilon;          /* (kJ.mol-1) Internuclear potential well depth */
+  double sigma;            /* (Å)        Internuclear equilibrium distance */
+
+  /* MECHANICS */
   vec3d_t pos;             /* Position */
   vec3d_t vel;             /* Velocity */
   vec3d_t acc;             /* Acceleration */
@@ -41,28 +46,31 @@ struct atom_s
 typedef struct universe_s universe_t;
 struct universe_s
 {
-  /* Metadata from the input file */
-  char *meta_name;      /* The name of the system */
-  char *meta_author;    /* Who made the file */
-  char *meta_comment;   /* Something from the author */
-
-  uint64_t ref_atom_nb; /* The number of atoms in the loaded system */
-  uint64_t ref_bond_nb; /* The number of covalent bonds in the loaded system */
-
-  uint64_t copy_nb;     /* Number of copies of the loaded system to simulate */
-  uint64_t atom_nb;     /* Total number of atoms in the universe */
-
-  double size;          /* The universe is a cube, that's how long a side is (m) */
-  double time;          /* Current time (s) */
-  double temperature;   /* Initial thermodynamic temperature (K) */
-  double pressure;      /* Initial pressure (Pa) */
+  /* MISC. INFORMATION */
+  FILE *output_file;    /* The output file (.xyz) */
+  FILE *input_file;     /* The input file (.mol) */
   uint64_t iterations;  /* How many iterations have been rendered so far */
 
-  FILE *output_file;    /* The output file (.xyz) */
-  FILE *input_file;     /* The input file (.nh4) */
+  /* INPUT FILE METADATA */
+  char *meta_name;      /* The name of the substrate */
+  char *meta_author;    /* Who made the file */
+  char *meta_comment;   /* Some message from the author */
 
-  atom_t *ref_atom;     /* The original system loaded from the file */
-  atom_t *atom;         /* The universe to simulate*/
+  /* SUBSTRATE */
+  uint64_t ref_atom_nb; /* The number of atoms in the substrate */
+  uint64_t ref_bond_nb; /* The number of covalent bonds in the substrate */
+  atom_t *ref_atom;     /* The substrate atoms as loaded from the file */
+
+  /* UNIVERSE */
+  atom_t *atom;         /* The universe (set of all atoms) to simulate */
+  uint64_t copy_nb;     /* Number of copies of the substrate to simulate */
+  uint64_t atom_nb;     /* Total number of atoms in the universe */
+
+  /* PARAMETERS & THERMODYNAMICS */
+  double size;          /* (m) The universe is a cube, that's how long a side is */
+  double time;          /* (s) Current time */
+  double temperature;   /* (K) Initial thermodynamic temperature */
+  double pressure;      /* (Pa) Initial pressure */
 };
 
 /* ################## */
