@@ -32,7 +32,7 @@ struct atom_s
 
   /* INTERACTIONS */
   double *bond_strength;   /* (N.m-1) Bond stength (indexed by bond nb) */
-  double charge;           /* (C.e-1)    Electric charge */
+  double charge;           /* (C)    Electric charge */
   double epsilon;          /* (kJ.mol-1) Internuclear potential well depth */
   double sigma;            /* (Å)        Internuclear equilibrium distance */
 

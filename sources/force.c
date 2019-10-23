@@ -60,8 +60,6 @@ universe_t *force_electrostatic(vec3d_t *frc, universe_t *universe, const size_t
 {
   atom_t *atom_1;
   atom_t *atom_2;
-  double charge_a1;
-  double charge_a2;
   double force;
   double dst;
   vec3d_t vec;
@@ -79,9 +77,7 @@ universe_t *force_electrostatic(vec3d_t *frc, universe_t *universe, const size_t
     return (retstr(NULL, TEXT_FORCE_BOND_FAILURE, __FILE__, __LINE__));
 
   /* Compute the force vector */
-  charge_a1 = 1.60217646E-19 * atom_1->charge; /* Scale from e to C */
-  charge_a2 = 1.60217646E-19 * atom_2->charge; /* Scale from e to C */
-  force = (charge_a1*charge_a2) / (4*M_PI*C_VACUUMPERM*POW2(dst));
+  force = (atom_1->charge * atom_2->charge) / (4*M_PI*C_VACUUMPERM*POW2(dst));
   vec3d_mul(frc, &vec, force);
 
   return (universe);
@@ -178,14 +174,14 @@ universe_t *force_angle(vec3d_t *frc, universe_t *universe, const size_t a1, con
   /* If the node has no other ligand, there's nothing to compute */
   if (node->bond_nb == 1)
     return (universe);
-  
+
   /* Get the vector going from the node to the current atom and its magnitude */
   vec3d_sub(&to_current, &(current->pos), &(node->pos));
   to_current_mag = vec3d_mag(&to_current);
 
   /* For all ligands */
   for (i=0; i<(node->bond_nb); ++i)
-  { 
+  {
     ligand = &(universe->atom[node->bond[i]]);
 
     /* If the ligand exists and isn't the current atom*/
@@ -216,7 +212,7 @@ universe_t *force_angle(vec3d_t *frc, universe_t *universe, const size_t a1, con
       /* Get its magnitude */
       to_ligand_mag = vec3d_mag(&to_ligand);
 
-      /* Compute e_phi 
+      /* Compute e_phi
        * I'm trash at maths so here's a tumor involving a double cross product
        * Feel free to send hate mail at <thomas.murgia@univ-tlse3.fr>
        */
@@ -273,7 +269,7 @@ universe_t *force_total(vec3d_t *frc, universe_t *universe, const size_t atom_id
 
       /* Get the vector going to the target atom */
       vec3d_sub(&to_target, &(universe->atom[i].pos), &(universe->atom[atom_id].pos));
-      
+
       /* Temporarily undo the PBC enforcement, if needed */
       if (to_target.x > 0.5*(universe->size))
         universe->atom[i].pos.x -= universe->size;

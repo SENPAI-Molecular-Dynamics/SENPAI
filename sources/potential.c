@@ -60,8 +60,6 @@ universe_t *potential_electrostatic(double *pot, universe_t *universe, const siz
 {
   atom_t *atom_1;
   atom_t *atom_2;
-  double charge_a1;
-  double charge_a2;
   double dst;
   vec3d_t vec;
 
@@ -78,9 +76,7 @@ universe_t *potential_electrostatic(double *pot, universe_t *universe, const siz
     return (retstr(NULL, TEXT_FORCE_BOND_FAILURE, __FILE__, __LINE__));
 
   /* Compute the potential */
-  charge_a1 = 1.60217646E-19 * atom_1->charge; /* Scale from e to C */
-  charge_a2 = 1.60217646E-19 * atom_2->charge; /* Scale from e to C */
-  *pot = (charge_a1*charge_a2) / (dst*4*M_PI*C_VACUUMPERM);
+  *pot = (atom_1->charge * atom_2->charge) / (dst*4*M_PI*C_VACUUMPERM);
 
   return (universe);
 }
@@ -168,7 +164,7 @@ universe_t *potential_angle(double *pot, universe_t *universe, const size_t a1, 
   /* If the node has no other ligand, don't bother either */
   if (node->bond_nb == 1)
     return (universe);
-  
+
   /* Get the vector going from the node to the current atom */
   vec3d_sub(&to_current, &(current->pos), &(node->pos));
 
@@ -177,7 +173,7 @@ universe_t *potential_angle(double *pot, universe_t *universe, const size_t a1, 
 
   /* For all ligands */
   for (i=0; i<(node->bond_nb); ++i)
-  { 
+  {
     ligand = &(universe->atom[node->bond[i]]);
 
     /* If the ligand exists and isn't the current atom*/
@@ -250,7 +246,7 @@ universe_t *potential_total(double *pot, universe_t *universe, const size_t atom
 
       /* Get the vector going to the target atom */
       vec3d_sub(&to_target, &(universe->atom[i].pos), &(universe->atom[atom_id].pos));
-      
+
       /* Temporarily undo the PBC enforcement, if needed */
       if (to_target.x > 0.5*(universe->size))
         universe->atom[i].pos.x -= universe->size;

@@ -26,9 +26,9 @@ universe_t *universe_init(universe_t *universe, const args_t *args)
   double universe_mass;    /* Total mass of the universe */
 
   /* Initialize the structure variables */
-  universe->meta_name = UNIVERSE_META_NAME_DEFAULT;
-  universe->meta_author = UNIVERSE_META_AUTHOR_DEFAULT;
-  universe->meta_comment = UNIVERSE_META_COMMENT_DEFAULT;
+  universe->meta_name = NULL;
+  universe->meta_author = NULL;
+  universe->meta_comment = NULL;
   universe->ref_atom_nb = 0;
   universe->ref_bond_nb = 0;
   universe->copy_nb = args->copies;
@@ -156,8 +156,12 @@ universe_t *universe_load(universe_t *universe, char *input_file_buffer)
            &(universe->ref_atom[i].charge),
            &(universe->ref_atom[i].epsilon),
            &(universe->ref_atom[i].sigma));
-    /* Scale the atom's position vector from Angstroms to metres */
+
+    /* Scale the atom's position vector from Å to m */
     vec3d_mul(&(universe->ref_atom[i].pos), &(universe->ref_atom[i].pos), 1E-10);
+
+    /* Scale the atom's charge from C.e-1 to C */
+    universe->ref_atom[i].charge *= 1.60217646E-19;
   }
 
   /* Allocate memory for the temporary bond information storage */
