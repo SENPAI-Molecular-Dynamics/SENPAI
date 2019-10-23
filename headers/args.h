@@ -45,10 +45,10 @@ struct args_s
   uint8_t numerical;         /* Computation mode */
 
   /* Chemical properties, thermodynamics */
-  uint64_t copies;
-  double temperature;
-  double pressure;
-  double density;
+  uint64_t copies;           /* Number of substrates to be loaded */
+  double temperature;        /* thermodynamic temperature of the universe */
+  double pressure;           /* Universe pressure, used for gas-phase simulations */
+  double density;            /* Universe density, used for solid/liquide phase simulations */
 };
 
 args_t *args_init(args_t *args);
