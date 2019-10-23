@@ -15,9 +15,10 @@
 #include "text.h"
 #include "args.h"
 
-#define UNIVERSE_META_NAME_DEFAULT    "??"
-#define UNIVERSE_META_AUTHOR_DEFAULT  "??"
-#define UNIVERSE_META_COMMENT_DEFAULT "??"
+/* Default substrate metadata */
+#define UNIVERSE_META_NAME_DEFAULT    "Unknown substrate"
+#define UNIVERSE_META_AUTHOR_DEFAULT  "Unknown author"
+#define UNIVERSE_META_COMMENT_DEFAULT "No comment"
 
 typedef struct atom_s atom_t;
 struct atom_s
