@@ -20,8 +20,9 @@ int main(int argc, char **argv)
   void *exit_state;    /* Was the simulation a success or a failure? This boy will tell you. */
   args_t args;         /* Program arguments (from argv) */
   universe_t universe; /* The universe itself (wow) */
-  double potential;       /* The universe's potential energy */
+  double potential;    /* The universe's potential energy */
 
+  /* We don't need a perfectly random generator */
   srand((unsigned int)time(NULL));
 
   /* That's the welcome message */
@@ -36,24 +37,13 @@ int main(int argc, char **argv)
   if (universe_init(&universe, &args) == NULL)
     return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));
 
-  /* Get the system's potential energy */
-  if (universe_energy_potential(&universe, &potential) == NULL)
+  /* Reduce the potential energy before simulating */
+   if (universe_reducepot(&universe, &args) == NULL)
     return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));
-  
-  /* Print it */
-  printf(TEXT_POTENTIAL, potential*1E12);
 
-  /* Reduce the system's potential */
-  printf(TEXT_REDUCEPOT, args.reduce_potential*1E12);
-  while (potential > args.reduce_potential)
-  {
-    if (universe_reducepot(&universe) == NULL)
-      return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));
-    
-    /* Update the system's potential energy */
-    if (universe_energy_total(&universe, &potential) == NULL)
-      return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));
-  }
+  /* Compute the potential energy */
+   if (universe_energy_potential(&universe, &potential) == NULL)
+     return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));
 
   /* Print some useful information */
   puts(TEXT_INFO_REFERENCE);

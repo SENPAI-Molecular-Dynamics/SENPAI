@@ -26,9 +26,9 @@ universe_t *universe_init(universe_t *universe, const args_t *args)
   double universe_mass;    /* Total mass of the universe */
 
   /* Initialize the structure variables */
-  universe->meta_name = UNIVERSE_META_NAME_DEFAULT;
-  universe->meta_author = UNIVERSE_META_AUTHOR_DEFAULT;
-  universe->meta_comment = UNIVERSE_META_COMMENT_DEFAULT;
+  universe->meta_name = NULL;
+  universe->meta_author = NULL;
+  universe->meta_comment = NULL;
   universe->ref_atom_nb = 0;
   universe->ref_bond_nb = 0;
   universe->copy_nb = args->copies;
@@ -156,8 +156,12 @@ universe_t *universe_load(universe_t *universe, char *input_file_buffer)
            &(universe->ref_atom[i].charge),
            &(universe->ref_atom[i].epsilon),
            &(universe->ref_atom[i].sigma));
-    /* Scale the atom's position vector from Angstroms to metres */
+
+    /* Scale the atom's position vector from Å to m */
     vec3d_mul(&(universe->ref_atom[i].pos), &(universe->ref_atom[i].pos), 1E-10);
+
+    /* Scale the atom's charge from C.e-1 to C */
+    universe->ref_atom[i].charge *= 1.60217646E-19;
   }
 
   /* Allocate memory for the temporary bond information storage */
@@ -481,10 +485,49 @@ universe_t *universe_energy_total(universe_t *universe, double *energy)
   return (universe);
 }
 
-/* Apply transformations to lower the system's potential energy (Gradient descent) */
-universe_t *universe_reducepot(universe_t *universe)
+/* Move the atoms around until a target potential is reached */
+universe_t *universe_reducepot(universe_t *universe, args_t *args)
+{
+  double potential;
+
+  /* Compute and print the current potential */
+  if (universe_energy_potential(universe, &potential) == NULL)
+    return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FAILURE, __FILE__, __LINE__));
+  printf(TEXT_POTENTIAL, potential*1E12);
+
+  /* Print the target potential */
+  printf(TEXT_REDUCEPOT, args->reduce_potential*1E12);
+
+  /* PHASE 1 - BRUTEFORCE */
+  while (potential > 2 * args->reduce_potential)
+  {
+    if (universe_reducepot_coarse(universe) == NULL)
+      return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FAILURE, __FILE__, __LINE__));
+
+    /* Update the system's potential energy */
+    if (universe_energy_total(universe, &potential) == NULL)
+      return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FAILURE, __FILE__, __LINE__));
+  }
+
+  /* PHASE 2 - GRADIENT DESCENT */
+  while (potential > args->reduce_potential)
+  {
+    if (universe_reducepot_fine(universe) == NULL)
+      return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FAILURE, __FILE__, __LINE__));
+
+    /* Update the system's potential energy */
+    if (universe_energy_total(universe, &potential) == NULL)
+      return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FAILURE, __FILE__, __LINE__));
+  }
+
+  return (universe);
+}
+
+/* Apply transformations to lower the system's potential energy (Bruteforcing) */
+universe_t *universe_reducepot_coarse(universe_t *universe)
 {
   size_t i;
+  size_t tries;
   double step_magnitude;
   double pot_pre;
   double pot_post;
@@ -499,9 +542,66 @@ universe_t *universe_reducepot(universe_t *universe)
     pos_pre.y = universe->atom[i].pos.y;
     pos_pre.z = universe->atom[i].pos.z;
 
+    /* Compute the pre-transformation potential */
+    if (universe_energy_total(universe, &pot_pre) == NULL)
+      return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_COARSE_FAILURE, __FILE__, __LINE__));
+
+    /* Until we lower the potential */
+    tries = 0;
+    step_magnitude = 1E-9;
+    do
+    {
+      /* Reset the displacement */
+      universe->atom[i].pos = pos_pre;
+
+      /* Compute the displacement magnitude */
+      if (tries == 100)
+      {
+        tries = 0;
+        step_magnitude *= 0.1;
+      }
+      else
+        ++tries;
+
+      /* Compute the displacement */
+      vec3d_marsaglia(&step);
+      vec3d_mul(&step, &step, step_magnitude);
+
+      /* Apply the displacement */
+      vec3d_add(&(universe->atom[i].pos), &(universe->atom[i].pos), &step);
+
+      /* Enforce PBCs */
+      if (atom_enforce_pbc(universe, i) == NULL)
+        return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_COARSE_FAILURE, __FILE__, __LINE__));
+
+      /* Compute the post-transformation potential */
+      if (universe_energy_total(universe, &pot_post) == NULL)
+        return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_COARSE_FAILURE, __FILE__, __LINE__));
+    } while (pot_post > pot_pre);
+  }
+
+  return (universe);
+}
+
+/* Apply transformations to lower the system's potential energy (Gradient descent) */
+universe_t *universe_reducepot_fine(universe_t *universe)
+{
+  size_t i;
+  double step_magnitude;
+  double pot_pre;
+  double pot_post;
+  vec3d_t step;
+  vec3d_t pos_pre;
+
+  /* For each atom */
+  for (i=0; i<(universe->atom_nb); ++i)
+  {
+    /* Backup the coordinates */
+    pos_pre = universe->atom[i].pos;
+
     /* Compute the potential gradient with respect to the atom's coordinates (=force) */
     if (atom_update_frc_analytical(universe, i) == NULL)
-      return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FAILURE, __FILE__, __LINE__));
+      return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FINE_FAILURE, __FILE__, __LINE__));
 
     /* "Take a step" toward the local minima*/
     /* The magnitude is derived from the displacement resulting from a constant acceleration */
@@ -520,26 +620,22 @@ universe_t *universe_reducepot(universe_t *universe)
 
     /* Compute the potential before the transformation */
     if (universe_energy_potential(universe, &pot_pre) == NULL)
-      return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FAILURE, __FILE__, __LINE__));
+      return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FINE_FAILURE, __FILE__, __LINE__));
 
     /* Apply the transformation */
     vec3d_add(&(universe->atom[i].pos), &(universe->atom[i].pos), &step);
 
     /* Enforce PBCs */
     if (atom_enforce_pbc(universe, i) == NULL)
-      return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FAILURE, __FILE__, __LINE__));
+      return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FINE_FAILURE, __FILE__, __LINE__));
 
     /* Compute the potential after the transformation */
     if (universe_energy_potential(universe, &pot_post) == NULL)
-      return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FAILURE, __FILE__, __LINE__));
+      return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FINE_FAILURE, __FILE__, __LINE__));
 
     /* If the potential increased, discard the transformation */
     if (pot_post > pot_pre)
-    {
-      universe->atom[i].pos.x = pos_pre.x;
-      universe->atom[i].pos.y = pos_pre.y;
-      universe->atom[i].pos.z = pos_pre.z;
-    }
+      universe->atom[i].pos = pos_pre;
   }
 
   return (universe);

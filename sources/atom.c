@@ -35,7 +35,7 @@ void atom_init(atom_t *atom)
   atom->vel.y = 0.0;
   atom->vel.z = 0.0;
 
-  atom->vel.x = 0.0;
+  atom->acc.x = 0.0;
   atom->acc.y = 0.0;
   atom->acc.z = 0.0;
 
@@ -73,7 +73,7 @@ universe_t *atom_update_frc_numerical(universe_t *universe, const uint64_t atom_
     return (retstr(NULL, TEXT_ATOM_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
   universe->atom[atom_id].frc.x = -(potential_new - potential)/(2*h);
   universe->atom[atom_id].pos.x -= h;
-  
+
   /* Differentiate potential over y axis */
   h = ROOT_MACHINE_EPSILON * (universe->atom[atom_id].pos.y);
   universe->atom[atom_id].pos.y -= h;
@@ -131,7 +131,7 @@ universe_t *atom_update_vel(universe_t *universe, const args_t *args, const uint
    * new_vel = acc*dt*0.5
    * vel += new_vel
    */
-   
+
   vec3d_mul(&new_vel, &(universe->atom[atom_id].acc), 0.5 * args->timestep);
   vec3d_add(&(universe->atom[atom_id].vel), &(universe->atom[atom_id].vel), &new_vel);
 
@@ -149,7 +149,7 @@ universe_t *atom_update_pos(universe_t *universe, const args_t *args, const uint
    * new_pos *= dt
    * pos += new_pos
    */
-   
+
   vec3d_mul(&temp, &(universe->atom[atom_id].acc), args->timestep * 0.5);
   vec3d_add(&temp, &temp, &(universe->atom[atom_id].vel));
   vec3d_mul(&temp, &temp, args->timestep);
