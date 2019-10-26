@@ -20,8 +20,9 @@ int main(int argc, char **argv)
   void *exit_state;    /* Was the simulation a success or a failure? This boy will tell you. */
   args_t args;         /* Program arguments (from argv) */
   universe_t universe; /* The universe itself (wow) */
-  double potential;       /* The universe's potential energy */
+  double potential;    /* The universe's potential energy */
 
+  /* We don't need a perfectly random generator */
   srand((unsigned int)time(NULL));
 
   /* That's the welcome message */
