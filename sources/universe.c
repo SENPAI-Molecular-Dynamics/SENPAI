@@ -171,11 +171,9 @@ universe_t *universe_load(universe_t *universe, char *input_file_buffer)
     return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
   if ((bond_strength = malloc(sizeof(double) * (universe->ref_bond_nb))) == NULL)
     return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
-  if ((bond_index = malloc(sizeof(uint64_t) * (universe->ref_atom_nb))) == NULL)
-    return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
-
   /* Zero the allocated memory */
-  memset(bond_index, 0, universe->ref_bond_nb);
+  if ((bond_index = calloc(universe->ref_atom_nb, sizeof(uint8_t))) == NULL)
+    return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
 
   /* Read the bond block and get the number of bonds for each atom */
   for (i=0; i<(universe->ref_bond_nb); ++i)
