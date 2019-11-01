@@ -119,6 +119,12 @@ universe_t *potential_lennardjones(double *pot, universe_t *universe, const size
     *pot *= 1.66053892103219E-21;
   }
 
+  else
+  {
+    /* Initialize the potential */
+    *pot = 0.0;
+  }
+
   return (universe);
 }
 
