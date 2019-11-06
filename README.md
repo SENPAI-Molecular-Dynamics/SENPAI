@@ -28,6 +28,8 @@ The simulation is rendered in a cubic universe of constant size, enforcing perio
 
 ## Installation
 
+The first step consists of configuring SENPAI for your machine and use case. This is done by editing the constants in `headers.config.h`.
+
 On UNIX systems, compilation is achieved using the provided makefile. No additional software is required.
 
 ` git clone https://github.com/Garuda1/senpai && cd senpai && make`
@@ -48,7 +50,7 @@ Options:
 
 - `--dt t` Specifies the timestep (fs) (defaults to `1 fs`)
 
-- `--temp` Specifies the thermodynamic temperature of the system (K) (defaults to `273.15 K`)
+- `--temp` Specifies the thermodynamic temperature of the system (K) (defaults to `298.15 K`)
 
 - `--pressure` Specifies the pressure of the system (mbar) (defaults to `1 atm`)
 
