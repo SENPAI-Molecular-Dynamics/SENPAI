@@ -9,6 +9,7 @@
 #include <stdlib.h>
 
 #include "vec3d.h"
+#include "config.h"
 #include "util.h"
 #include "text.h"
 

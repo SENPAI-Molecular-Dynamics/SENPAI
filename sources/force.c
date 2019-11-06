@@ -8,6 +8,7 @@
 #include <math.h>
 #include <stdio.h>
 
+#include "config.h"
 #include "force.h"
 #include "model.h"
 #include "universe.h"
@@ -77,7 +78,7 @@ universe_t *force_electrostatic(vec3d_t *frc, universe_t *universe, const size_t
     return (retstr(NULL, TEXT_FORCE_BOND_FAILURE, __FILE__, __LINE__));
 
   /* Compute the force vector */
-  force = (atom_1->charge * atom_2->charge) / (4*M_PI*C_VACUUMPERM*POW2(dst));
+  force = -(atom_1->charge * atom_2->charge) / (4*M_PI*C_VACUUMPERM*POW2(dst));
   vec3d_mul(frc, &vec, force);
 
   return (universe);
@@ -117,7 +118,11 @@ universe_t *force_lennardjones(vec3d_t *frc, universe_t *universe, const size_t 
   /* Don't compute beyond the cutoff distance */
   if (dst < LENNARDJONES_CUTOFF*sigma)
   {
-    /* Compute the force and scale it to Newtons */
+    /* Compute the force and scale it to Newtons
+     * TODO: redo the whole f"!@#ng dimensional analysis
+     *       to figure out the coathanger abortion of a
+     *       unit we are converting from.
+     */
     force = 48*epsilon*((POW12(sigma)/POW13(dst)) - 0.5*(POW6(sigma)/POW7(dst)));
     force *= 1.66053892103219E-11;
     vec3d_mul(frc, &vec, force/dst); /* Divide by dst to get the unit vector */

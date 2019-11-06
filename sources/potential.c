@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include <math.h>
 
+#include "config.h"
 #include "model.h"
 #include "potential.h"
 #include "text.h"
@@ -114,7 +115,7 @@ universe_t *potential_lennardjones(double *pot, universe_t *universe, const size
   /* Don't compute beyond the cutoff distance */
   if (dst < LENNARDJONES_CUTOFF*sigma)
   {
-    /* Compute the potential and scale it to Joules */
+    /* Compute the potential and scale it from kJ.mol-1 to Joules */
     *pot = 4*epsilon*(POW12(sigma/dst)-POW6(sigma/dst));
     *pot *= 1.66053892103219E-21;
   }

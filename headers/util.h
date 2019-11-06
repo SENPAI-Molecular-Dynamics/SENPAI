@@ -10,19 +10,7 @@
 
 #include <stdint.h>
 
-#define DIV_THRESHOLD 1E-30 /* Diving by a value smaller than this will result in an error */
-#define ROOT_MACHINE_EPSILON (double) 1.48996644E-8
-#define LENNARDJONES_CUTOFF 2.5
-#define MODE_ANALYTICAL 0
-#define MODE_NUMERICAL 1
-
 /* Useful constants for chemists */
-#define C_BOLTZMANN  (double)(1.380649E-23)     /* Boltzmann constant */
-#define C_AVOGADRO   (double)(6.02214076E23)    /* Avogadro number */
-#define C_IDEALGAS   (double)(8.31446261)       /* Ideal gas constant */
-#define C_VACUUMPERM (double)(8.8541878128E-12) /* Vacuum permitivity */
-#define C_COULOMB    (double)(8.98755*10E9)     /* Coulomb constant */
-#define C_AHO        (double)(5E-18)            /* Torsion constant (Nm/rad) */
 
 /* Raises x to the corresponding power */
 #define POW2(x)  (x*x)

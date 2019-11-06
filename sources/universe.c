@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <math.h>
 
+#include "config.h"
 #include "args.h"
 #include "model.h"
 #include "text.h"
@@ -161,7 +162,7 @@ universe_t *universe_load(universe_t *universe, char *input_file_buffer)
     vec3d_mul(&(universe->ref_atom[i].pos), &(universe->ref_atom[i].pos), 1E-10);
 
     /* Scale the atom's charge from C.e-1 to C */
-    universe->ref_atom[i].charge *= 1.60217646E-19;
+    universe->ref_atom[i].charge *= C_ELEMCHARGE;
   }
 
   /* Allocate memory for the temporary bond information storage */
@@ -234,7 +235,7 @@ universe_t *universe_populate(universe_t *universe)
   {
     /* Generate a random position vector to load the system at */
     vec3d_marsaglia(&pos_offset);
-    vec3d_mul(&pos_offset, &pos_offset, 0.6*(universe->size)*cos(rand()) + 0.4*(universe->size));
+    vec3d_mul(&pos_offset, &pos_offset, (1-UNIVERSE_POPULATE_MIN_DIST)*(universe->size)*cos(rand()) + UNIVERSE_POPULATE_MIN_DIST*(universe->size));
 
     /* Load each atom from the reference system into the universe */
     for (ii=0; ii<(universe->ref_atom_nb); ++ii)
@@ -497,7 +498,7 @@ universe_t *universe_reducepot(universe_t *universe, args_t *args)
   printf(TEXT_REDUCEPOT, args->reduce_potential*1E12);
 
   /* PHASE 1 - BRUTEFORCE */
-  while (potential > 2 * args->reduce_potential)
+  while (potential > UNIVERSE_REDUCEPOT_COARSE_THRESHOLD * args->reduce_potential)
   {
     if (universe_reducepot_coarse(universe) == NULL)
       return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FAILURE, __FILE__, __LINE__));
@@ -546,17 +547,17 @@ universe_t *universe_reducepot_coarse(universe_t *universe)
 
     /* Until we lower the potential */
     tries = 0;
-    step_magnitude = 1E-9;
+    step_magnitude = UNIVERSE_REDUCEPOT_COARSE_STEP_MAGNITUDE;
     do
     {
       /* Reset the displacement */
       universe->atom[i].pos = pos_pre;
 
       /* Compute the displacement magnitude */
-      if (tries == 100)
+      if (tries == UNIVERSE_REDUCEPOT_COARSE_MAX_ATTEMPTS)
       {
         tries = 0;
-        step_magnitude *= 0.1;
+        step_magnitude *= UNIVERSE_REDUCEPOT_COARSE_MAGNITUDE_MULTIPLIER;
       }
       else
         ++tries;
@@ -608,13 +609,12 @@ universe_t *universe_reducepot_fine(universe_t *universe)
     /* The direction in which the step is taken is derived from the force vector, since force = -nabla*potential */
     /* Motion is just fancy gradient descent that instead of bleeding potential conserves it as kinetic energy */
     /* Think of this algorithm as a simulation without motion, we're just reaching equilibrium without motion */
-	  /* We are setting the timestep to 1 fs in our case */
-    step_magnitude = 1E-30/(2*model_mass(universe->atom[i].element));
+    step_magnitude = POW2(UNIVERSE_REDUCEPOT_FINE_TIMESTEP)/(2*model_mass(universe->atom[i].element));
     vec3d_mul(&step, &(universe->atom[i].frc), step_magnitude);
 
     /* Limit the maximum displacement to 1 Angstrom */
-    if (vec3d_mag(&step) > 1E-10)
-      vec3d_mul(&step, &step, vec3d_mag(&step)/1E-10);
+    if (vec3d_mag(&step) > UNIVERSE_REDUCEPOT_FINE_MAX_STEP)
+      vec3d_mul(&step, &step, UNIVERSE_REDUCEPOT_FINE_MAX_STEP/vec3d_mag(&step));
 
     /* Compute the potential before the transformation */
     if (universe_energy_potential(universe, &pot_pre) == NULL)

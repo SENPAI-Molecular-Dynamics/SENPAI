@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "config.h"
 #include "force.h"
 #include "model.h"
 #include "potential.h"

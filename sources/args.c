@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "config.h"
 #include "args.h"
 #include "util.h"
 #include "text.h"
@@ -45,15 +46,15 @@ args_t *args_check(args_t *args)
 
   /* And negative timesteps */
   /* (I'm actually quite tempted to try out negative timesteps...) */
-  if (args->timestep <= 0.0) 
+  if (args->timestep <= 0.0)
     return (retstr(NULL, TEXT_ARGS_TIMESTEP_FAILURE, __FILE__, __LINE__));
 
   /* Simulations shorter than 1 timestep are forbidden */
-  if ((args->max_time) <= (args->timestep)) 
+  if ((args->max_time) <= (args->timestep))
     return (retstr(NULL, TEXT_ARGS_TIME_FAILURE, __FILE__, __LINE__));
 
   /* There cannot be a null or negative number of particles to simulate */
-  if ((args->copies) <= 0) 
+  if ((args->copies) <= 0)
     return (retstr(NULL, TEXT_ARGS_COPY_FAILURE, __FILE__, __LINE__));
 
   /* Negative temperatures are invalid */
@@ -65,7 +66,7 @@ args_t *args_check(args_t *args)
     return (retstr(NULL, TEXT_ARGS_PRESSURE_FAILURE, __FILE__, __LINE__));
 
   /* Just like the density */
-  if (args->density <= 0.0)  
+  if (args->density <= 0.0)
     return (retstr(NULL, TEXT_ARGS_DENSITY_FAILURE, __FILE__, __LINE__));
 
   /* A negative potential has no meaning here */
@@ -83,37 +84,37 @@ args_t *args_parse(args_t *args, int argc, char **argv)
   {
     if (!strcmp(argv[i], FLAG_INPUT) && (i+1)<argc)
       args->path = argv[++i];
-    
+
     else if (!strcmp(argv[i], FLAG_OUTPUT) && (i+1)<argc)
       args->out_path = argv[++i];
-    
+
     else if (!strcmp(argv[i], FLAG_NUMERICAL))
       args->numerical = MODE_NUMERICAL;
-    
+
     else if (!strcmp(argv[i], FLAG_TIME) && (i+1)<argc)
       args->max_time = atof(argv[++i]);
-    
+
     else if (!strcmp(argv[i], FLAG_TIMESTEP) && (i+1)<argc)
       args->timestep = atof(argv[++i]);
-    
+
     else if (!strcmp(argv[i], FLAG_COPIES) && (i+1)<argc)
       args->copies = strtoul(argv[++i], NULL, 10);
-    
+
     else if (!strcmp(argv[i], FLAG_TEMP) && (i+1)<argc)
       args->temperature = atof(argv[++i]);
-    
+
     else if (!strcmp(argv[i], FLAG_PRESSURE) && (i+1)<argc)
       args->pressure = atof(argv[++i]);
-    
+
     else if (!strcmp(argv[i], FLAG_DENSITY) && (i+1)<argc)
       args->density = atof(argv[++i]);
-    
+
     else if (!strcmp(argv[i], FLAG_FRAMESKIP) && (i+1)<argc)
       args->frameskip = strtoul(argv[++i], NULL, 10);
-    
+
     else if (!strcmp(argv[i], FLAG_REDUCEPOT) && (i+1)<argc)
       args->reduce_potential = atof(argv[++i]);
-    
+
     else if (i == (argc-1))
     {
       printf(TEXT_ARG_INVALIDARG, argv[i]);
