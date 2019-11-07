@@ -29,7 +29,6 @@
  * If, for some reason, you need to modify the universe constants used by
  * SENPAI, set your own values here. The default values were shamelessly copied
  * from CODATA2014. (C_AHO is in the process of being phased out)
- *
  *   C_BOLTZMANN:  Boltzmann constant
  *   C_AVOGADRO:   Avogadro number
  *   C_IDEALGAS:   Ideal gas constant
