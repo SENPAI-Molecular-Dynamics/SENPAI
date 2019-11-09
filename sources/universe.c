@@ -504,7 +504,7 @@ universe_t *universe_reducepot(universe_t *universe, args_t *args)
       return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FAILURE, __FILE__, __LINE__));
 
     /* Update the system's potential energy */
-    if (universe_energy_total(universe, &potential) == NULL)
+    if (universe_energy_potential(universe, &potential) == NULL)
       return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FAILURE, __FILE__, __LINE__));
   }
 
