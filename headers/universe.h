@@ -97,7 +97,7 @@ universe_t *universe_populate(universe_t *universe);
 universe_t *universe_setvelocity(universe_t *universe);
 universe_t *universe_load(universe_t *universe, char *input_file_buffer);
 universe_t *universe_printstate(universe_t *universe);
-universe_t *universe_simulate(universe_t *universe, const args_t *args);
+int         universe_simulate(universe_t *universe, const args_t *args);
 universe_t *universe_iterate(universe_t *universe, const args_t *args);
 universe_t *universe_energy_kinetic(universe_t *universe, double *energy);
 universe_t *universe_energy_potential(universe_t *universe, double *energy);

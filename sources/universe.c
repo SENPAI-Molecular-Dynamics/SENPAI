@@ -336,7 +336,7 @@ void universe_clean(universe_t *universe)
 }
 
 /* Main loop of the simulator. Iterates until the target time is reached */
-universe_t *universe_simulate(universe_t *universe, const args_t *args)
+int universe_simulate(universe_t *universe, const args_t *args)
 {
   uint64_t frame_nb; /* Used for frameskipping */
 
@@ -351,7 +351,7 @@ universe_t *universe_simulate(universe_t *universe, const args_t *args)
     if (!frame_nb)
     {
       if (universe_printstate(universe) == NULL)
-        return (retstr(NULL, TEXT_UNIVERSE_SIMULATE_FAILURE, __FILE__, __LINE__));
+        return (retstri(EXIT_FAILURE, TEXT_UNIVERSE_SIMULATE_FAILURE, __FILE__, __LINE__));
       frame_nb = (args->frameskip);
     }
     else
@@ -359,14 +359,17 @@ universe_t *universe_simulate(universe_t *universe, const args_t *args)
 
     /* Iterate */
     if (universe_iterate(universe, args) == NULL)
-      return (retstr(NULL, TEXT_UNIVERSE_SIMULATE_FAILURE, __FILE__, __LINE__));
+      return (retstri(EXIT_FAILURE, TEXT_UNIVERSE_SIMULATE_FAILURE, __FILE__, __LINE__));
 
     universe->time += args->timestep;
     ++(universe->iterations);
   }
-  puts(TEXT_SIMEND);
 
-  return (universe);
+  /* End of simulation */
+  puts(TEXT_SIMEND);
+  universe_clean(universe);
+
+  return (EXIT_SUCCESS);
 }
 
 universe_t *universe_iterate(universe_t *universe, const args_t *args)

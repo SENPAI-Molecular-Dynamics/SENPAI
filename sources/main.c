@@ -17,7 +17,6 @@
 
 int main(int argc, char **argv)
 {
-  void *exit_state;    /* Was the simulation a success or a failure? This boy will tell you. */
   args_t args;         /* Program arguments (from argv) */
   universe_t universe; /* The universe itself (wow) */
   double potential;    /* The universe's potential energy */
@@ -68,10 +67,5 @@ int main(int argc, char **argv)
   printf(TEXT_INFO_ITERATIONS, (long)ceil(args.max_time/args.timestep));
 
   /* Let's roll */
-  exit_state = universe_simulate(&universe, &args);
-  universe_clean(&universe);
-
-  if (exit_state == NULL)
-    return (EXIT_FAILURE);
-  return (EXIT_SUCCESS);
+  return (universe_simulate(&universe, &args));
 }
