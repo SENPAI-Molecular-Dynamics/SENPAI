@@ -105,5 +105,6 @@ universe_t *universe_energy_total(universe_t *universe, double *energy);
 universe_t *universe_reducepot(universe_t *universe, args_t *args);
 universe_t *universe_reducepot_coarse(universe_t *universe);
 universe_t *universe_reducepot_fine(universe_t *universe);
+universe_t *universe_parameters_print(universe_t *universe, const args_t *args);
 
 #endif
