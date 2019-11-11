@@ -38,7 +38,7 @@ universe_t *potential_bond(double *pot, universe_t *universe, const size_t a1, c
 
   /* Turn it into its unit vector */
   if (vec3d_unit(&vec, &vec) == NULL)
-    return (retstr(NULL, TEXT_FORCE_BOND_FAILURE, __FILE__, __LINE__));
+    return (retstr(NULL, TEXT_POTENTIAL_BOND_FAILURE, __FILE__, __LINE__));
 
   /* Find the bond id */
   for (bond_id=0; bond_id<(atom_1->bond_nb); ++bond_id)
@@ -74,7 +74,7 @@ universe_t *potential_electrostatic(double *pot, universe_t *universe, const siz
 
   /* Turn it into its unit vector */
   if (vec3d_unit(&vec, &vec) == NULL)
-    return (retstr(NULL, TEXT_FORCE_BOND_FAILURE, __FILE__, __LINE__));
+    return (retstr(NULL, TEXT_POTENTIAL_ELECTROSTATIC_FAILURE, __FILE__, __LINE__));
 
   /* Compute the potential */
   *pot = (atom_1->charge * atom_2->charge) / (dst*4*M_PI*C_VACUUMPERM);
@@ -103,7 +103,7 @@ universe_t *potential_lennardjones(double *pot, universe_t *universe, const size
 
   /* Turn it into its unit vector */
   if (vec3d_unit(&vec, &vec) == NULL)
-    return (retstr(NULL, TEXT_FORCE_LENNARDJONES_FAILURE, __FILE__, __LINE__));
+    return (retstr(NULL, TEXT_POTENTIAL_LENNARDJONES_FAILURE, __FILE__, __LINE__));
 
   /* Compute the Lennard-Jones parameters
    * (Duffy, E. M.; Severance, D. L.; Jorgensen, W. L.; Isr. J. Chem.1993, 33,  323)
