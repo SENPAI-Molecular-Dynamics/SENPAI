@@ -235,7 +235,7 @@ universe_t *universe_populate(universe_t *universe)
   {
     /* Generate a random position vector to load the system at */
     vec3d_marsaglia(&pos_offset);
-    vec3d_mul(&pos_offset, &pos_offset, (1-UNIVERSE_POPULATE_MIN_DIST)*(universe->size)*cos(rand()) + UNIVERSE_POPULATE_MIN_DIST*(universe->size));
+    vec3d_mul(&pos_offset, &pos_offset, (1-UNIVERSE_POPULATE_MIN_DIST)*(universe->size)*cos(0) + UNIVERSE_POPULATE_MIN_DIST*(universe->size));
 
     /* Load each atom from the reference system into the universe */
     for (ii=0; ii<(universe->ref_atom_nb); ++ii)
