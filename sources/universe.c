@@ -382,6 +382,7 @@ universe_t *universe_iterate(universe_t *universe, const args_t *args)
       return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
 
   /* We enforce the periodic boundary conditions */
+
   for (i=0; i<(universe->atom_nb); ++i)
     if (atom_enforce_pbc(universe, i) == NULL)
       return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));

@@ -110,9 +110,9 @@ vec3d_t *vec3d_marsaglia(vec3d_t *v)
     x2 = cos(rand());
   } while ((x1*x1)+(x2*x2) > 1);
 
-  v->x = 0;//2*x1*sqrt(1-(x1*x1)-(x2*x2));
-  v->y = 0;//2*x2*sqrt(1-(x1*x1)-(x2*x2));
-  v->z = 0;//1-2*((x1*x1)+(x2*x2));
+  v->x = 2*x1*sqrt(1-(x1*x1)-(x2*x2));
+  v->y = 2*x2*sqrt(1-(x1*x1)-(x2*x2));
+  v->z = 1-2*((x1*x1)+(x2*x2));
 
   return (v);
 }
