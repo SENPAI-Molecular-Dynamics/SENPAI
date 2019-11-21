@@ -399,9 +399,10 @@ universe_t *universe_iterate(universe_t *universe, const args_t *args)
   /* Or analytically solving for force */
   else
   {
+    #pragma omp parallel for
     for (i=0; i<(universe->atom_nb); ++i)
       if (atom_update_frc_analytical(universe, i) == NULL)
-        return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+        {;} //return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
   }
 
   /* Update the acceleration vectors */
