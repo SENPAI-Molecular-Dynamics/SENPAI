@@ -21,7 +21,7 @@
  *   DIV_THRESHOLD: Dividing by a value smaller than this will throw an error
  *   ROOT_MACHINE_EPSILON: machine epsilon square root (num. differentiation)
  */
-#define DIV_THRESHOLD        (double)1E-30
+#define DIV_THRESHOLD        (double)1E-50
 #define ROOT_MACHINE_EPSILON (double)1.48996644E-8
 
 /* UNIVERSE CONSTANTS
