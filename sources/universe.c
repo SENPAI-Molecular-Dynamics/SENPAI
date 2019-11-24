@@ -377,9 +377,10 @@ universe_t *universe_iterate(universe_t *universe, const args_t *args)
   size_t i; /* Iterator */
 
   /* We update the position vector first, as part of the Velocity-Verley integration */
+  #pragma omp parallel for
   for (i=0; i<(universe->atom_nb); ++i)
     if (atom_update_pos(universe, args, i) == NULL)
-      return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+      {;} //return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
 
   /* We enforce the periodic boundary conditions */
 
@@ -399,7 +400,6 @@ universe_t *universe_iterate(universe_t *universe, const args_t *args)
   /* Or analytically solving for force */
   else
   {
-    #pragma omp parallel for
     for (i=0; i<(universe->atom_nb); ++i)
       if (atom_update_frc_analytical(universe, i) == NULL)
         {;} //return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
