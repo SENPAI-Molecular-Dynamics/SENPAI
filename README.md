@@ -93,4 +93,4 @@ Q: Are you looking for grad programs? Or even internships?
 A: Definitely. E-mail me at <thomas.murgia@univ-tlse3.fr> (academic email). I'm open to all offers :)
 
 
-# Documentation currently unavailable, as things are constantly suspect to drastic changes
+# A complete list of functions and structures is available in the wiki, so as to make contributions easier. Documentation on the way.
