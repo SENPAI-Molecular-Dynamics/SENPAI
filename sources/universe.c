@@ -376,17 +376,16 @@ universe_t *universe_iterate(universe_t *universe, const args_t *args)
 {
   size_t i; /* Iterator */
 
-#pragma omp parallel
 {
   /* We update the position vector first, as part of the Velocity-Verley integration */
-  #pragma omp for
+  #pragma omp parallel for
   for (i=0; i<(universe->atom_nb); ++i)
     if (atom_update_pos(universe, args, i) == NULL)
       {;} //return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
 
   /* We enforce the periodic boundary conditions */
 
-  #pragma omp for
+  #pragma omp parallel for
   for (i=0; i<(universe->atom_nb); ++i)
     if (atom_enforce_pbc(universe, i) == NULL)
       {;} //return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
@@ -395,7 +394,7 @@ universe_t *universe_iterate(universe_t *universe, const args_t *args)
   /* By numerically differentiating the potential energy... */
   if (args->numerical == MODE_NUMERICAL)
   {
-    #pragma omp for
+    #pragma omp parallel for
     for (i=0; i<(universe->atom_nb); ++i)
       if (atom_update_frc_numerical(universe, i) == NULL)
         {;} //return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
@@ -404,20 +403,20 @@ universe_t *universe_iterate(universe_t *universe, const args_t *args)
   /* Or analytically solving for force */
   else
   {
-    #pragma omp for
+    //#pragma omp parallel for
     for (i=0; i<(universe->atom_nb); ++i)
       if (atom_update_frc_analytical(universe, i) == NULL)
         {;} //return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
   }
 
   /* Update the acceleration vectors */
-  #pragma omp for
+  #pragma omp parallel for
   for (i=0; i<(universe->atom_nb); ++i)
     if (atom_update_acc(universe, i) == NULL)
       {;} //return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
 
   /* Update the speed vectors */
-  #pragma omp for
+  #pragma omp parallel for
   for (i=0; i<(universe->atom_nb); ++i)
     if (atom_update_vel(universe, args, i) == NULL)
       {;} //return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
