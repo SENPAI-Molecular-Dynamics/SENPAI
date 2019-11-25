@@ -38,6 +38,7 @@ struct atom_s
 
   /* MECHANICS */
   vec3d_t pos;             /* Position */
+  vec3d_t pos_backup;      /* Position backup */
   vec3d_t vel;             /* Velocity */
   vec3d_t acc;             /* Acceleration */
   vec3d_t frc;             /* Force */
