@@ -7,6 +7,7 @@
 
 #include <math.h>
 #include <stdio.h>
+#include <pthread.h>
 
 #include "config.h"
 #include "force.h"
