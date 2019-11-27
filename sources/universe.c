@@ -343,6 +343,7 @@ struct thread_args_struct {
     universe_t *universe;
 };
 
+pthread_barrier_t barrier;
 
 void* thread_universe_iterate(void *var)
 {
@@ -366,7 +367,7 @@ void* thread_universe_iterate(void *var)
       if (!frame_nb)
       {
         if (universe_printstate(universe) == NULL)
-          return (retstri(EXIT_FAILURE, TEXT_UNIVERSE_SIMULATE_FAILURE, __FILE__, __LINE__));
+          ;//return (retstri(EXIT_FAILURE, TEXT_UNIVERSE_SIMULATE_FAILURE, __FILE__, __LINE__));
         frame_nb = (args->frameskip);
       }
       else
@@ -382,7 +383,7 @@ void* thread_universe_iterate(void *var)
       /* We update the position vector first, as part of the Velocity-Verley integration */
       for (i=0; i<(universe->atom_nb); ++i)
         if (atom_update_pos(universe, args, i) == NULL)
-          return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+          ;// return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
     }
     /* We enforce the periodic boundary conditions */
     if (thread_id == 0) {
@@ -398,6 +399,8 @@ void* thread_universe_iterate(void *var)
       // for (i=0; i<(universe->atom_nb); ++i)
       for(i = thread_id * N / P; i < (thread_id + 1) * N / P - 1; i++) 
         atom_update_frc_numerical(universe, i);
+      
+      pthread_barrier_wait(&barrier);
         // if (atom_update_frc_numerical(universe, i) == NULL)
         //   return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
     }
@@ -408,6 +411,8 @@ void* thread_universe_iterate(void *var)
       // for (i=0; i<(universe->atom_nb); ++i)
       for(i = thread_id * N / P; i < (thread_id + 1) * N / P - 1; i++)
         atom_update_frc_analytical(universe, i);
+
+      pthread_barrier_wait(&barrier);
         // if (atom_update_frc_analytical(universe, i) == NULL)
         //   return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
     }
@@ -416,6 +421,8 @@ void* thread_universe_iterate(void *var)
     // for (i=0; i<(universe->atom_nb); ++i)
     for(i = thread_id * N / P; i < (thread_id + 1) * N / P - 1; i++)
       atom_update_acc(universe, i);
+
+    pthread_barrier_wait(&barrier);
       // if (atom_update_acc(universe, i) == NULL)
       //   return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
 
@@ -423,12 +430,15 @@ void* thread_universe_iterate(void *var)
     // for (i=0; i<(universe->atom_nb); ++i)
     for(i = thread_id * N / P; i < (thread_id + 1) * N / P - 1; i++)
       atom_update_vel(universe, args, i);
+
+    pthread_barrier_wait(&barrier);
       // if (atom_update_vel(universe, args, i) == NULL)
       //   return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
 
-
-    universe->time += args->timestep;
-    ++(universe->iterations);
+    if (thread_id == 0) {
+      universe->time += args->timestep;
+      ++(universe->iterations);
+    }
   }
 }
 
@@ -454,6 +464,7 @@ int universe_simulate(universe_t *universe, const args_t *args)
 	// for(i = 0;i < P; i++)
 		// thread_id[i] = i;
 
+	pthread_barrier_init(&barrier, NULL, P);
 	for(i = 0; i < P; i++) {
     struct thread_args_struct *aux;
     aux = malloc(sizeof(struct thread_args_struct));
@@ -470,6 +481,8 @@ int universe_simulate(universe_t *universe, const args_t *args)
     printf("Am distrus threadul %d\n", i);
 		pthread_join(tid[i], NULL);
 	}
+  
+	pthread_barrier_destroy(&barrier);
 
   /* End of simulation */
   puts(TEXT_SIMEND);
