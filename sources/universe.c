@@ -9,6 +9,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
+#include <pthread.h>
 
 #include "config.h"
 #include "args.h"
@@ -335,6 +336,100 @@ void universe_clean(universe_t *universe)
   free(universe->atom);
 }
 
+
+struct thread_args_struct {
+    int thread_id;
+    const args_t *args;
+    universe_t *universe;
+};
+
+
+void* thread_universe_iterate(void *var)
+{
+  struct thread_args_struct *t_args = (struct thread_args_struct*)var;
+	int thread_id = (*t_args).thread_id;
+  const args_t *args = (*t_args).args;
+  universe_t *universe = (*t_args).universe;
+
+  uint64_t frame_nb = 0; /* Used for frameskipping */
+
+  int N = universe->atom_nb;
+  int P = 4;
+
+  while (universe->time < args->max_time)
+  {
+    if (thread_id == 0) {
+      /* Print the state to the .xyz file, if required */
+      if (!frame_nb)
+      {
+        if (universe_printstate(universe) == NULL)
+          return (retstri(EXIT_FAILURE, TEXT_UNIVERSE_SIMULATE_FAILURE, __FILE__, __LINE__));
+        frame_nb = (args->frameskip);
+      }
+      else
+        --frame_nb;
+    }
+
+    // /* Iterate */
+    // if (universe_iterate(universe, args) == NULL)
+    //   return (retstri(EXIT_FAILURE, TEXT_UNIVERSE_SIMULATE_FAILURE, __FILE__, __LINE__));
+    size_t i; /* Iterator */
+
+    if (thread_id == 0) {
+      /* We update the position vector first, as part of the Velocity-Verley integration */
+      for (i=0; i<(universe->atom_nb); ++i)
+        if (atom_update_pos(universe, args, i) == NULL)
+          return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+    }
+    /* We enforce the periodic boundary conditions */
+    if (thread_id == 0) {
+      for (i=0; i<(universe->atom_nb); ++i)
+        atom_enforce_pbc(universe, i);
+        // if (atom_enforce_pbc(universe, i) == NULL)
+        //   return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+    }
+    /* Update the force vectors */
+    /* By numerically differentiating the potential energy... */
+    if (args->numerical == MODE_NUMERICAL)
+    {
+      // for (i=0; i<(universe->atom_nb); ++i)
+      for(i = thread_id * N / P; i < (thread_id + 1) * N / P - 1; i++) 
+        atom_update_frc_numerical(universe, i);
+        // if (atom_update_frc_numerical(universe, i) == NULL)
+        //   return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+    }
+
+    /* Or analytically solving for force */
+    else
+    {
+      // for (i=0; i<(universe->atom_nb); ++i)
+      for(i = thread_id * N / P; i < (thread_id + 1) * N / P - 1; i++)
+        atom_update_frc_analytical(universe, i);
+        // if (atom_update_frc_analytical(universe, i) == NULL)
+        //   return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+    }
+
+    /* Update the acceleration vectors */
+    // for (i=0; i<(universe->atom_nb); ++i)
+    for(i = thread_id * N / P; i < (thread_id + 1) * N / P - 1; i++)
+      atom_update_acc(universe, i);
+      // if (atom_update_acc(universe, i) == NULL)
+      //   return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+
+    /* Update the speed vectors */
+    // for (i=0; i<(universe->atom_nb); ++i)
+    for(i = thread_id * N / P; i < (thread_id + 1) * N / P - 1; i++)
+      atom_update_vel(universe, args, i);
+      // if (atom_update_vel(universe, args, i) == NULL)
+      //   return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+
+
+    universe->time += args->timestep;
+    ++(universe->iterations);
+  }
+}
+
+
 /* Main loop of the simulator. Iterates until the target time is reached */
 int universe_simulate(universe_t *universe, const args_t *args)
 {
@@ -345,25 +440,32 @@ int universe_simulate(universe_t *universe, const args_t *args)
 
   /* While we haven't reached the target time, we iterate the universe */
   frame_nb = 0;
-  while (universe->time < args->max_time)
-  {
-    /* Print the state to the .xyz file, if required */
-    if (!frame_nb)
-    {
-      if (universe_printstate(universe) == NULL)
-        return (retstri(EXIT_FAILURE, TEXT_UNIVERSE_SIMULATE_FAILURE, __FILE__, __LINE__));
-      frame_nb = (args->frameskip);
-    }
-    else
-      --frame_nb;
 
-    /* Iterate */
-    if (universe_iterate(universe, args) == NULL)
-      return (retstri(EXIT_FAILURE, TEXT_UNIVERSE_SIMULATE_FAILURE, __FILE__, __LINE__));
 
-    universe->time += args->timestep;
-    ++(universe->iterations);
-  }
+  // TODO create threads here
+  int P = 4;
+	int i;
+
+	pthread_t tid[P];
+	int thread_id[P];
+	// for(i = 0;i < P; i++)
+		// thread_id[i] = i;
+
+	for(i = 0; i < P; i++) {
+    struct thread_args_struct *aux;
+    aux = malloc(sizeof(struct thread_args_struct));
+    (*aux).thread_id = i;
+    (*aux).args = args;
+    (*aux).universe = universe;
+
+		pthread_create(&(tid[i]), NULL, thread_universe_iterate, &(aux));
+	}
+
+  // TODO destroy threads here
+
+	for(i = 0; i < P; i++) {
+		pthread_join(tid[i], NULL);
+	}
 
   /* End of simulation */
   puts(TEXT_SIMEND);
