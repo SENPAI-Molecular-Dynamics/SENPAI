@@ -378,14 +378,12 @@ universe_t *universe_iterate(universe_t *universe, const args_t *args)
 
 {
   /* We update the position vector first, as part of the Velocity-Verley integration */
-  #pragma omp parallel for
   for (i=0; i<(universe->atom_nb); ++i)
     if (atom_update_pos(universe, args, i) == NULL)
       {;} //return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
 
   /* We enforce the periodic boundary conditions */
 
-  #pragma omp parallel for
   for (i=0; i<(universe->atom_nb); ++i)
     if (atom_enforce_pbc(universe, i) == NULL)
       {;} //return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
@@ -410,13 +408,11 @@ universe_t *universe_iterate(universe_t *universe, const args_t *args)
   }
 
   /* Update the acceleration vectors */
-  #pragma omp parallel for
   for (i=0; i<(universe->atom_nb); ++i)
     if (atom_update_acc(universe, i) == NULL)
       {;} //return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
 
   /* Update the speed vectors */
-  #pragma omp parallel for
   for (i=0; i<(universe->atom_nb); ++i)
     if (atom_update_vel(universe, args, i) == NULL)
       {;} //return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
