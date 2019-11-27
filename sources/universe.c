@@ -351,6 +351,9 @@ void* thread_universe_iterate(void *var)
   const args_t *args = (*t_args).args;
   universe_t *universe = (*t_args).universe;
 
+
+  printf("[Thread %d]Am initializat argumentele si universul\n", thread_id);
+
   uint64_t frame_nb = 0; /* Used for frameskipping */
 
   int N = universe->atom_nb;
@@ -457,13 +460,14 @@ int universe_simulate(universe_t *universe, const args_t *args)
     (*aux).thread_id = i;
     (*aux).args = args;
     (*aux).universe = universe;
-
-		pthread_create(&(tid[i]), NULL, thread_universe_iterate, &(aux));
+    printf("Am creat threadul %d\n", i);
+		pthread_create(&(tid[i]), NULL, thread_universe_iterate, (aux));
 	}
 
   // TODO destroy threads here
 
 	for(i = 0; i < P; i++) {
+    printf("Am distrus threadul %d\n", i);
 		pthread_join(tid[i], NULL);
 	}
 
