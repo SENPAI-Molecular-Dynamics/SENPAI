@@ -347,7 +347,7 @@ pthread_barrier_t barrier;
 
 void* thread_universe_iterate(void *var)
 {
-  struct thread_args_struct *t_args = (struct thread_args_struct*)var;
+  struct thread_args_struct *t_args = *(struct thread_args_struct**)var;
 	int thread_id = (*t_args).thread_id;
   const args_t *args = (*t_args).args;
   universe_t *universe = (*t_args).universe;
@@ -447,8 +447,6 @@ int universe_simulate(universe_t *universe, const args_t *args)
 
 	pthread_t tid[P];
 	int thread_id[P];
-	// for(i = 0;i < P; i++)
-		// thread_id[i] = i;
 
 	pthread_barrier_init(&barrier, NULL, P);
 	for(i = 0; i < P; i++) {
@@ -457,8 +455,10 @@ int universe_simulate(universe_t *universe, const args_t *args)
     (*aux).thread_id = i;
     (*aux).args = args;
     (*aux).universe = universe;
+    pthread_create(&(tid[i]), NULL, thread_universe_iterate, &aux);
     printf("Am creat threadul %d\n", i);
 	}
+
 
   // TODO destroy threads here
 
