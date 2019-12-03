@@ -366,31 +366,25 @@ void* thread_universe_iterate(void *var)
       /* Print the state to the .xyz file, if required */
       if (!frame_nb)
       {
-        if (universe_printstate(universe) == NULL)
-          ;//return (retstri(EXIT_FAILURE, TEXT_UNIVERSE_SIMULATE_FAILURE, __FILE__, __LINE__));
         frame_nb = (args->frameskip);
       }
       else
         --frame_nb;
     }
 
-    // /* Iterate */
-    // if (universe_iterate(universe, args) == NULL)
-    //   return (retstri(EXIT_FAILURE, TEXT_UNIVERSE_SIMULATE_FAILURE, __FILE__, __LINE__));
     size_t i; /* Iterator */
 
     if (thread_id == 0) {
       /* We update the position vector first, as part of the Velocity-Verley integration */
       for (i=0; i<(universe->atom_nb); ++i)
         if (atom_update_pos(universe, args, i) == NULL)
-          ;// return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+          ;
     }
     /* We enforce the periodic boundary conditions */
     if (thread_id == 0) {
       for (i=0; i<(universe->atom_nb); ++i)
         atom_enforce_pbc(universe, i);
-        // if (atom_enforce_pbc(universe, i) == NULL)
-        //   return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+        
     }
     /* Update the force vectors */
     /* By numerically differentiating the potential energy... */
@@ -399,47 +393,39 @@ void* thread_universe_iterate(void *var)
       // for (i=0; i<(universe->atom_nb); ++i)
       for(i = thread_id * N / P; i < (thread_id + 1) * N / P - 1; i++) 
         atom_update_frc_numerical(universe, i);
-      
+      printf("[Thread %d]Am lovit bariera 1\n", thread_id);
       pthread_barrier_wait(&barrier);
-        // if (atom_update_frc_numerical(universe, i) == NULL)
-        //   return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
     }
 
     /* Or analytically solving for force */
     else
     {
-      // for (i=0; i<(universe->atom_nb); ++i)
       for(i = thread_id * N / P; i < (thread_id + 1) * N / P - 1; i++)
         atom_update_frc_analytical(universe, i);
 
+      printf("[Thread %d]Am lovit bariera 2\n", thread_id);
       pthread_barrier_wait(&barrier);
-        // if (atom_update_frc_analytical(universe, i) == NULL)
-        //   return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
     }
 
     /* Update the acceleration vectors */
-    // for (i=0; i<(universe->atom_nb); ++i)
     for(i = thread_id * N / P; i < (thread_id + 1) * N / P - 1; i++)
       atom_update_acc(universe, i);
 
     pthread_barrier_wait(&barrier);
-      // if (atom_update_acc(universe, i) == NULL)
-      //   return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
 
     /* Update the speed vectors */
-    // for (i=0; i<(universe->atom_nb); ++i)
     for(i = thread_id * N / P; i < (thread_id + 1) * N / P - 1; i++)
       atom_update_vel(universe, args, i);
 
-    pthread_barrier_wait(&barrier);
-      // if (atom_update_vel(universe, args, i) == NULL)
-      //   return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
 
     if (thread_id == 0) {
-      universe->time += args->timestep;
-      ++(universe->iterations);
+      universe->time += 4 * args->timestep;
+      (universe->iterations) += 4;
     }
+    printf("[Thread %d]Am lovit bariera 3: universe time = %lf/%lf (timestep = %lf)\n", thread_id, universe->time, args->max_time, args->timestep);
+    pthread_barrier_wait(&barrier);
   }
+  
 }
 
 
@@ -472,7 +458,6 @@ int universe_simulate(universe_t *universe, const args_t *args)
     (*aux).args = args;
     (*aux).universe = universe;
     printf("Am creat threadul %d\n", i);
-		pthread_create(&(tid[i]), NULL, thread_universe_iterate, (aux));
 	}
 
   // TODO destroy threads here
