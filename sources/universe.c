@@ -20,6 +20,8 @@
 #include "universe.h"
 #include "potential.h"
 
+#define THREAD_NUMBER 1
+
 universe_t *universe_init(universe_t *universe, const args_t *args)
 {
   size_t i;                /* Iterator */
@@ -352,13 +354,10 @@ void* thread_universe_iterate(void *var)
   const args_t *args = (*t_args).args;
   universe_t *universe = (*t_args).universe;
 
-
-  printf("[Thread %d]Am initializat argumentele si universul\n", thread_id);
-
   uint64_t frame_nb = 0; /* Used for frameskipping */
 
   int N = universe->atom_nb;
-  int P = 4;
+  int P = THREAD_NUMBER;
 
   while (universe->time < args->max_time)
   {
@@ -392,10 +391,8 @@ void* thread_universe_iterate(void *var)
     /* By numerically differentiating the potential energy... */
     if (args->numerical == MODE_NUMERICAL)
     {
-      // for (i=0; i<(universe->atom_nb); ++i)
       for(i = thread_id * N / P; i < (thread_id + 1) * N / P - 1; i++) 
         atom_update_frc_numerical(universe, i);
-      // printf("[Thread %d]Am lovit bariera 1\n", thread_id);
       pthread_barrier_wait(&barrier);
     }
 
@@ -405,7 +402,6 @@ void* thread_universe_iterate(void *var)
       for(i = thread_id * N / P; i < (thread_id + 1) * N / P - 1; i++)
         atom_update_frc_analytical(universe, i);
 
-      // printf("[Thread %d]Am lovit bariera 2\n", thread_id);
       pthread_barrier_wait(&barrier);
     }
 
@@ -424,7 +420,6 @@ void* thread_universe_iterate(void *var)
       universe->time += args->timestep;
       (universe->iterations) += 1;
     }
-    // printf("[Thread %d]Am lovit bariera 3: universe time = %lf/%lf (timestep = %lf)\n", thread_id, universe->time, args->max_time, args->timestep);
     pthread_barrier_wait(&barrier);
   }
   
@@ -441,7 +436,7 @@ int universe_simulate(universe_t *universe, const args_t *args)
 
 
   // TODO create threads here
-  int P = 4;
+  int P = THREAD_NUMBER;
 	int i;
 
 	pthread_t tid[P];
@@ -455,14 +450,12 @@ int universe_simulate(universe_t *universe, const args_t *args)
     (*aux).args = args;
     (*aux).universe = universe;
     pthread_create(&(tid[i]), NULL, thread_universe_iterate, aux);
-    printf("Am creat threadul %d\n", i);
 	}
 
 
   // TODO destroy threads here
 
 	for(i = 0; i < P; i++) {
-    printf("Am distrus threadul %d\n", i);
 		pthread_join(tid[i], NULL);
 	}
   
