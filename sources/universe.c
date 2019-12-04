@@ -347,8 +347,8 @@ pthread_barrier_t barrier;
 
 void* thread_universe_iterate(void *var)
 {
-  struct thread_args_struct *t_args = *(struct thread_args_struct**)var;
-	int thread_id = (*t_args).thread_id;
+  struct thread_args_struct *t_args = (struct thread_args_struct*)var;
+	unsigned int thread_id = (*t_args).thread_id;
   const args_t *args = (*t_args).args;
   universe_t *universe = (*t_args).universe;
 
@@ -367,6 +367,8 @@ void* thread_universe_iterate(void *var)
       if (!frame_nb)
       {
         frame_nb = (args->frameskip);
+        if (universe_printstate(universe) == NULL)
+          {;}
       }
       else
         --frame_nb;
@@ -378,7 +380,7 @@ void* thread_universe_iterate(void *var)
       /* We update the position vector first, as part of the Velocity-Verley integration */
       for (i=0; i<(universe->atom_nb); ++i)
         if (atom_update_pos(universe, args, i) == NULL)
-          ;
+          {;}
     }
     /* We enforce the periodic boundary conditions */
     if (thread_id == 0) {
@@ -393,7 +395,7 @@ void* thread_universe_iterate(void *var)
       // for (i=0; i<(universe->atom_nb); ++i)
       for(i = thread_id * N / P; i < (thread_id + 1) * N / P - 1; i++) 
         atom_update_frc_numerical(universe, i);
-      printf("[Thread %d]Am lovit bariera 1\n", thread_id);
+      // printf("[Thread %d]Am lovit bariera 1\n", thread_id);
       pthread_barrier_wait(&barrier);
     }
 
@@ -403,7 +405,7 @@ void* thread_universe_iterate(void *var)
       for(i = thread_id * N / P; i < (thread_id + 1) * N / P - 1; i++)
         atom_update_frc_analytical(universe, i);
 
-      printf("[Thread %d]Am lovit bariera 2\n", thread_id);
+      // printf("[Thread %d]Am lovit bariera 2\n", thread_id);
       pthread_barrier_wait(&barrier);
     }
 
@@ -419,10 +421,10 @@ void* thread_universe_iterate(void *var)
 
 
     if (thread_id == 0) {
-      universe->time += 4 * args->timestep;
-      (universe->iterations) += 4;
+      universe->time += args->timestep;
+      (universe->iterations) += 1;
     }
-    printf("[Thread %d]Am lovit bariera 3: universe time = %lf/%lf (timestep = %lf)\n", thread_id, universe->time, args->max_time, args->timestep);
+    // printf("[Thread %d]Am lovit bariera 3: universe time = %lf/%lf (timestep = %lf)\n", thread_id, universe->time, args->max_time, args->timestep);
     pthread_barrier_wait(&barrier);
   }
   
@@ -432,13 +434,10 @@ void* thread_universe_iterate(void *var)
 /* Main loop of the simulator. Iterates until the target time is reached */
 int universe_simulate(universe_t *universe, const args_t *args)
 {
-  uint64_t frame_nb; /* Used for frameskipping */
 
   /* Tell the user the simulation is starting */
   puts(TEXT_SIMSTART);
 
-  /* While we haven't reached the target time, we iterate the universe */
-  frame_nb = 0;
 
 
   // TODO create threads here
@@ -446,7 +445,7 @@ int universe_simulate(universe_t *universe, const args_t *args)
 	int i;
 
 	pthread_t tid[P];
-	int thread_id[P];
+	// int thread_id[P];
 
 	pthread_barrier_init(&barrier, NULL, P);
 	for(i = 0; i < P; i++) {
@@ -455,7 +454,7 @@ int universe_simulate(universe_t *universe, const args_t *args)
     (*aux).thread_id = i;
     (*aux).args = args;
     (*aux).universe = universe;
-    pthread_create(&(tid[i]), NULL, thread_universe_iterate, &aux);
+    pthread_create(&(tid[i]), NULL, thread_universe_iterate, aux);
     printf("Am creat threadul %d\n", i);
 	}
 
