@@ -335,42 +335,7 @@ void universe_clean(universe_t *universe)
   free(universe->atom);
 }
 
-/* Main loop of the simulator. Iterates until the target time is reached */
-int universe_simulate(universe_t *universe, const args_t *args)
-{
-  uint64_t frame_nb; /* Used for frameskipping */
 
-  /* Tell the user the simulation is starting */
-  puts(TEXT_SIMSTART);
-
-  /* While we haven't reached the target time, we iterate the universe */
-  frame_nb = 0;
-  while (universe->time < args->max_time)
-  {
-    /* Print the state to the .xyz file, if required */
-    if (!frame_nb)
-    {
-      if (universe_printstate(universe) == NULL)
-        return (retstri(EXIT_FAILURE, TEXT_UNIVERSE_SIMULATE_FAILURE, __FILE__, __LINE__));
-      frame_nb = (args->frameskip);
-    }
-    else
-      --frame_nb;
-
-    /* Iterate */
-    if (universe_iterate(universe, args) == NULL)
-      return (retstri(EXIT_FAILURE, TEXT_UNIVERSE_SIMULATE_FAILURE, __FILE__, __LINE__));
-
-    universe->time += args->timestep;
-    ++(universe->iterations);
-  }
-
-  /* End of simulation */
-  puts(TEXT_SIMEND);
-  universe_clean(universe);
-
-  return (EXIT_SUCCESS);
-}
 
 universe_t *universe_iterate(universe_t *universe, const args_t *args)
 {
@@ -400,13 +365,6 @@ universe_t *universe_iterate(universe_t *universe, const args_t *args)
   else
   {
 
-    // Get the number of processes
-    int world_size;
-    MPI_Comm_size(MPI_COMM_WORLD, &world_size);
-
-    // Get the rank of the process
-    int world_rank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
     // Impartim numarul la cate procese avem
     int ratio = universe->atom_nb/world_size;
