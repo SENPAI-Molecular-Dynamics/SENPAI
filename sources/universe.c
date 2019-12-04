@@ -399,9 +399,38 @@ universe_t *universe_iterate(universe_t *universe, const args_t *args)
   /* Or analytically solving for force */
   else
   {
-    for (i=0; i<(universe->atom_nb); ++i)
+
+    // Get the number of processes
+    int world_size;
+    MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+
+    // Get the rank of the process
+    int world_rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+
+    // Impartim numarul la cate procese avem
+    int ratio = universe->atom_nb/world_size;
+    int start = world_rank * ratio;
+    int end = (world_rank + 1) * ratio;
+
+    // Daca e ultimul proces, atunci merge pana la final
+    if (world_rank == world_size - 1)
+      end = universe->atom_nb;
+
+    for (i=start; i<end; ++i)
       if (atom_update_frc_analytical(universe, i) == NULL)
         return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+
+    // Daca nu e primul proces, atunci trimite datele obtinute spre primul proces
+    if (world_rank != 0) {
+      //TODO trimite date
+      // MPI_SEND(start, count, datatype, dest, tag, comm); 
+    // Altfel asteapta datele
+    } else {
+      //TODO asteapta datele
+      // MPI_RECV(start, count, datatype, source,tag,comm,status)
+
+    }
   }
 
   /* Update the acceleration vectors */

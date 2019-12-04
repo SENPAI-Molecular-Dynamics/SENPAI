@@ -17,6 +17,9 @@
 
 int main(int argc, char **argv)
 {
+  // Initializare MPI
+  MPI_Init(argc, argv);
+
   args_t args;         /* Program arguments (from argv) */
   universe_t universe; /* The universe itself (wow) */
 
@@ -42,6 +45,9 @@ int main(int argc, char **argv)
   /* Print the simulation parameters */
   if (universe_parameters_print(&universe, &args) == NULL)
     return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));
+
+  // Finalizare MPI - maybe trebuie pus inainte de fiecare return
+  MPI_Finalize();
 
   /* Let's roll */
   return (universe_simulate(&universe, &args));
