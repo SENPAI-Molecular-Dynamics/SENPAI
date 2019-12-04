@@ -38,24 +38,24 @@ int main(int argc, char **argv)
   /* That's the welcome message */
   if(world_rank == 0) {
     puts(TEXT_START);
-
-    /* Parse the arguments */
-    args_init(&args);
-    if (args_parse(&args, argc, argv) == NULL)
-      return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));
-
-    /* Initialise the universe with the arguments */
-    if (universe_init(&universe, &args) == NULL)
-      return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));
-
-    /* Reduce the potential energy before simulating */
-     if (universe_reducepot(&universe, &args) == NULL)
-      return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));
-
-    /* Print the simulation parameters */
-    if (universe_parameters_print(&universe, &args) == NULL)
-      return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));
   }
+
+  /* Parse the arguments */
+  args_init(&args);
+  if (args_parse(&args, argc, argv) == NULL)
+    return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));
+
+  /* Initialise the universe with the arguments */
+  if (universe_init(&universe, &args) == NULL)
+    return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));
+
+  /* Reduce the potential energy before simulating */
+   if (universe_reducepot(&universe, &args) == NULL)
+    return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));
+
+  /* Print the simulation parameters */
+  if (universe_parameters_print(&universe, &args) == NULL)
+    return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));
 
   /* Let's roll */
 
@@ -81,7 +81,63 @@ int main(int argc, char **argv)
    }
     /* Iterate */
     // 
-    universe_iterate(universe, args)
+    // universe_iterate(universe, args)
+    size_t i; /* Iterator */
+
+    /* We update the position vector first, as part of the Velocity-Verley integration */
+    for (i=0; i<(universe->atom_nb); ++i)
+      if (atom_update_pos(universe, args, i) == NULL)
+        return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+
+    /* We enforce the periodic boundary conditions */
+
+    for (i=0; i<(universe->atom_nb); ++i)
+      if (atom_enforce_pbc(universe, i) == NULL)
+        return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+
+    /* Update the force vectors */
+    /* By numerically differentiating the potential energy... */
+    if (args->numerical == MODE_NUMERICAL)
+    {
+      for (i=0; i<(universe->atom_nb); ++i)
+        if (atom_update_frc_numerical(universe, i) == NULL)
+          return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+    }
+
+    /* Or analytically solving for force */
+    else
+    {
+
+
+      // Impartim numarul la cate procese avem
+      int ratio = universe->atom_nb/world_size;
+      int start = world_rank * ratio;
+      int end = (world_rank + 1) * ratio;
+
+      // Daca e ultimul proces, atunci merge pana la final
+      if (world_rank == world_size - 1)
+        end = universe->atom_nb;
+
+      for (i=start; i<end; ++i)
+        if (atom_update_frc_analytical(universe, i) == NULL)
+          return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+    }
+
+    /* Update the acceleration vectors */
+    for (i=0; i<(universe->atom_nb); ++i)
+      if (atom_update_acc(universe, i) == NULL)
+        return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+
+    /* Update the speed vectors */
+    for (i=0; i<(universe->atom_nb); ++i)
+      if (atom_update_vel(universe, args, i) == NULL)
+        return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+
+    // return (universe);
+
+    //TODO broadcast la universe->atom->pos - pentru toti atomii modificati de proces
+
+
 
     universe->time += args->timestep;
     ++(universe->iterations);
