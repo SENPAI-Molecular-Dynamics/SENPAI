@@ -15,6 +15,8 @@
 #include "text.h"
 #include "util.h"
 
+#include <mpi.h>
+
 int main(int argc, char **argv)
 {
   // Initializare MPI
@@ -67,14 +69,14 @@ int main(int argc, char **argv)
 
   /* While we haven't reached the target time, we iterate the universe */
   frame_nb = 0;
-  while (universe->time < args->max_time)
+  while (universe.time < args.max_time)
   {
     if(world_rank == 0) {
       /* Print the state to the .xyz file, if required */
      if (!frame_nb)
      {
-       universe_printstate(universe)
-       frame_nb = (args->frameskip);
+       universe_printstate(&universe);
+       frame_nb = (args.frameskip);
      }
      else
        --frame_nb;
@@ -85,22 +87,22 @@ int main(int argc, char **argv)
     size_t i; /* Iterator */
 
     /* We update the position vector first, as part of the Velocity-Verley integration */
-    for (i=0; i<(universe->atom_nb); ++i)
-      if (atom_update_pos(universe, args, i) == NULL)
+    for (i=0; i<(universe.atom_nb); ++i)
+      if (atom_update_pos(&universe, &args, i) == NULL)
         return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
 
     /* We enforce the periodic boundary conditions */
 
-    for (i=0; i<(universe->atom_nb); ++i)
-      if (atom_enforce_pbc(universe, i) == NULL)
+    for (i=0; i<(universe.atom_nb); ++i)
+      if (atom_enforce_pbc(&universe, i) == NULL)
         return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
 
     /* Update the force vectors */
     /* By numerically differentiating the potential energy... */
-    if (args->numerical == MODE_NUMERICAL)
+    if (args.numerical == MODE_NUMERICAL)
     {
-      for (i=0; i<(universe->atom_nb); ++i)
-        if (atom_update_frc_numerical(universe, i) == NULL)
+      for (i=0; i<(universe.atom_nb); ++i)
+        if (atom_update_frc_numerical(&universe, i) == NULL)
           return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
     }
 
@@ -110,42 +112,42 @@ int main(int argc, char **argv)
 
 
       // Impartim numarul la cate procese avem
-      int ratio = universe->atom_nb/world_size;
+      int ratio = universe.atom_nb/world_size;
       int start = world_rank * ratio;
       int end = (world_rank + 1) * ratio;
 
       // Daca e ultimul proces, atunci merge pana la final
       if (world_rank == world_size - 1)
-        end = universe->atom_nb;
+        end = universe.atom_nb;
 
       for (i=start; i<end; ++i)
-        if (atom_update_frc_analytical(universe, i) == NULL)
+        if (atom_update_frc_analytical(&universe, i) == NULL)
           return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
     }
 
     /* Update the acceleration vectors */
-    for (i=0; i<(universe->atom_nb); ++i)
-      if (atom_update_acc(universe, i) == NULL)
+    for (i=0; i<(universe.atom_nb); ++i)
+      if (atom_update_acc(&universe, i) == NULL)
         return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
 
     /* Update the speed vectors */
-    for (i=0; i<(universe->atom_nb); ++i)
-      if (atom_update_vel(universe, args, i) == NULL)
+    for (i=0; i<(universe.atom_nb); ++i)
+      if (atom_update_vel(&universe, &args, i) == NULL)
         return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
 
     // return (universe);
 
-    //TODO broadcast la universe->atom->pos - pentru toti atomii modificati de proces
+    //TODO broadcast la universe.atom->pos - pentru toti atomii modificati de proces
 
 
 
-    universe->time += args->timestep;
-    ++(universe->iterations);
+    universe.time += args.timestep;
+    ++(universe.iterations);
   }
 
   /* End of simulation */
   puts(TEXT_SIMEND);
-  universe_clean(universe);
+  universe_clean(&universe);
 
   // Finalizare MPI - maybe trebuie pus inainte de fiecare return
   MPI_Finalize();
