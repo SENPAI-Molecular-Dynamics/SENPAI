@@ -17,10 +17,14 @@
 
 #include <mpi.h>
 
+
+#define MODE_NUMERICAL           1
+
+
 int main(int argc, char **argv)
 {
   // Initializare MPI
-  MPI_Init(argc, argv);
+  MPI_Init(&argc, &argv);
 
   args_t args;         /* Program arguments (from argv) */
   universe_t universe; /* The universe itself (wow) */
