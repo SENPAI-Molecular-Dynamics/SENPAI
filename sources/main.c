@@ -41,6 +41,8 @@ int main(int argc, char **argv)
   int world_rank;
   MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
+
+
   /* That's the welcome message */
   if(world_rank == 0) {
     puts(TEXT_START);
@@ -73,6 +75,17 @@ int main(int argc, char **argv)
 
   /* While we haven't reached the target time, we iterate the universe */
   frame_nb = 0;
+
+
+        // Impartim numarul la cate procese avem
+        int ratio = universe.atom_nb/world_size;
+        int start = world_rank * ratio;
+        int end = (world_rank + 1) * ratio;
+
+      // Daca e ultimul proces, atunci merge pana la final
+      if (world_rank == world_size - 1)
+        end = universe.atom_nb;
+
   while (universe.time < args.max_time)
   {
     if(world_rank == 0) {
@@ -114,16 +127,6 @@ int main(int argc, char **argv)
     else
     {
 
-
-      // Impartim numarul la cate procese avem
-      int ratio = universe.atom_nb/world_size;
-      int start = world_rank * ratio;
-      int end = (world_rank + 1) * ratio;
-
-      // Daca e ultimul proces, atunci merge pana la final
-      if (world_rank == world_size - 1)
-        end = universe.atom_nb;
-
       for (i=start; i<end; ++i)
         if (atom_update_frc_analytical(&universe, i) == NULL)
           return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
@@ -143,8 +146,16 @@ int main(int argc, char **argv)
 
     //TODO broadcast la universe.atom->pos - pentru toti atomii modificati de proces
 
-
-
+    double buf[3];
+    for (i=0; i<(universe.atom_nb); ++i){
+        buf[0] = universe.atom[i].pos.x;
+        buf[1] = universe.atom[i].pos.y;
+        buf[2] = universe.atom[i].pos.z;
+        MPI_Bcast(&buf, 3, MPI_DOUBLE, i/ratio, MPI_COMM_WORLD);
+        universe.atom[i].pos.x = buf[0];
+        universe.atom[i].pos.y = buf[1];
+        universe.atom[i].pos.z = buf[2];
+    }
     universe.time += args.timestep;
     ++(universe.iterations);
   }
@@ -153,7 +164,7 @@ int main(int argc, char **argv)
   puts(TEXT_SIMEND);
   universe_clean(&universe);
 
-  // Finalizare MPI - maybe trebuie pus inainte de fiecare return
+  // Finalizare MPI
   MPI_Finalize();
 
   return 0;

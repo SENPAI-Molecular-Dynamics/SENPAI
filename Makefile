@@ -6,8 +6,6 @@
 
 .PHONY: all clean fclean re
 
-$(CC) := mpicc
-
 SRC_DIR := ./sources
 HDR_DIR := ./headers
 
@@ -16,10 +14,10 @@ OBJS := $(shell find $(SRC_DIR) -name "*.o")
 NAME := senpai
 
 LIBS := -lm
-CFLAGS := -I$(HDR_DIR) $(WARNINGS) $(OPTIONS) $(LIBS) -o $(NAME).bin
+CFLAGS := -I$(HDR_DIR) $(WARNINGS) $(OPTIONS) $(LIBS) -o $(NAME)mpi.bin
 
 all:
-	$(CC) $(SRCS) $(CFLAGS)
+	mpicc $(SRCS) $(CFLAGS)
 
 clean:
 	$(RM) $(OBJS)
