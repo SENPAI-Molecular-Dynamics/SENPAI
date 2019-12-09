@@ -10,6 +10,8 @@
 #include <stdio.h>
 #include <math.h>
 
+#define NUM_THREADS 1
+
 #include "config.h"
 #include "args.h"
 #include "model.h"
@@ -392,7 +394,7 @@ universe_t *universe_iterate(universe_t *universe, const args_t *args)
   /* By numerically differentiating the potential energy... */
   if (args->numerical == MODE_NUMERICAL)
   {
-    #pragma omp parallel for
+    #pragma omp parallel for num_threads(NUM_THREADS)
     for (i=0; i<(universe->atom_nb); ++i)
       if (atom_update_frc_numerical(universe, i) == NULL)
         {;} //return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
@@ -401,7 +403,7 @@ universe_t *universe_iterate(universe_t *universe, const args_t *args)
   /* Or analytically solving for force */
   else
   {
-    #pragma omp parallel for
+    #pragma omp parallel for num_threads(NUM_THREADS)
     for (i=0; i<(universe->atom_nb); ++i)
       if (atom_update_frc_analytical(universe, i) == NULL)
         {;} //return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
