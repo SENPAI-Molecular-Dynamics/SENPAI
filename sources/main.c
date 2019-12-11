@@ -17,7 +17,7 @@
 
 #include <mpi.h>
 
-
+#define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
 #define MODE_NUMERICAL           1
 
 
@@ -151,7 +151,7 @@ int main(int argc, char **argv)
         buf[0] = universe.atom[i].pos.x;
         buf[1] = universe.atom[i].pos.y;
         buf[2] = universe.atom[i].pos.z;
-        MPI_Bcast(&buf, 3, MPI_DOUBLE, i/ratio, MPI_COMM_WORLD);
+        MPI_Bcast(&buf, 3, MPI_DOUBLE, MIN(i/ratio, world_size - 1), MPI_COMM_WORLD);
         universe.atom[i].pos.x = buf[0];
         universe.atom[i].pos.y = buf[1];
         universe.atom[i].pos.z = buf[2];
