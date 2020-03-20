@@ -72,25 +72,14 @@ This will tell SENPAI to simulate the contents of `examples/DES.mol` at STP for 
 
 This will have SENPAI load 1000 water molecules from `examples/water.mol`, arrange them so that the total potential energy is lower than 100 pJ, and finally simulate the system at 300 Kelvin for 1 ns, saving the render in `water_render.xyz`.
 
+## Motivations
+
+N/A
+
 ## Questions and Answers
 
 Q: Why are you doing this? Go out, the sun's out.
 
-A: The sun can't simulate deep eutectic solvents.
-
------
-
-Q: Who are you?
-
-A: Thomas Murgia, 19y old at the time of writing this. I'm a second year undergraduate student of chemistry at the Université Toulouse 3 in France.
-
-I plan to keep going with projects like those and hopefully get involved in purely academic and fundamental research in chemistry until the end of my days.
-
------
-
-Q: Are you looking for grad programs? Or even internships?
-
-A: Definitely. E-mail me at <thomas.murgia@univ-tlse3.fr> (academic email). I'm open to all offers :)
-
+A: The sun can't simulate deep eutectic solvents. Also stay home there's some spicy COVID-19 in the air.
 
 # A complete list of functions and structures is available in the wiki, so as to make contributions easier. Documentation on the way.
