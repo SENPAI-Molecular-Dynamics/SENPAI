@@ -21,7 +21,7 @@ int main(int argc, char **argv)
   universe_t universe; /* The universe itself (wow) */
 
   /* We don't need a perfectly random generator */
-  srand((unsigned int)time(NULL));
+  // srand((unsigned int)time(NULL));
 
   /* That's the welcome message */
   puts(TEXT_START);
