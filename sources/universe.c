@@ -10,8 +10,6 @@
 #include <stdio.h>
 #include <math.h>
 
-#define NUM_THREADS 1
-
 #include "config.h"
 #include "args.h"
 #include "model.h"

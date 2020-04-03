@@ -15,6 +15,9 @@
  *
  */
 
+#ifndef CONFIG_H
+#define CONFIG_H
+
 /* MACHINE SETUP
  *
  * Wanna run SENPAI on another platform? Adjust the following parameters:
@@ -23,6 +26,13 @@
  */
 #define DIV_THRESHOLD        (double)1E-50
 #define ROOT_MACHINE_EPSILON (double)1.48996644E-8
+
+/* OPENMP SETUP
+ *
+ * Thanks to amazing work by @raresraf, SENPAI is now able to use OpenMP.
+ * OpenMP settings can be adjusted here.
+ */
+#define NUM_THREADS 1
 
 /* UNIVERSE CONSTANTS
  *
@@ -127,3 +137,5 @@
 #define UNIVERSE_REDUCEPOT_COARSE_THRESHOLD            (double)2E0
 #define UNIVERSE_REDUCEPOT_FINE_MAX_STEP               (double)1E-10
 #define UNIVERSE_REDUCEPOT_FINE_TIMESTEP               (double)1E-15
+
+#endif
