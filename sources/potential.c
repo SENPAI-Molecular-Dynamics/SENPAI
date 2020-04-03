@@ -250,25 +250,25 @@ universe_t *potential_total(double *pot, universe_t *universe, const size_t atom
       /* PERIODIC BOUNDARY CONDITIONS */
       /* Backup the atom's coordinates */
       pos_backup = universe->atom[i].pos;
-
+      universe->atom[i].pos_backup = universe->atom[i].pos;
       /* Get the vector going to the target atom */
       vec3d_sub(&to_target, &(universe->atom[i].pos), &(universe->atom[atom_id].pos));
 
       /* Temporarily undo the PBC enforcement, if needed */
       if (to_target.x > 0.5*(universe->size))
-        universe->atom[i].pos.x -= universe->size;
+        universe->atom[i].pos_backup.x -= universe->size;
       else if (to_target.x <= -0.5*(universe->size))
-        universe->atom[i].pos.x += universe->size;
+        universe->atom[i].pos_backup.x += universe->size;
 
       if (to_target.y > 0.5*(universe->size))
-        universe->atom[i].pos.y -= universe->size;
+        universe->atom[i].pos_backup.y -= universe->size;
       else if (to_target.y <= -0.5*(universe->size))
-        universe->atom[i].pos.y += universe->size;
+        universe->atom[i].pos_backup.y += universe->size;
 
       if (to_target.z > 0.5*(universe->size))
-        universe->atom[i].pos.z -= universe->size;
+        universe->atom[i].pos_backup.z -= universe->size;
       else if (to_target.z <= -0.5*(universe->size))
-        universe->atom[i].pos.z += universe->size;
+        universe->atom[i].pos_backup.z += universe->size;
       /* PERIODIC BOUNDARY CONDITIONS */
 
       /* Bonded interractions */
@@ -298,7 +298,7 @@ universe_t *potential_total(double *pot, universe_t *universe, const size_t atom
       }
 
       /* Restore the backup coordinates */
-      universe->atom[i].pos = pos_backup;
+      universe->atom[i].pos_backup = pos_backup;
     }
   }
 
