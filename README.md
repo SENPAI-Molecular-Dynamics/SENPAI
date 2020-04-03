@@ -14,7 +14,7 @@ The simulation is rendered in a cubic universe of constant size, enforcing perio
 
 # Cool features
 
-- **Unlimited portability:** SENPAI does not require any library, and is 100% compliant with the C99 standard. **SENPAI could run on a Roomba**.
+- **OpenMP:** Thanks to @raresraf SENPAI now takes advantage of the [OpenMP library](https://www.openmp.org/), and is 100% compliant with the C99 standard. **SENPAI could run on a Roomba**.
 
 - **Efficient computing model:** the **Optimized Numerical Integration, Classical Harmonics, and N-body** (ONICHaN) model was tailored for SENPAI over months of work. Inspired by the AMBER family of force fields, it allows SENPAI to compute forces with unprecedented efficiency.
 
@@ -36,7 +36,7 @@ On UNIX systems, compilation is achieved using the provided makefile. No additio
 
 ## Usage
 
-`senpai --i input_file --o output_file [options]`
+`senpai --in input_file --out output_file [options]`
 
 Options:
 
