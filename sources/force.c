@@ -223,6 +223,8 @@ universe_t *force_angle(vec3d_t *frc, universe_t *universe, const size_t a1, con
        */
       if (vec3d_cross(&e_phi, &to_current, &to_ligand) == NULL)
         return (retstr(NULL, TEXT_FORCE_ANGLE_FAILURE, __FILE__, __LINE__));
+      if (vec3d_unit(&e_phi, &e_phi) == NULL)
+        return (retstr(NULL, TEXT_FORCE_ANGLE_FAILURE, __FILE__, __LINE__));
       if (vec3d_cross(&e_phi, &to_current, &e_phi) == NULL)
         return (retstr(NULL, TEXT_FORCE_ANGLE_FAILURE, __FILE__, __LINE__));
       if (vec3d_unit(&e_phi, &e_phi) == NULL)

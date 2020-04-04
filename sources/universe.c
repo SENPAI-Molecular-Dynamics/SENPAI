@@ -656,6 +656,7 @@ universe_t *universe_parameters_print(universe_t *universe, const args_t *args)
   
   /* Print some useful information */
   puts(TEXT_INFO_REFERENCE);
+  printf(TEXT_INFO_THREADS, NUM_THREADS);
   printf(TEXT_INFO_PATH, args->path);
   printf(TEXT_INFO_NAME, universe->meta_name);
   printf(TEXT_INFO_AUTHOR, universe->meta_author);

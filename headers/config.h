@@ -32,7 +32,7 @@
  * Thanks to amazing work by @raresraf, SENPAI is now able to use OpenMP.
  * OpenMP settings can be adjusted here.
  */
-#define NUM_THREADS 1
+#define NUM_THREADS 4
 
 /* UNIVERSE CONSTANTS
  *
