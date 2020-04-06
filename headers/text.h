@@ -18,8 +18,8 @@
                     "  \\___ \\|  __| | . ` |  ___/ /\\ \\   | |  \n"\
                     "  ____) | |____| |\\  | |  / ____ \\ _| |_ \n"\
                     " |_____/|______|_| \\_|_| /_/    \\_\\_____|  Simplified Evolutive N-body Processing and Analytics for Integration\n\n"\
-					"<< 2018-2019 Thomas MURGIA - SENPAI and its source code are licensed under the terms of the MIT license >>\n" \
-					"<< thomas.murgia@univ-tlse3.fr | https://github.com/Garuda1/senpai >> \n"
+					"<< 2018-2019 Sasha MURGIA - SENPAI and its source code are licensed under the terms of the MIT license >>\n" \
+					"<< sashamurgia@protonmail.ch | https://github.com/Garuda1/senpai >> \n"
 
 
 #define TEXT_FAILURE                           "[" COLOUR_RED "FAILURE" COLOUR_RESET "] "
@@ -79,7 +79,7 @@
 #define TEXT_INFO_ATOMS                                     "Atoms..................%ld\n"
 #define TEXT_INFO_TEMPERATURE                               "Temperature............%lf K\n"
 #define TEXT_INFO_PRESSURE                                  "Pressure...............%lf hPa\n"
-#define TEXT_INFO_DENSITY                                   "Density................%lf g.cm-1\n"
+#define TEXT_INFO_DENSITY                                   "Density................%lf g.cm-3\n"
 #define TEXT_INFO_POTENTIAL_ENERGY                          "Total potential energy.%lf pJ\n"
 #define TEXT_INFO_UNIVERSE_SIZE                             "Universe size  ........%lf pm\n"
 #define TEXT_INFO_SIMULATION_TIME                           "Simulation time........%lf ns\n"
