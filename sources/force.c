@@ -199,19 +199,19 @@ universe_t *force_angle(vec3d_t *frc, universe_t *universe, const size_t a1, con
       pos_backup = ligand->pos;
 
       if (to_ligand.x > 0.5*(universe->size))
-        ligand->pos_backup.x -= universe->size;
+        ligand->pos.x -= universe->size;
       else if (to_ligand.x <= -0.5*(universe->size))
-        ligand->pos_backup.x += universe->size;
+        ligand->pos.x += universe->size;
 
       if (to_ligand.y > 0.5*(universe->size))
-        ligand->pos_backup.y -= universe->size;
+        ligand->pos.y -= universe->size;
       else if (to_ligand.y <= -0.5*(universe->size))
-        ligand->pos_backup.y += universe->size;
+        ligand->pos.y += universe->size;
 
       if (to_ligand.z > 0.5*(universe->size))
-        ligand->pos_backup.z -= universe->size;
+        ligand->pos.z -= universe->size;
       else if (to_ligand.z <= -0.5*(universe->size))
-        ligand->pos_backup.z += universe->size;
+        ligand->pos.z += universe->size;
       /* PERIODIC BOUNDARY CONDITIONS */
 
       /* Get its magnitude */
@@ -256,7 +256,7 @@ universe_t *force_total(vec3d_t *frc, universe_t *universe, const size_t atom_id
 {
   size_t i;
   vec3d_t to_target;
-  //vec3d_t pos_backup;
+  vec3d_t pos_backup;
   vec3d_t vec_bond;
   vec3d_t vec_electrostatic;
   vec3d_t vec_lennardjones;
@@ -270,27 +270,26 @@ universe_t *force_total(vec3d_t *frc, universe_t *universe, const size_t atom_id
     {
       /* PERIODIC BOUNDARY CONDITIONS */
       /* Backup the atom's coordinates */
-      // pos_backup = universe->atom[i].pos;
-      universe->atom[i].pos_backup = universe->atom[i].pos;
+      pos_backup = universe->atom[i].pos;
 
       /* Get the vector going to the target atom */
       vec3d_sub(&to_target, &(universe->atom[i].pos), &(universe->atom[atom_id].pos));
 
       /* Temporarily undo the PBC enforcement, if needed */
       if (to_target.x > 0.5*(universe->size))
-        universe->atom[i].pos_backup.x -= universe->size;
+        universe->atom[i].pos.x -= universe->size;
       else if (to_target.x <= -0.5*(universe->size))
-        universe->atom[i].pos_backup.x += universe->size;
+        universe->atom[i].pos.x += universe->size;
 
       if (to_target.y > 0.5*(universe->size))
-        universe->atom[i].pos_backup.y -= universe->size;
+        universe->atom[i].pos.y -= universe->size;
       else if (to_target.y <= -0.5*(universe->size))
-        universe->atom[i].pos_backup.y += universe->size;
+        universe->atom[i].pos.y += universe->size;
 
       if (to_target.z > 0.5*(universe->size))
-        universe->atom[i].pos_backup.z -= universe->size;
+        universe->atom[i].pos.z -= universe->size;
       else if (to_target.z <= -0.5*(universe->size))
-        universe->atom[i].pos_backup.z += universe->size;
+        universe->atom[i].pos.z += universe->size;
       /* PERIODIC BOUNDARY CONDITIONS */
 
       /* Bonded interractions */
@@ -301,7 +300,7 @@ universe_t *force_total(vec3d_t *frc, universe_t *universe, const size_t atom_id
           return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__));
         if (force_angle(&vec_angle, universe, atom_id, i) == NULL)
           return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__));
-        ;
+
         /* Sum the forces */
         vec3d_add(frc, frc, &vec_bond);
         vec3d_add(frc, frc, &vec_angle);
@@ -315,13 +314,13 @@ universe_t *force_total(vec3d_t *frc, universe_t *universe, const size_t atom_id
           return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__));
         if (force_lennardjones(&vec_lennardjones, universe, atom_id, i) == NULL)
           return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__));
-        ;
+
         /* Sum the forces */
         vec3d_add(frc, frc, &vec_electrostatic);
         vec3d_add(frc, frc, &vec_lennardjones);
       }
       /* Restore the backup coordinates */
-      //universe->atom[i].pos = pos_backup;
+      universe->atom[i].pos = pos_backup;
     }
   }
 

@@ -376,47 +376,43 @@ universe_t *universe_iterate(universe_t *universe, const args_t *args)
 {
   size_t i; /* Iterator */
 
-{
   /* We update the position vector first, as part of the Velocity-Verley integration */
   for (i=0; i<(universe->atom_nb); ++i)
     if (atom_update_pos(universe, args, i) == NULL)
-      {;} //return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+      return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
 
   /* We enforce the periodic boundary conditions */
-
   for (i=0; i<(universe->atom_nb); ++i)
     if (atom_enforce_pbc(universe, i) == NULL)
-      {;} //return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+      return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
 
   /* Update the force vectors */
   /* By numerically differentiating the potential energy... */
   if (args->numerical == MODE_NUMERICAL)
   {
-    #pragma omp parallel for num_threads(NUM_THREADS)
     for (i=0; i<(universe->atom_nb); ++i)
       if (atom_update_frc_numerical(universe, i) == NULL)
-        {;} //return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+        return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
   }
 
   /* Or analytically solving for force */
   else
   {
-    #pragma omp parallel for num_threads(NUM_THREADS)
     for (i=0; i<(universe->atom_nb); ++i)
       if (atom_update_frc_analytical(universe, i) == NULL)
-        {;} //return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+        return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
   }
 
   /* Update the acceleration vectors */
   for (i=0; i<(universe->atom_nb); ++i)
     if (atom_update_acc(universe, i) == NULL)
-      {;} //return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+      return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
 
   /* Update the speed vectors */
   for (i=0; i<(universe->atom_nb); ++i)
     if (atom_update_vel(universe, args, i) == NULL)
-      {;} //return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
-}
+      return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+
   return (universe);
 }
 
