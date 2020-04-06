@@ -36,7 +36,7 @@ On UNIX systems, compilation is achieved using the provided makefile. No additio
 
 ## Usage
 
-`senpai --in input_file --out output_file [options]`
+`senpai --in substrate_file --solvent solvent_file --out output_file [options]`
 
 Options:
 
@@ -66,11 +66,11 @@ Options:
 
 ## Example use
 
-`./senpai.bin --in examples/DES.mol --out render.xyz`
+`./senpai.bin --in examples/DES.mol --solvent examples/water.mol --out render.xyz`
 
-This will tell SENPAI to simulate the contents of `examples/DES.mol` at STP for one nanosecond using a one femtosecond timestep. The rendered simulation will be saved in `render.xyz` for further analysis.
+This will tell SENPAI to simulate the contents of `examples/DES.mol` in STP water for one nanosecond using a one femtosecond timestep. The rendered simulation will be saved in `render.xyz` for further analysis.
 
-`./senpai.bin --in examples/water.mol --out water_render.xyz --copy 5000 --reduce_potential 100 --temp 300`
+`./senpai.bin --in examples/water.mol examples/void.mol --out water_render.xyz --copy 5000 --reduce_potential 100 --temp 300`
 
 This will have SENPAI load 1000 water molecules from `examples/water.mol`, arrange them so that the total potential energy is lower than 100 pJ, and finally simulate the system at 300 Kelvin for 1 ns, saving the render in `water_render.xyz`.
 
