@@ -69,6 +69,7 @@
 #define TEXT_INFO_BORDER                                    "+---------------------+"
 #define TEXT_INFO_REFERENCE                TEXT_INFO_BORDER "\n|         FILE        |\n" TEXT_INFO_BORDER
 #define TEXT_INFO_SIMULATION               TEXT_INFO_BORDER "\n|       UNIVERSE      |\n" TEXT_INFO_BORDER
+#define TEXT_INFO_THREADS                                   "Threads................%d\n"
 #define TEXT_INFO_PATH                                      "Path...................%s\n"
 #define TEXT_INFO_NAME                                      "Name...................%s\n"
 #define TEXT_INFO_AUTHOR                                    "Author.................%s\n"
