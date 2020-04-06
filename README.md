@@ -40,7 +40,9 @@ On UNIX systems, compilation is achieved using the provided makefile. No additio
 
 Options:
 
-- `--in` Required. Specifies the path to the input file (MOLV2000 format)
+- `--in` Required. Specifies the path to the substrate to simulate (MOLV2000 format)
+
+- `--solvent` Required. Specified the path to the solvent file (MOLV2000 format)
 
 - `--out` Required. Specifies the output file (XYZ format)
 

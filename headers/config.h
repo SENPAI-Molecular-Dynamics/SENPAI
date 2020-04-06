@@ -27,13 +27,6 @@
 #define DIV_THRESHOLD        (double)1E-50
 #define ROOT_MACHINE_EPSILON (double)1.48996644E-8
 
-/* OPENMP SETUP
- *
- * Thanks to amazing work by @raresraf, SENPAI is now able to use OpenMP.
- * OpenMP settings can be adjusted here.
- */
-#define NUM_THREADS 4
-
 /* UNIVERSE CONSTANTS
  *
  * If, for some reason, you need to modify the universe constants used by

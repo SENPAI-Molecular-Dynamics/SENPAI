@@ -32,7 +32,8 @@
 #define TEXT_ARG_INVALIDARG                    TEXT_FAILURE "args_init: Unknown argument (\"%s\"). Did you read README.md?\n"
 #define TEXT_ARGS_INIT_FAILURE                 TEXT_FAILURE "args_init: Argument initialisation failed"
 #define TEXT_ARGS_PARSE_FAILURE                TEXT_FAILURE "argse_parse: Arguments couldn't be parsed"
-#define TEXT_ARGS_PATH_FAILURE                 TEXT_FAILURE "args_check: Invalid input path..."
+#define TEXT_ARGS_SUBSTRATE_FAILURE            TEXT_FAILURE "args_check: Invalid substrate path..."
+#define TEXT_ARGS_SOLVENT_FAILURE              TEXT_FAILURE "args_solvent: Invalid solvent path..."
 #define TEXT_ARGS_OUT_PATH_FAILURE             TEXT_FAILURE "args_check: Invalid output path..."
 #define TEXT_ARGS_TIMESTEP_FAILURE             TEXT_FAILURE "args_check: The timestep cannot be negative!"
 #define TEXT_ARGS_TIME_FAILURE                 TEXT_FAILURE "args_check: The simulation cannot be shorter than one timestep!"
@@ -67,9 +68,9 @@
 
 /* universe.c */
 #define TEXT_INFO_BORDER                                    "+---------------------+"
-#define TEXT_INFO_REFERENCE                TEXT_INFO_BORDER "\n|         FILE        |\n" TEXT_INFO_BORDER
-#define TEXT_INFO_SIMULATION               TEXT_INFO_BORDER "\n|       UNIVERSE      |\n" TEXT_INFO_BORDER
-#define TEXT_INFO_THREADS                                   "Threads................%d\n"
+#define TEXT_INFO_REFERENCE                TEXT_INFO_BORDER "\n|      SUBSTRATE      |\n" TEXT_INFO_BORDER
+#define TEXT_INFO_REFERENCE_SOLVENT        TEXT_INFO_BORDER "\n|       SOLVENT       |\n" TEXT_INFO_BORDER
+#define TEXT_INFO_SIMULATION               TEXT_INFO_BORDER "\n|      UNIVERSE       |\n" TEXT_INFO_BORDER
 #define TEXT_INFO_PATH                                      "Path...................%s\n"
 #define TEXT_INFO_NAME                                      "Name...................%s\n"
 #define TEXT_INFO_AUTHOR                                    "Author.................%s\n"
@@ -88,7 +89,7 @@
 #define TEXT_INFO_FRAMESKIP                                 "Frameskip..............%ld\n"
 #define TEXT_INFO_ITERATIONS                                "Iterations.............%ld\n\n"
 #define TEXT_UNIVERSE_INIT_FAILURE             TEXT_FAILURE "universe_init: Failed to initialize the universe"
-#define TEXT_UNIVERSE_LOAD_FAILURE             TEXT_FAILURE "universe_load: Failed to load initial state"
+#define TEXT_UNIVERSE_LOAD_FAILURE             TEXT_FAILURE "universe_load_substrate: Failed to load initial state"
 #define TEXT_UNIVERSE_POPULATE_FAILURE         TEXT_FAILURE "universe_populate: Failed to populate universe"
 #define TEXT_UNIVERSE_SETVELOCITY_FAILURE      TEXT_FAILURE "universe_setvelocity: Failed to set initial velocities"
 #define TEXT_UNIVERSE_SIMULATE_FAILURE         TEXT_FAILURE "universe_simulate: Simulation failed"

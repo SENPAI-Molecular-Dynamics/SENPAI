@@ -20,8 +20,9 @@ args_t *args_init(args_t *args)
   if (args == NULL)
     return (retstr(NULL, TEXT_ARGS_INIT_FAILURE, __FILE__, __LINE__));
 
-  args->path = NULL;
-  args->out_path = NULL;
+  args->path_substrate = NULL;
+  args->path_out = NULL;
+  args->path_solvent = NULL;
   args->numerical = ARGS_NUMERICAL_DEFAULT;
   args->timestep = ARGS_TIMESTEP_DEFAULT;
   args->max_time = ARGS_MAX_TIME_DEFAULT;
@@ -36,12 +37,16 @@ args_t *args_init(args_t *args)
 
 args_t *args_check(args_t *args)
 {
-  /* An input path MUST be specified */
-  if (args->path == NULL)
-    return (retstr(NULL, TEXT_ARGS_PATH_FAILURE, __FILE__, __LINE__));
+  /* A substrate path MUST be specified */
+  if (args->path_substrate == NULL)
+    return (retstr(NULL, TEXT_ARGS_SUBSTRATE_FAILURE, __FILE__, __LINE__));
+  
+  /* A solvent path MUST be specified */
+  if (args->path_solvent == NULL)
+    return (retstr(NULL, TEXT_ARGS_SOLVENT_FAILURE, __FILE__, __LINE__));
 
   /* And so must an output path */
-  if (args->out_path == NULL)
+  if (args->path_out == NULL)
     return (retstr(NULL, TEXT_ARGS_OUT_PATH_FAILURE, __FILE__, __LINE__));
 
   /* And negative timesteps */
@@ -83,10 +88,13 @@ args_t *args_parse(args_t *args, int argc, char **argv)
   for (i=1; i<argc; ++i)
   {
     if (!strcmp(argv[i], FLAG_INPUT) && (i+1)<argc)
-      args->path = argv[++i];
+      args->path_substrate = argv[++i];
 
     else if (!strcmp(argv[i], FLAG_OUTPUT) && (i+1)<argc)
-      args->out_path = argv[++i];
+      args->path_out = argv[++i];
+
+    else if (!strcmp(argv[i], FLAG_SOLVENT) && (i+1)<argc)
+      args->path_solvent = argv[++i];
 
     else if (!strcmp(argv[i], FLAG_NUMERICAL))
       args->numerical = MODE_NUMERICAL;

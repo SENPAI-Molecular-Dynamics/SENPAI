@@ -21,13 +21,15 @@
 #define FLAG_DENSITY    "--density"
 #define FLAG_FRAMESKIP  "--frameskip"
 #define FLAG_REDUCEPOT  "--reduce_potential"
+#define FLAG_SOLVENT    "--solvent"
 
 typedef struct args_s args_t;
 struct args_s
 {
   /* Simulation parameters */
-  char *path;                /* Path to input file */
-  char *out_path;            /* Path to output file */
+  char *path_substrate;             /* Path to input file */
+  char *path_out;            /* Path to output file */
+  char *path_solvent;        /* Path to solvent file */
   double timestep;           /* (s)        Simulation timestep */
   double max_time;           /* (s)        Simulation duration */
   double reduce_potential;   /* (pJ)       Maximum potential energy before simulating */

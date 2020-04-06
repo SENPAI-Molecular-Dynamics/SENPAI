@@ -47,30 +47,41 @@ typedef struct universe_s universe_t;
 struct universe_s
 {
   /* MISC. INFORMATION */
-  FILE *output_file;    /* The output file (.xyz) */
-  FILE *input_file;     /* The input file (.mol) */
-  uint64_t iterations;  /* How many iterations have been rendered so far */
+  FILE *file_output;          /* The output file (.xyz) */
+  FILE *file_substrate;       /* The substrate file (.mol) */
+  FILE *file_solvent;         /* The solvent file (.mol) */
+  uint64_t iterations;        /* How many iterations have been rendered so far */
 
-  /* INPUT FILE METADATA */
-  char *meta_name;      /* The name of the substrate */
-  char *meta_author;    /* Who made the file */
-  char *meta_comment;   /* Some message from the author */
+  /* SUBSTRATE METADATA */
+  char *meta_substrate_name;            /* The name of the substrate */
+  char *meta_substrate_author;          /* Who made the file */
+  char *meta_substrate_comment;         /* Some message from the author */
 
   /* SUBSTRATE */
-  uint64_t ref_atom_nb; /* The number of atoms in the substrate */
-  uint64_t ref_bond_nb; /* The number of covalent bonds in the substrate */
-  atom_t *ref_atom;     /* The substrate atoms as loaded from the file */
+  uint64_t substrate_atom_nb; /* The number of atoms in the substrate */
+  uint64_t substrate_bond_nb; /* The number of covalent bonds in the substrate */
+  atom_t *substrate_atom;     /* The substrate atoms as loaded from the file */
 
+  /* SOLVENT METADATA */
+  char *meta_solvent_name;    /* The name of the solvent */
+  char *meta_solvent_author;  /* Who made the file */
+  char *meta_solvent_comment; /* Some message from the author */
+
+  /* SOLVENT */
+  uint64_t solvent_atom_nb;   /* The number of atom in the solvent */
+  uint64_t solvent_bond_nb;   /* The number of covalent bonds in the solvent */
+  atom_t *solvent_atom;       /* The solvent atoms as loaded from the file */
+  
   /* UNIVERSE */
-  atom_t *atom;         /* The universe (set of all atoms) to simulate */
-  uint64_t copy_nb;     /* Number of copies of the substrate to simulate */
-  uint64_t atom_nb;     /* Total number of atoms in the universe */
+  atom_t *atom;               /* The universe (set of all atoms) to simulate */
+  uint64_t copy_nb;           /* Number of copies of the substrate to simulate */
+  uint64_t atom_nb;           /* Total number of atoms in the universe */
 
   /* PARAMETERS & THERMODYNAMICS */
-  double size;          /* (m) The universe is a cube, that's how long a side is */
-  double time;          /* (s) Current time */
-  double temperature;   /* (K) Initial thermodynamic temperature */
-  double pressure;      /* (Pa) Initial pressure */
+  double size;                /* (m) The universe is a cube, that's how long a side is */
+  double time;                /* (s) Current time */
+  double temperature;         /* (K) Initial thermodynamic temperature */
+  double pressure;            /* (Pa) Initial pressure */
 };
 
 /* ################## */
@@ -95,7 +106,8 @@ universe_t *universe_init(universe_t *universe, const args_t *args);
 void        universe_clean(universe_t *universe);
 universe_t *universe_populate(universe_t *universe);
 universe_t *universe_setvelocity(universe_t *universe);
-universe_t *universe_load(universe_t *universe, char *input_file_buffer);
+universe_t *universe_load_substrate(universe_t *universe, char *substrate_file_buffer);
+universe_t *universe_load_solvent(universe_t *universe, char *solvent_file_buffer);
 universe_t *universe_printstate(universe_t *universe);
 int         universe_simulate(universe_t *universe, const args_t *args);
 universe_t *universe_iterate(universe_t *universe, const args_t *args);

@@ -21,17 +21,24 @@
 
 universe_t *universe_init(universe_t *universe, const args_t *args)
 {
-  size_t i;                /* Iterator */
-  size_t input_file_len;   /* Size of the input file (bytes) */
-  char *input_file_buffer; /* A memory copy of the input file */
-  double universe_mass;    /* Total mass of the universe */
+  size_t i;                    /* Iterator */
+  size_t substrate_file_len;   /* Size of the substrate file (bytes) */
+  size_t solvent_file_len;     /* Size of the solvent file (bytes) */
+  char *substrate_file_buffer; /* A memory copy of the substrate file */
+  char *solvent_file_buffer;   /* A memory copy of the solvent file */
+  double universe_mass;        /* Total mass of the universe */
 
   /* Initialize the structure variables */
-  universe->meta_name = NULL;
-  universe->meta_author = NULL;
-  universe->meta_comment = NULL;
-  universe->ref_atom_nb = 0;
-  universe->ref_bond_nb = 0;
+  universe->meta_substrate_name = NULL;
+  universe->meta_substrate_author = NULL;
+  universe->meta_substrate_comment = NULL;
+  universe->substrate_atom_nb = 0;
+  universe->substrate_bond_nb = 0;
+  universe->meta_solvent_name = NULL;
+  universe->meta_solvent_author = NULL;
+  universe->meta_solvent_comment = NULL;
+  universe->solvent_atom_nb = 0;
+  universe->solvent_bond_nb = 0;
   universe->copy_nb = args->copies;
   universe->atom_nb = 0;
   universe->size = 0.0;
@@ -41,36 +48,61 @@ universe_t *universe_init(universe_t *universe, const args_t *args)
   universe->iterations = 0;
 
   /* Open the output file */
-  if ((universe->output_file = fopen(args->out_path, "w")) == NULL)
+  if ((universe->file_output = fopen(args->path_out, "w")) == NULL)
     return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
 
-  /* Open the input file */
-  if ((universe->input_file = fopen(args->path, "r")) == NULL)
+  /* Open the substrate file */
+  if ((universe->file_substrate = fopen(args->path_substrate, "r")) == NULL)
     return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
 
-  /* Get the file's size */
-  fseek(universe->input_file, 0, SEEK_END);
-  input_file_len = ftell(universe->input_file);
-  rewind(universe->input_file);
+  /* Get the substrate file's size */
+  fseek(universe->file_substrate, 0, SEEK_END);
+  substrate_file_len = ftell(universe->file_substrate);
+  rewind(universe->file_substrate);
 
-  /* Initialize the memory buffer for the file */
-  if ((input_file_buffer = (char*)malloc(input_file_len+1)) == NULL)
+  /* Initialize the memory buffer for the substrate file */
+  if ((substrate_file_buffer = (char*)malloc(substrate_file_len+1)) == NULL)
     return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
 
-  /* Load it in the buffer, terminate the string */
-  if (fread(input_file_buffer, sizeof(char), input_file_len, universe->input_file) != input_file_len)
+  /* Load it in the substrate buffer, terminate the string */
+  if (fread(substrate_file_buffer, sizeof(char), substrate_file_len, universe->file_substrate) != substrate_file_len)
     return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
-  input_file_buffer[input_file_len] = '\0';
+  substrate_file_buffer[substrate_file_len] = '\0';
 
-  /* Load the initial state from the input file */
-  if (universe_load(universe, input_file_buffer) == NULL)
+  /* Load the initial state from the substrate file */
+  if (universe_load_substrate(universe, substrate_file_buffer) == NULL)
     return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
 
-  /* Free the input file buffer, we're done */
-  free(input_file_buffer);
+  /* Free the substrate file buffer, we're done */
+  free(substrate_file_buffer);
+  
+  /* Open the solvent file */
+  if ((universe->file_solvent  = fopen(args->path_solvent, "r")) == NULL)
+    return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
+
+  /* Get the solvent file's size */
+  fseek(universe->file_solvent, 0, SEEK_END);
+  solvent_file_len = ftell(universe->file_solvent);
+  rewind(universe->file_solvent);
+
+  /* Initialize the memory buffer for the solvent file */
+  if ((solvent_file_buffer = (char*)malloc(substrate_file_len+1)) == NULL)
+    return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
+
+  /* Load it in the solvent buffer, terminate the string */
+  if (fread(solvent_file_buffer, sizeof(char), solvent_file_len, universe->file_solvent) != solvent_file_len)
+    return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
+  solvent_file_buffer[solvent_file_len] = '\0';
+
+  /* Load the initial state from the solvent file */
+  if (universe_load_solvent(universe, solvent_file_buffer) == NULL)
+    return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
+
+  /* Free the solvent file buffer, we're done */
+  free(solvent_file_buffer);
 
   /* Initialize the atom number */
-  universe->atom_nb = (universe->ref_atom_nb) * (universe->copy_nb);
+  universe->atom_nb = (universe->substrate_atom_nb) * (universe->copy_nb);
 
   /* Allocate memory for the atoms */
   if ((universe->atom = malloc (sizeof(atom_t)*(universe->atom_nb))) == NULL)
@@ -83,8 +115,8 @@ universe_t *universe_init(universe_t *universe, const args_t *args)
   /* Compute the universe's size from the system density */
   /* size = cbrt(universe_mass / system_density) */
   universe_mass = 0.0;
-  for (i=0; i<(universe->ref_atom_nb); ++i)
-    universe_mass += (args->copies)*model_mass(universe->ref_atom[i].element);
+  for (i=0; i<(universe->substrate_atom_nb); ++i)
+    universe_mass += (args->copies)*model_mass(universe->substrate_atom[i].element);
   universe->size = cbrt((universe_mass) / (args->density));
 
   /* Populate the universe with extra molecules */
@@ -103,7 +135,7 @@ universe_t *universe_init(universe_t *universe, const args_t *args)
   return (universe);
 }
 
-universe_t *universe_load(universe_t *universe, char *input_file_buffer)
+universe_t *universe_load_substrate(universe_t *universe, char *substrate_file_buffer)
 {
   size_t i;
   char *tok;
@@ -116,98 +148,217 @@ universe_t *universe_load(universe_t *universe, char *input_file_buffer)
   uint64_t second;
 
   /* Get the name line and load the system's name from it */
-  tok = strtok(input_file_buffer, "\n");
-  if ((universe->meta_name = malloc(sizeof(char)*(strlen(tok)+1))) == NULL)
+  tok = strtok(substrate_file_buffer, "\n");
+  if ((universe->meta_substrate_name = malloc(sizeof(char)*(strlen(tok)+1))) == NULL)
     return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
-  strcpy(universe->meta_name, tok);
+  strcpy(universe->meta_substrate_name, tok);
 
   /* Get the author line and load the author's name from it */
   tok = strtok(NULL, "\n");
-  if ((universe->meta_author = malloc(sizeof(char)*(strlen(tok)+1))) == NULL)
+  if ((universe->meta_substrate_author = malloc(sizeof(char)*(strlen(tok)+1))) == NULL)
     return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
-  strcpy(universe->meta_author, tok);
+  strcpy(universe->meta_substrate_author, tok);
 
   /* Get the comment line and load the author's comment from it */
   tok = strtok(NULL, "\n");
-  if ((universe->meta_comment = malloc(sizeof(char)*(strlen(tok)+1))) == NULL)
+  if ((universe->meta_substrate_comment = malloc(sizeof(char)*(strlen(tok)+1))) == NULL)
     return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
-  strcpy(universe->meta_comment, tok);
+  strcpy(universe->meta_substrate_comment, tok);
 
   /* Get the count line, and the atom/bond nb from it  */
   tok = strtok(NULL, "\n");
-  sscanf(tok, "%ld %ld", &(universe->ref_atom_nb), &(universe->ref_bond_nb));
+  sscanf(tok, "%ld %ld", &(universe->substrate_atom_nb), &(universe->substrate_bond_nb));
 
   /* Allocate memory for the atoms */
-  if ((universe->ref_atom = malloc (sizeof(atom_t)*(universe->ref_atom_nb))) == NULL)
+  if ((universe->substrate_atom = malloc (sizeof(atom_t)*(universe->substrate_atom_nb))) == NULL)
     return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
 
   /* Initialize the atom memory */
-  for (i=0; i<(universe->ref_atom_nb); ++i)
-    atom_init(&(universe->ref_atom[i]));
+  for (i=0; i<(universe->substrate_atom_nb); ++i)
+    atom_init(&(universe->substrate_atom[i]));
 
   /* Read the atom block */
-  for (i=0; i<(universe->ref_atom_nb); ++i)
+  for (i=0; i<(universe->substrate_atom_nb); ++i)
   {
     tok = strtok(NULL, "\n");
     sscanf(tok, "%lf %lf %lf %hhu %lf %lf %lf",
-           &(universe->ref_atom[i].pos.x),
-           &(universe->ref_atom[i].pos.y),
-           &(universe->ref_atom[i].pos.z),
-           &(universe->ref_atom[i].element),
-           &(universe->ref_atom[i].charge),
-           &(universe->ref_atom[i].epsilon),
-           &(universe->ref_atom[i].sigma));
+           &(universe->substrate_atom[i].pos.x),
+           &(universe->substrate_atom[i].pos.y),
+           &(universe->substrate_atom[i].pos.z),
+           &(universe->substrate_atom[i].element),
+           &(universe->substrate_atom[i].charge),
+           &(universe->substrate_atom[i].epsilon),
+           &(universe->substrate_atom[i].sigma));
 
     /* Scale the atom's position vector from Å to m */
-    vec3d_mul(&(universe->ref_atom[i].pos), &(universe->ref_atom[i].pos), 1E-10);
+    vec3d_mul(&(universe->substrate_atom[i].pos), &(universe->substrate_atom[i].pos), 1E-10);
 
     /* Scale the atom's charge from C.e-1 to C */
-    universe->ref_atom[i].charge *= C_ELEMCHARGE;
+    universe->substrate_atom[i].charge *= C_ELEMCHARGE;
   }
 
   /* Allocate memory for the temporary bond information storage */
-  if ((a1 = malloc(sizeof(uint64_t) * (universe->ref_bond_nb))) == NULL)
+  if ((a1 = malloc(sizeof(uint64_t) * (universe->substrate_bond_nb))) == NULL)
     return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
-  if ((a2 = malloc(sizeof(uint64_t) * (universe->ref_bond_nb))) == NULL)
+  if ((a2 = malloc(sizeof(uint64_t) * (universe->substrate_bond_nb))) == NULL)
     return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
-  if ((bond_strength = malloc(sizeof(double) * (universe->ref_bond_nb))) == NULL)
+  if ((bond_strength = malloc(sizeof(double) * (universe->substrate_bond_nb))) == NULL)
     return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
   /* Zero the allocated memory */
-  if ((bond_index = calloc(universe->ref_atom_nb, sizeof(uint8_t))) == NULL)
+  if ((bond_index = calloc(universe->substrate_atom_nb, sizeof(uint8_t))) == NULL)
     return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
 
   /* Read the bond block and get the number of bonds for each atom */
-  for (i=0; i<(universe->ref_bond_nb); ++i)
+  for (i=0; i<(universe->substrate_bond_nb); ++i)
   {
     tok = strtok(NULL, "\n");
     sscanf(tok, "%ld %ld %lf", &(a1[i]), &(a2[i]), &(bond_strength[i]));
-    ++(universe->ref_atom[a1[i] - 1].bond_nb);
-    ++(universe->ref_atom[a2[i] - 1].bond_nb);
+    ++(universe->substrate_atom[a1[i] - 1].bond_nb);
+    ++(universe->substrate_atom[a2[i] - 1].bond_nb);
   }
 
   /* Allocate memory for the bond information */
-  for (i=0; i<(universe->ref_atom_nb); ++i)
+  for (i=0; i<(universe->substrate_atom_nb); ++i)
   {
     /* For the bond nodes */
-    if ((universe->ref_atom[i].bond = malloc(sizeof(uint64_t) * universe->ref_atom[i].bond_nb)) == NULL)
+    if ((universe->substrate_atom[i].bond = malloc(sizeof(uint64_t) * universe->substrate_atom[i].bond_nb)) == NULL)
       return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
 
     /* For the bond strengths */
-    if ((universe->ref_atom[i].bond_strength = malloc(sizeof(double) * universe->ref_atom[i].bond_nb)) == NULL)
+    if ((universe->substrate_atom[i].bond_strength = malloc(sizeof(double) * universe->substrate_atom[i].bond_nb)) == NULL)
       return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
   }
 
   /* Load the bond information */
-  for (i=0; i<(universe->ref_bond_nb); ++i)
+  for (i=0; i<(universe->substrate_bond_nb); ++i)
   {
     first = a1[i] - 1;
     second = a2[i] - 1;
 
-    universe->ref_atom[first].bond[bond_index[first]] = second;
-    universe->ref_atom[first].bond_strength[bond_index[first]] = bond_strength[i];
+    universe->substrate_atom[first].bond[bond_index[first]] = second;
+    universe->substrate_atom[first].bond_strength[bond_index[first]] = bond_strength[i];
 
-    universe->ref_atom[second].bond[bond_index[second]] = first;
-    universe->ref_atom[second].bond_strength[bond_index[second]] = bond_strength[i];
+    universe->substrate_atom[second].bond[bond_index[second]] = first;
+    universe->substrate_atom[second].bond_strength[bond_index[second]] = bond_strength[i];
+
+    ++bond_index[first];
+    ++bond_index[second];
+  }
+
+  /* Free the temporary bond information storage */
+  free(a1);
+  free(a2);
+  free(bond_strength);
+  free(bond_index);
+
+  return (universe);
+}
+
+universe_t *universe_load_solvent(universe_t *universe, char *solvent_file_buffer)
+{
+  size_t i;
+  char *tok;
+  /* Used when reading the bond block */
+  uint64_t *a1;
+  uint64_t *a2;
+  double *bond_strength;
+  uint8_t *bond_index;
+  uint64_t first;
+  uint64_t second;
+
+  /* Get the name line and load the system's name from it */
+  tok = strtok(solvent_file_buffer, "\n");
+  if ((universe->meta_solvent_name = malloc(sizeof(char)*(strlen(tok)+1))) == NULL)
+    return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
+  strcpy(universe->meta_solvent_name, tok);
+
+  /* Get the author line and load the author's name from it */
+  tok = strtok(NULL, "\n");
+  if ((universe->meta_solvent_author = malloc(sizeof(char)*(strlen(tok)+1))) == NULL)
+    return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
+  strcpy(universe->meta_solvent_author, tok);
+
+  /* Get the comment line and load the author's comment from it */
+  tok = strtok(NULL, "\n");
+  if ((universe->meta_solvent_comment = malloc(sizeof(char)*(strlen(tok)+1))) == NULL)
+    return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
+  strcpy(universe->meta_solvent_comment, tok);
+
+  /* Get the count line, and the atom/bond nb from it  */
+  tok = strtok(NULL, "\n");
+  sscanf(tok, "%ld %ld", &(universe->solvent_atom_nb), &(universe->solvent_bond_nb));
+
+  /* Allocate memory for the atoms */
+  if ((universe->solvent_atom = malloc (sizeof(atom_t)*(universe->solvent_atom_nb))) == NULL)
+    return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
+
+  /* Initialize the atom memory */
+  for (i=0; i<(universe->solvent_atom_nb); ++i)
+    atom_init(&(universe->solvent_atom[i]));
+
+  /* Read the atom block */
+  for (i=0; i<(universe->solvent_atom_nb); ++i)
+  {
+    tok = strtok(NULL, "\n");
+    sscanf(tok, "%lf %lf %lf %hhu %lf %lf %lf",
+           &(universe->solvent_atom[i].pos.x),
+           &(universe->solvent_atom[i].pos.y),
+           &(universe->solvent_atom[i].pos.z),
+           &(universe->solvent_atom[i].element),
+           &(universe->solvent_atom[i].charge),
+           &(universe->solvent_atom[i].epsilon),
+           &(universe->solvent_atom[i].sigma));
+
+    /* Scale the atom's position vector from Å to m */
+    vec3d_mul(&(universe->solvent_atom[i].pos), &(universe->solvent_atom[i].pos), 1E-10);
+
+    /* Scale the atom's charge from C.e-1 to C */
+    universe->solvent_atom[i].charge *= C_ELEMCHARGE;
+  }
+
+  /* Allocate memory for the temporary bond information storage */
+  if ((a1 = malloc(sizeof(uint64_t) * (universe->solvent_bond_nb))) == NULL)
+    return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
+  if ((a2 = malloc(sizeof(uint64_t) * (universe->solvent_bond_nb))) == NULL)
+    return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
+  if ((bond_strength = malloc(sizeof(double) * (universe->solvent_bond_nb))) == NULL)
+    return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
+  /* Zero the allocated memory */
+  if ((bond_index = calloc(universe->solvent_atom_nb, sizeof(uint8_t))) == NULL)
+    return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
+
+  /* Read the bond block and get the number of bonds for each atom */
+  for (i=0; i<(universe->solvent_bond_nb); ++i)
+  {
+    tok = strtok(NULL, "\n");
+    sscanf(tok, "%ld %ld %lf", &(a1[i]), &(a2[i]), &(bond_strength[i]));
+    ++(universe->solvent_atom[a1[i] - 1].bond_nb);
+    ++(universe->solvent_atom[a2[i] - 1].bond_nb);
+  }
+
+  /* Allocate memory for the bond information */
+  for (i=0; i<(universe->solvent_atom_nb); ++i)
+  {
+    /* For the bond nodes */
+    if ((universe->solvent_atom[i].bond = malloc(sizeof(uint64_t) * universe->solvent_atom[i].bond_nb)) == NULL)
+      return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
+
+    /* For the bond strengths */
+    if ((universe->solvent_atom[i].bond_strength = malloc(sizeof(double) * universe->solvent_atom[i].bond_nb)) == NULL)
+      return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
+  }
+
+  /* Load the bond information */
+  for (i=0; i<(universe->solvent_bond_nb); ++i)
+  {
+    first = a1[i] - 1;
+    second = a2[i] - 1;
+
+    universe->solvent_atom[first].bond[bond_index[first]] = second;
+    universe->solvent_atom[first].bond_strength[bond_index[first]] = bond_strength[i];
+
+    universe->solvent_atom[second].bond[bond_index[second]] = first;
+    universe->solvent_atom[second].bond_strength[bond_index[second]] = bond_strength[i];
 
     ++bond_index[first];
     ++bond_index[second];
@@ -238,11 +389,11 @@ universe_t *universe_populate(universe_t *universe)
     vec3d_mul(&pos_offset, &pos_offset, (1-UNIVERSE_POPULATE_MIN_DIST)*(universe->size)*cos(rand()) + UNIVERSE_POPULATE_MIN_DIST*(universe->size));
 
     /* Load each atom from the reference system into the universe */
-    for (ii=0; ii<(universe->ref_atom_nb); ++ii)
+    for (ii=0; ii<(universe->substrate_atom_nb); ++ii)
     {
       /* Just shortcuts, they make the code cleaner */
-      reference = &(universe->ref_atom[ii]);
-      duplicate = &(universe->atom[(i*(universe->ref_atom_nb)) + ii]);
+      reference = &(universe->substrate_atom[ii]);
+      duplicate = &(universe->atom[(i*(universe->substrate_atom_nb)) + ii]);
 
       duplicate->element = reference->element;
       duplicate->charge = reference->charge;
@@ -275,7 +426,7 @@ universe_t *universe_populate(universe_t *universe)
       /* Load the bond information */
       for (iii=0; iii<(duplicate->bond_nb); ++iii)
       {
-        duplicate->bond[iii] = reference->bond[iii] + (i*(universe->ref_atom_nb));
+        duplicate->bond[iii] = reference->bond[iii] + (i*(universe->substrate_atom_nb));
         duplicate->bond_strength[iii] = reference->bond_strength[iii];
       }
     }
@@ -294,8 +445,8 @@ universe_t *universe_setvelocity(universe_t *universe)
 
   /* Get the molecular mass */
   mass_mol = 0;
-  for (i=0; i<(universe->ref_atom_nb); ++i)
-    mass_mol += model_mass(universe->ref_atom[i].element);
+  for (i=0; i<(universe->substrate_atom_nb); ++i)
+    mass_mol += model_mass(universe->substrate_atom[i].element);
 
   /* Get the average velocity */
   velocity = sqrt(3*C_BOLTZMANN*(universe->temperature)/mass_mol);
@@ -316,22 +467,26 @@ void universe_clean(universe_t *universe)
   size_t i;
 
   /* Clean each atom in the reference system */
-  for (i=0; i<(universe->ref_atom_nb); ++i)
-    atom_clean(&(universe->ref_atom[i]));
+  for (i=0; i<(universe->substrate_atom_nb); ++i)
+    atom_clean(&(universe->substrate_atom[i]));
 
   /* Clean each atom in the universe */
   for (i=0; i<(universe->atom_nb); ++i)
     atom_clean(&(universe->atom[i]));
 
   /* Close the file pointers */
-  fclose(universe->output_file);
-  fclose(universe->input_file);
+  fclose(universe->file_substrate);
+  fclose(universe->file_output);
 
   /* Free allocated memory */
-  free(universe->meta_name);
-  free(universe->meta_author);
-  free(universe->meta_comment);
-  free(universe->ref_atom);
+  free(universe->meta_substrate_name);
+  free(universe->meta_substrate_author);
+  free(universe->meta_substrate_comment);
+  free(universe->substrate_atom);
+  free(universe->meta_solvent_name);
+  free(universe->meta_solvent_author);
+  free(universe->meta_solvent_comment);
+  free(universe->solvent_atom);
   free(universe->atom);
 }
 
@@ -422,10 +577,10 @@ universe_t *universe_printstate(universe_t *universe)
   size_t i; /* Iterator */
 
   /* Print in the .xyz */
-  fprintf(universe->output_file, "%ld\n%ld\n", universe->atom_nb, universe->iterations);
+  fprintf(universe->file_output, "%ld\n%ld\n", universe->atom_nb, universe->iterations);
   for (i=0; i<(universe->atom_nb); ++i)
   {
-    fprintf(universe->output_file,
+    fprintf(universe->file_output,
             "%s\t%lf\t%lf\t%lf\n",
             model_symbol(universe->atom[i].element),
             universe->atom[i].pos.x*1E10,
@@ -652,14 +807,21 @@ universe_t *universe_parameters_print(universe_t *universe, const args_t *args)
   
   /* Print some useful information */
   puts(TEXT_INFO_REFERENCE);
-  printf(TEXT_INFO_THREADS, NUM_THREADS);
-  printf(TEXT_INFO_PATH, args->path);
-  printf(TEXT_INFO_NAME, universe->meta_name);
-  printf(TEXT_INFO_AUTHOR, universe->meta_author);
-  printf(TEXT_INFO_COMMENT, universe->meta_comment);
-  printf(TEXT_INFO_REF_ATOM_NB, universe->ref_atom_nb);
-  printf(TEXT_INFO_REF_BOND_NB, universe->ref_bond_nb);
-  printf("\n");
+  printf(TEXT_INFO_PATH, args->path_substrate);
+  printf(TEXT_INFO_NAME, universe->meta_substrate_name);
+  printf(TEXT_INFO_AUTHOR, universe->meta_substrate_author);
+  printf(TEXT_INFO_COMMENT, universe->meta_substrate_comment);
+  printf(TEXT_INFO_REF_ATOM_NB, universe->substrate_atom_nb);
+  printf(TEXT_INFO_REF_BOND_NB, universe->substrate_bond_nb);
+  puts("\n");
+  puts(TEXT_INFO_REFERENCE_SOLVENT);
+  printf(TEXT_INFO_PATH, args->path_solvent);
+  printf(TEXT_INFO_NAME, universe->meta_solvent_name);
+  printf(TEXT_INFO_AUTHOR, universe->meta_solvent_author);
+  printf(TEXT_INFO_COMMENT, universe->meta_solvent_comment);
+  printf(TEXT_INFO_REF_ATOM_NB, universe->solvent_atom_nb);
+  printf(TEXT_INFO_REF_BOND_NB, universe->solvent_bond_nb);
+  puts("\n");
   puts(TEXT_INFO_SIMULATION);
   printf(TEXT_INFO_SYS_COPIES, universe->copy_nb);
   printf(TEXT_INFO_ATOMS, universe->atom_nb);
