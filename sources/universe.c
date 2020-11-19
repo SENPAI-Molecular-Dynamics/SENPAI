@@ -476,6 +476,7 @@ void universe_clean(universe_t *universe)
 
   /* Close the file pointers */
   fclose(universe->file_substrate);
+  fclose(universe->file_solvent);
   fclose(universe->file_output);
 
   /* Free allocated memory */
