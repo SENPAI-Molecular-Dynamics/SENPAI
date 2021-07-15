@@ -229,7 +229,7 @@ universe_t *atom_enforce_pbc(universe_t *universe, const uint64_t atom_id)
 }
 
 /* Returns 0 if a1 is not bonded to a2, returns 1 if it is bonded to a2 */
-int atom_is_bonded(universe_t *universe, const uint8_t a1, const uint8_t a2)
+int atom_is_bonded(universe_t *universe, const uint64_t a1, const uint64_t a2)
 {
   atom_t *atom_1;
   size_t i;

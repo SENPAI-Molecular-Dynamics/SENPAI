@@ -131,7 +131,7 @@ struct universe_s
 /* The following functions operate on the atom_s structure */
 void        atom_init(atom_t *atom);
 void        atom_clean(atom_t *atom);
-int         atom_is_bonded(universe_t *universe, const uint8_t a1, const uint8_t a2);
+int         atom_is_bonded(universe_t *universe, const uint64_t a1, const uint64_t a2);
 universe_t *atom_update_frc_numerical(universe_t *universe, const uint64_t atom_id);
 universe_t *atom_update_frc_analytical(universe_t *universe, const uint64_t atom_id);
 universe_t *atom_update_acc(universe_t *universe, const uint64_t atom_id);
