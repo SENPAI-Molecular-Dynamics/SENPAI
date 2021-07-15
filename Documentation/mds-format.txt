@@ -1,0 +1,77 @@
+######################################
+# MDS - Molecular Dynamics Substrate #
+######################################
+#                                    #
+# Version history                    #
+# * 14-04-2021 Removed LJ params     #
+# * 13-04-2021 initial release       #
+#                                    #
+# Contributors                       #
+# * MURGIA Sasha                     #
+#                                    #
+######################################
+
+1. SCOPE
+  The MDS file format is used to store information regarding a substrate.
+
+2. FILE EXTENSION
+  The file extension for an MDS file is .mds
+  Files following the MDS standard must have
+  their name terminate with .mds
+
+3. FILE CONTENT
+  An MDS file contains:
+  * The substrate name
+  * The file author
+  * A description of the substrate
+  * A "atom" block
+  * A "bond" block
+  * A "file end" marker
+
+4. FILE STRUCTURE
+  MDS files are parsed line by line.
+  LINE 1:
+    * Contains the substrate name.
+    * Formatted as `<string>`
+      * The string is the whole line
+  LINE 2:
+    * Contains the file author's identity.
+    * Formatted as `<string>`
+      * The string is the whole line
+  LINE 3:
+    * Contains a description of the substrate
+    * Formatted as `<string>`
+      * The string is the whole line
+  LINE 4:
+    * Contains information regarding the atom and bond count.
+    * Formatted as `<int> <int>`
+      * The first integer is the total number of atoms in the substrate.
+      * The second integer is the total number of bonds between atoms.
+  LINES 5 TO (5+ATOM_NUMBER-1):
+    * Contain information regarding each atom in the system.
+    * The atoms are assigned an ID based on the order on their lines.
+      * The first atom line defines an atom with ID '1', second line ID '2', etc.
+    * Formatted as `<double> <double> <double> <int> <double>`
+      * The first three variables refer to the X Y Z coordinates of the atom
+      * The first integer refers to the atom ID
+        * The atom ID is defined by an MDM file
+      * The next <double> refer to the electric charge (unit: C.e-1)
+  LINES (5+ATOM_NUMBER) TO (5+ATOM_NUMBER+BOND_NUMBER-1)
+    * Contain information regarding the bonds between the defined atoms
+    * The bonds are treated as modeled as newtonian undamped harmonic oscillators
+    * Formatted as `<int> <int> <double`
+      * The two <int> refer to the bound atoms
+      * The <double> refers to the Hooke constant
+  LINE (5+ATOM_NUMBER+BOND_NUMBER)
+
+5. EXAMPLE FILE
+
+Water
+MURGIA Sasha <sasha.murgia@protonmail.ch>
+A single water molecule
+3 2
+0.0000    0.0000    0.0000 18   -0.82  0.650  3.166
+0.2774    0.8929    0.2544 2    +0.41  0.0    0.0
+0.6068   -0.2383   -0.7169 2    +0.41  0.0    0.0
+1  2 585.5
+1  3 585.5

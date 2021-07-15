@@ -1,7 +1,7 @@
 /*
  * force.c
  *
- * Licensed under MIT license
+ * Licensed under GPLv3 license
  *
  */
 
@@ -14,7 +14,7 @@
 #include "universe.h"
 #include "util.h"
 
-universe_t *force_bond(vec3d_t *frc, universe_t *universe, const size_t a1, const size_t a2)
+universe_t *force_bond(vec3_t *frc, universe_t *universe, const size_t a1, const size_t a2)
 {
   atom_t *atom_1;
   atom_t *atom_2;
@@ -25,24 +25,30 @@ universe_t *force_bond(vec3d_t *frc, universe_t *universe, const size_t a1, cons
   double force;
   int bond_id;
   double dst;
-  vec3d_t vec;
+  vec3_t vec;
 
   /* Makes the code easier to read */
   atom_1 = &(universe->atom[a1]);
   atom_2 = &(universe->atom[a2]);
 
   /* Get the distance between the atoms */
-  vec3d_sub(&vec, &(atom_2->pos), &(atom_1->pos));
-  dst = vec3d_mag(&vec);
+  vec3_sub(&vec, &(atom_2->pos), &(atom_1->pos));
+  dst = vec3_mag(&vec);
 
   /* Turn it into its unit vector */
-  if (vec3d_unit(&vec, &vec) == NULL)
+  if (vec3_unit(&vec, &vec) == NULL)
+  {
     return (retstr(NULL, TEXT_FORCE_BOND_FAILURE, __FILE__, __LINE__));
+  }
 
   /* Find the bond id */
   for (bond_id=0; bond_id<(atom_1->bond_nb); ++bond_id)
+  {
     if (atom_1->bond[bond_id] == a2)
+    {
       break;
+    }
+  }
 
   /* Compute the displacement */
   radius_a1 = model_covalent_radius(atom_1->element);
@@ -52,39 +58,41 @@ universe_t *force_bond(vec3d_t *frc, universe_t *universe, const size_t a1, cons
   /* Compute the force vector */
   spring_constant = atom_1->bond_strength[bond_id];
   force = spring_constant * displacement;
-  vec3d_mul(frc, &vec, force);
+  vec3_mul(frc, &vec, force);
 
   return (universe);
 }
 
-universe_t *force_electrostatic(vec3d_t *frc, universe_t *universe, const size_t a1, const size_t a2)
+universe_t *force_electrostatic(vec3_t *frc, universe_t *universe, const size_t a1, const size_t a2)
 {
   atom_t *atom_1;
   atom_t *atom_2;
   double force;
   double dst;
-  vec3d_t vec;
+  vec3_t vec;
 
   /* Makes the code easier to read */
   atom_1 = &(universe->atom[a1]);
   atom_2 = &(universe->atom[a2]);
 
   /* Get the distance between the atoms */
-  vec3d_sub(&vec, &(atom_2->pos), &(atom_1->pos));
-  dst = vec3d_mag(&vec);
+  vec3_sub(&vec, &(atom_2->pos), &(atom_1->pos));
+  dst = vec3_mag(&vec);
 
   /* Turn it into its unit vector */
-  if (vec3d_unit(&vec, &vec) == NULL)
+  if (vec3_unit(&vec, &vec) == NULL)
+  {
     return (retstr(NULL, TEXT_FORCE_BOND_FAILURE, __FILE__, __LINE__));
+  }
 
   /* Compute the force vector */
   force = -(atom_1->charge * atom_2->charge) / (4*M_PI*C_VACUUMPERM*POW2(dst));
-  vec3d_mul(frc, &vec, force);
+  vec3_mul(frc, &vec, force);
 
   return (universe);
 }
 
-universe_t *force_lennardjones(vec3d_t *frc, universe_t *universe, const size_t a1, const size_t a2)
+universe_t *force_lennardjones(vec3_t *frc, universe_t *universe, const size_t a1, const size_t a2)
 {
   atom_t *atom_1;
   atom_t *atom_2;
@@ -92,7 +100,7 @@ universe_t *force_lennardjones(vec3d_t *frc, universe_t *universe, const size_t 
   double epsilon;
   double force;
   double dst;
-  vec3d_t vec;
+  vec3_t vec;
 
   /* Initialize the resulting force vector */
   frc->x = 0.0;
@@ -105,8 +113,8 @@ universe_t *force_lennardjones(vec3d_t *frc, universe_t *universe, const size_t 
 
   /* Get the distance between the atoms */
   /* Scale it to Angstroms */
-  vec3d_sub(&vec, &(atom_2->pos), &(atom_1->pos));
-  dst = vec3d_mag(&vec);
+  vec3_sub(&vec, &(atom_2->pos), &(atom_1->pos));
+  dst = vec3_mag(&vec);
   dst *= 1E10;
 
   /* Compute the Lennard-Jones parameters
@@ -119,19 +127,21 @@ universe_t *force_lennardjones(vec3d_t *frc, universe_t *universe, const size_t 
   if (dst < LENNARDJONES_CUTOFF*sigma)
   {
     /* Compute the force and scale it to Newtons
-     * TODO: redo the whole f"!@#ng dimensional analysis
-     *       to figure out the coathanger abortion of a
-     *       unit we are converting from.
+     * TODO: idk where I got this constant from
+     *       idk how to find it again
+     *       idk how to make an algorithm to find it again
+     *       if I get rid of it, everything breaks down
+     *       THE CONSTANT IS HERE TO STAY
      */
     force = 48*epsilon*((POW12(sigma)/POW13(dst)) - 0.5*(POW6(sigma)/POW7(dst)));
     force *= 1.66053892103219E-11;
-    vec3d_mul(frc, &vec, force/dst); /* Divide by dst to get the unit vector */
+    vec3_mul(frc, &vec, force/dst); /* Divide by dst to get the unit vector */
   }
 
   return (universe);
 }
 
-universe_t *force_angle(vec3d_t *frc, universe_t *universe, const size_t a1, const size_t a2)
+universe_t *force_angle(vec3_t *frc, universe_t *universe, const size_t a1, const size_t a2)
 {
   /* This function is a bit complex so here is a rundown:
    * a1 is bonded to a2, but a2 can be bonded to more atoms.
@@ -157,11 +167,11 @@ universe_t *force_angle(vec3d_t *frc, universe_t *universe, const size_t a1, con
   double to_ligand_mag; /* Distance from the node to the ligand */
   double torque; /* Torque applied to a1 */
   double force; /* Force applied to a1, derived from the torque */
-  vec3d_t to_current;
-  vec3d_t to_ligand;
-  vec3d_t e_phi;
-  vec3d_t temp;
-  vec3d_t pos_backup;
+  vec3_t to_current;
+  vec3_t to_ligand;
+  vec3_t e_phi;
+  vec3_t temp;
+  vec3_t pos_backup;
   atom_t *current;
   atom_t *ligand;
   atom_t *node;
@@ -178,11 +188,13 @@ universe_t *force_angle(vec3d_t *frc, universe_t *universe, const size_t a1, con
 
   /* If the node has no other ligand, there's nothing to compute */
   if (node->bond_nb == 1)
+  {
     return (universe);
+  }
 
   /* Get the vector going from the node to the current atom and its magnitude */
-  vec3d_sub(&to_current, &(current->pos), &(node->pos));
-  to_current_mag = vec3d_mag(&to_current);
+  vec3_sub(&to_current, &(current->pos), &(node->pos));
+  to_current_mag = vec3_mag(&to_current);
 
   /* For all ligands */
   for (i=0; i<(node->bond_nb); ++i)
@@ -193,56 +205,83 @@ universe_t *force_angle(vec3d_t *frc, universe_t *universe, const size_t a1, con
     if (ligand != NULL && ligand != current)
     {
       /* Get the vector going from the node to the ligand */
-      vec3d_sub(&to_ligand, &(ligand->pos), &(node->pos));
+      vec3_sub(&to_ligand, &(ligand->pos), &(node->pos));
 
       /* PERIODIC BOUNDARY CONDITIONS */
       pos_backup = ligand->pos;
 
       if (to_ligand.x > 0.5*(universe->size))
+      {
         ligand->pos.x -= universe->size;
+      }
+      
       else if (to_ligand.x <= -0.5*(universe->size))
+      {
         ligand->pos.x += universe->size;
+      }
 
       if (to_ligand.y > 0.5*(universe->size))
+      {
         ligand->pos.y -= universe->size;
+      }
+      
       else if (to_ligand.y <= -0.5*(universe->size))
+      {
         ligand->pos.y += universe->size;
+      }
 
       if (to_ligand.z > 0.5*(universe->size))
+      {
         ligand->pos.z -= universe->size;
+      }
+      
       else if (to_ligand.z <= -0.5*(universe->size))
+      {
         ligand->pos.z += universe->size;
+      }
       /* PERIODIC BOUNDARY CONDITIONS */
 
       /* Get its magnitude */
-      to_ligand_mag = vec3d_mag(&to_ligand);
+      to_ligand_mag = vec3_mag(&to_ligand);
 
       /* Compute e_phi
        * I'm trash at maths so here's a tumor involving a double cross product
-       * Feel free to send hate mail at <thomas.murgia@univ-tlse3.fr>
        */
-      if (vec3d_cross(&e_phi, &to_current, &to_ligand) == NULL)
+      if (vec3_cross(&e_phi, &to_current, &to_ligand) == NULL)
+      {
         return (retstr(NULL, TEXT_FORCE_ANGLE_FAILURE, __FILE__, __LINE__));
-      if (vec3d_unit(&e_phi, &e_phi) == NULL)
+      }
+      
+      if (vec3_unit(&e_phi, &e_phi) == NULL)
+      {
         return (retstr(NULL, TEXT_FORCE_ANGLE_FAILURE, __FILE__, __LINE__));
-      if (vec3d_cross(&e_phi, &to_current, &e_phi) == NULL)
+      }
+      
+      if (vec3_cross(&e_phi, &to_current, &e_phi) == NULL)
+      {
         return (retstr(NULL, TEXT_FORCE_ANGLE_FAILURE, __FILE__, __LINE__));
-      if (vec3d_unit(&e_phi, &e_phi) == NULL)
+      }
+      
+      if (vec3_unit(&e_phi, &e_phi) == NULL)
+      {
         return (retstr(NULL, TEXT_FORCE_ANGLE_FAILURE, __FILE__, __LINE__));
+      }
 
       /* Get the current angle */
-      angle = acos(vec3d_dot(&to_current, &to_ligand)/(to_current_mag*to_ligand_mag));
+      angle = acos(vec3_dot(&to_current, &to_ligand)/(to_current_mag*to_ligand_mag));
       if (angle > 2*(angle_eq))
+      {
         angle = fmod(angle, angle_eq);
+      }
 
       /* Compute the force */
       angular_displacement = angle - angle_eq;
       torque = -C_AHO*angular_displacement;
       force = torque/to_current_mag;
-      vec3d_mul(&temp, &e_phi, force);
+      vec3_mul(&temp, &e_phi, force);
 
       /* Sum it */
-      vec3d_add(frc, frc, &temp);
+      vec3_add(frc, frc, &temp);
 
       /* Restore the backup coordinates */
       ligand->pos = pos_backup;
@@ -252,15 +291,15 @@ universe_t *force_angle(vec3d_t *frc, universe_t *universe, const size_t a1, con
   return (universe);
 }
 
-universe_t *force_total(vec3d_t *frc, universe_t *universe, const size_t atom_id)
+universe_t *force_total(vec3_t *frc, universe_t *universe, const size_t atom_id)
 {
   size_t i;
-  vec3d_t to_target;
-  vec3d_t pos_backup;
-  vec3d_t vec_bond;
-  vec3d_t vec_electrostatic;
-  vec3d_t vec_lennardjones;
-  vec3d_t vec_angle;
+  vec3_t to_target;
+  vec3_t pos_backup;
+  vec3_t vec_bond;
+  vec3_t vec_electrostatic;
+  vec3_t vec_lennardjones;
+  vec3_t vec_angle;
 
   /* For each atom */
   for (i=0; i<(universe->atom_nb); ++i)
@@ -273,23 +312,38 @@ universe_t *force_total(vec3d_t *frc, universe_t *universe, const size_t atom_id
       pos_backup = universe->atom[i].pos;
 
       /* Get the vector going to the target atom */
-      vec3d_sub(&to_target, &(universe->atom[i].pos), &(universe->atom[atom_id].pos));
+      vec3_sub(&to_target, &(universe->atom[i].pos), &(universe->atom[atom_id].pos));
 
       /* Temporarily undo the PBC enforcement, if needed */
       if (to_target.x > 0.5*(universe->size))
+      {
         universe->atom[i].pos.x -= universe->size;
+      }
+
       else if (to_target.x <= -0.5*(universe->size))
+      {
         universe->atom[i].pos.x += universe->size;
+      }
 
       if (to_target.y > 0.5*(universe->size))
+      {
         universe->atom[i].pos.y -= universe->size;
+      }
+      
       else if (to_target.y <= -0.5*(universe->size))
+      {
         universe->atom[i].pos.y += universe->size;
+      }
 
       if (to_target.z > 0.5*(universe->size))
+      {
         universe->atom[i].pos.z -= universe->size;
+      }
+      
       else if (to_target.z <= -0.5*(universe->size))
+      {
         universe->atom[i].pos.z += universe->size;
+      }
       /* PERIODIC BOUNDARY CONDITIONS */
 
       /* Bonded interractions */
@@ -297,13 +351,18 @@ universe_t *force_total(vec3d_t *frc, universe_t *universe, const size_t atom_id
       {
         /* Compute the forces */
         if (force_bond(&vec_bond, universe, atom_id, i) == NULL)
+        {
           return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__));
+        }
+        
         if (force_angle(&vec_angle, universe, atom_id, i) == NULL)
+        {
           return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__));
+        }
 
         /* Sum the forces */
-        vec3d_add(frc, frc, &vec_bond);
-        vec3d_add(frc, frc, &vec_angle);
+        vec3_add(frc, frc, &vec_bond);
+        vec3_add(frc, frc, &vec_angle);
       }
 
       /* Non-bonded interractions */
@@ -311,13 +370,18 @@ universe_t *force_total(vec3d_t *frc, universe_t *universe, const size_t atom_id
       {
         /* Compute the forces */
         if (force_electrostatic(&vec_electrostatic, universe, atom_id, i) == NULL)
+        {
           return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__));
+        }
+        
         if (force_lennardjones(&vec_lennardjones, universe, atom_id, i) == NULL)
+        {
           return (retstr(NULL, TEXT_FORCE_TOTAL_FAILURE, __FILE__, __LINE__));
+        }
 
         /* Sum the forces */
-        vec3d_add(frc, frc, &vec_electrostatic);
-        vec3d_add(frc, frc, &vec_lennardjones);
+        vec3_add(frc, frc, &vec_electrostatic);
+        vec3_add(frc, frc, &vec_lennardjones);
       }
       /* Restore the backup coordinates */
       universe->atom[i].pos = pos_backup;

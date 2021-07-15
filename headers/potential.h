@@ -1,7 +1,7 @@
 /*
  * potential.h
  *
- * Licensed under MIT license
+ * Licensed under GPLv3 license
  *
  */
 

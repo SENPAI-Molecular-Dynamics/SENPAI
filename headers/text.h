@@ -1,7 +1,7 @@
 /*
  * text.h
  *
- * Licensed under MIT license
+ * Licensed under GPLv3 license
  *
  */
 
@@ -17,9 +17,10 @@
                     " | (___ | |__  |  \\| | |__) /  \\    | |  \n"\
                     "  \\___ \\|  __| | . ` |  ___/ /\\ \\   | |  \n"\
                     "  ____) | |____| |\\  | |  / ____ \\ _| |_ \n"\
-                    " |_____/|______|_| \\_|_| /_/    \\_\\_____|  Simplified Evolutive N-body Processing and Analytics for Integration\n\n"\
-					"<< 2018-2019 Sasha MURGIA - SENPAI and its source code are licensed under the terms of the MIT license >>\n" \
-					"<< sashamurgia@protonmail.ch | https://github.com/Garuda1/senpai >> \n"
+                    " |_____/|______|_| \\_|_| /_/    \\_\\_____|\n\n" \
+                    "Simplified Evolutive N-body Processing and Analytics for Integration\n\n"\
+                    "<< 2018-2021 Sasha MURGIA - SENPAI and its source code are licensed under the terms of the GPLv3 license >>\n" \
+                    "<< sashamurgia@protonmail.ch | https://github.com/Garuda1/senpai >> \n"
 
 
 #define TEXT_FAILURE                           "[" COLOUR_RED "FAILURE" COLOUR_RESET "] "
@@ -31,7 +32,8 @@
 /* args.c */
 #define TEXT_ARG_INVALIDARG                    TEXT_FAILURE "args_init: Unknown argument (\"%s\"). Did you read README.md?\n"
 #define TEXT_ARGS_INIT_FAILURE                 TEXT_FAILURE "args_init: Argument initialisation failed"
-#define TEXT_ARGS_PARSE_FAILURE                TEXT_FAILURE "argse_parse: Arguments couldn't be parsed"
+#define TEXT_ARGS_PARSE_FAILURE                TEXT_FAILURE "args_parse: Arguments couldn't be parsed"
+#define TEXT_ARGS_MODEL_FAILURE                TEXT_FAILURE "args_model: Invalid model path..."
 #define TEXT_ARGS_SUBSTRATE_FAILURE            TEXT_FAILURE "args_check: Invalid substrate path..."
 #define TEXT_ARGS_SOLVENT_FAILURE              TEXT_FAILURE "args_solvent: Invalid solvent path..."
 #define TEXT_ARGS_OUT_PATH_FAILURE             TEXT_FAILURE "args_check: Invalid output path..."
@@ -53,6 +55,9 @@
 /* main.c */
 #define TEXT_MAIN_FAILURE                      TEXT_FAILURE "SENPAI failed to execute properly"
 
+/* model.c */
+#define TEXT_MODEL_ENTRY_INIT_FAILURE          TEXT_FAILURE "model_entry_init: Failed to initialize a model entry"
+
 /* atom.c */
 #define TEXT_ATOM_UPDATE_FRC_FAILURE           TEXT_FAILURE "atom_update_frc: Failed to update an atom's force"
 #define TEXT_ATOM_UPDATE_ACC_FAILURE           TEXT_FAILURE "atom_update_acc: Failed to update an atom's acceleration"
@@ -67,18 +72,19 @@
 #define TEXT_POTENTIAL_TOTAL_FAILURE           TEXT_FAILURE "potential_total: Failed to compute total potential energy"
 
 /* universe.c */
-#define TEXT_INFO_BORDER                                    "+---------------------+"
-#define TEXT_INFO_REFERENCE                TEXT_INFO_BORDER "\n|      SUBSTRATE      |\n" TEXT_INFO_BORDER
-#define TEXT_INFO_REFERENCE_SOLVENT        TEXT_INFO_BORDER "\n|       SOLVENT       |\n" TEXT_INFO_BORDER
+#define TEXT_INFO_BORDER                                      "+---------------------+"
+#define TEXT_INFO_MODEL                    TEXT_INFO_BORDER "\n|        MODEL        |\n" TEXT_INFO_BORDER
+#define TEXT_INFO_SUBSTRATE                TEXT_INFO_BORDER "\n|      SUBSTRATE      |\n" TEXT_INFO_BORDER
+#define TEXT_INFO_SOLVENT                  TEXT_INFO_BORDER "\n|       SOLVENT       |\n" TEXT_INFO_BORDER
 #define TEXT_INFO_SIMULATION               TEXT_INFO_BORDER "\n|      UNIVERSE       |\n" TEXT_INFO_BORDER
 #define TEXT_INFO_PATH                                      "Path...................%s\n"
 #define TEXT_INFO_NAME                                      "Name...................%s\n"
 #define TEXT_INFO_AUTHOR                                    "Author.................%s\n"
 #define TEXT_INFO_COMMENT                                   "Comment................%s\n"
-#define TEXT_INFO_REF_ATOM_NB                               "Atoms..................%ld\n"
+#define TEXT_INFO_SUBSTRATE_ATOM_NB                         "Atoms..................%ld\n"
 #define TEXT_INFO_REF_BOND_NB                               "Bonds..................%ld\n"
-#define TEXT_INFO_SYS_COPIES                                "Duplicates to simulate.%ld\n"
-#define TEXT_INFO_ATOMS                                     "Atoms..................%ld\n"
+#define TEXT_INFO_SUBSTRATE_COPIES                          "Duplicates to simulate.%ld\n"
+#define TEXT_INFO_ATOM_NB                                   "Atoms..................%ld\n"
 #define TEXT_INFO_TEMPERATURE                               "Temperature............%lf K\n"
 #define TEXT_INFO_PRESSURE                                  "Pressure...............%lf hPa\n"
 #define TEXT_INFO_DENSITY                                   "Density................%lf g.cm-3\n"
@@ -102,15 +108,17 @@
 #define TEXT_UNIVERSE_REDUCEPOT_FINE_FAILURE   TEXT_FAILURE "universe_reducepot_fine: Failed to lower the system's potential"
 #define TEXT_UNIVERSE_PARAMETERS_PRINT_FAILURE TEXT_FAILURE "universe_parameters_print: Failed to print the simulation parameters"
 
-/* vec3d.c */
-#define TEXT_VEC3D_ADD_FAILURE                 TEXT_FAILURE "vec3d_add: Failed to perform vector addition"
-#define TEXT_VEC3D_SUB_FAILURE                 TEXT_FAILURE "vec3d_sub: Failed to perform vector substraction"
-#define TEXT_VEC3D_MUL_FAILURE                 TEXT_FAILURE "vec3d_mul: Failed to perform vector multiplication"
-#define TEXT_VEC3D_DIV_FAILURE                 TEXT_FAILURE "vec3d_div: Failed to perform vector division"
-#define TEXT_VEC3D_DOT_FAILURE                 TEXT_FAILURE "vec3d_dot: Failed to perform dot product"
-#define TEXT_VEC3D_MAG_FAILURE                 TEXT_FAILURE "vec3d_mag: Failed to compute vector magnitude"
-#define TEXT_VEC3D_CROSS_FAILURE               TEXT_FAILURE "vec3d_cross: Failed to perform cross product"
-#define TEXT_VEC3D_UNIT_FAILURE                TEXT_FAILURE "vec3d_unit: Failed to compute unit vector"
-#define TEXT_VEC3D_MARSAGLIA_FAILURE           TEXT_FAILURE "vec3d_marsaglia: Failed to generate random unit vector"
+/* vec3.c */
+#define TEXT_VEC3_ADD_FAILURE                 TEXT_FAILURE "vec3_add: Failed to perform vector addition"
+#define TEXT_VEC3_SUB_FAILURE                 TEXT_FAILURE "vec3_sub: Failed to perform vector substraction"
+#define TEXT_VEC3_MUL_FAILURE                 TEXT_FAILURE "vec3_mul: Failed to perform vector multiplication"
+#define TEXT_VEC3_DIV_FAILURE                 TEXT_FAILURE "vec3_div: Failed to perform vector division"
+#define TEXT_VEC3_DOT_FAILURE                 TEXT_FAILURE "vec3_dot: Failed to perform dot product"
+#define TEXT_VEC3_MAG_FAILURE                 TEXT_FAILURE "vec3_mag: Failed to compute vector magnitude"
+#define TEXT_VEC3_CROSS_FAILURE               TEXT_FAILURE "vec3_cross: Failed to perform cross product"
+#define TEXT_VEC3_UNIT_FAILURE                TEXT_FAILURE "vec3_unit: Failed to compute unit vector"
+#define TEXT_VEC3_MARSAGLIA_FAILURE           TEXT_FAILURE "vec3_marsaglia: Failed to generate random unit vector"
+
+#define TEXT_MAT3_TRANS_GEN_ROT_FAILURE       TEXT_FAILURE "mat3_transform_gen_rot: Failed to generate random rotation transform matrix"
 
 #endif
