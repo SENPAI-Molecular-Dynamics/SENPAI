@@ -14,7 +14,7 @@
 #include "universe.h"
 #include "util.h"
 
-universe_t *force_bond(vec3_t *frc, universe_t *universe, const size_t a1, const size_t a2)
+universe_t *force_bond(vec3_t *frc, universe_t *universe, const uint64_t a1, const uint64_t a2)
 {
   atom_t *atom_1;
   atom_t *atom_2;
@@ -63,7 +63,7 @@ universe_t *force_bond(vec3_t *frc, universe_t *universe, const size_t a1, const
   return (universe);
 }
 
-universe_t *force_electrostatic(vec3_t *frc, universe_t *universe, const size_t a1, const size_t a2)
+universe_t *force_electrostatic(vec3_t *frc, universe_t *universe, const uint64_t a1, const uint64_t a2)
 {
   atom_t *atom_1;
   atom_t *atom_2;
@@ -92,7 +92,7 @@ universe_t *force_electrostatic(vec3_t *frc, universe_t *universe, const size_t 
   return (universe);
 }
 
-universe_t *force_lennardjones(vec3_t *frc, universe_t *universe, const size_t a1, const size_t a2)
+universe_t *force_lennardjones(vec3_t *frc, universe_t *universe, const uint64_t a1, const uint64_t a2)
 {
   atom_t *atom_1;
   atom_t *atom_2;
@@ -141,7 +141,7 @@ universe_t *force_lennardjones(vec3_t *frc, universe_t *universe, const size_t a
   return (universe);
 }
 
-universe_t *force_angle(vec3_t *frc, universe_t *universe, const size_t a1, const size_t a2)
+universe_t *force_angle(vec3_t *frc, universe_t *universe, const uint64_t a1, const uint64_t a2)
 {
   /* This function is a bit complex so here is a rundown:
    * a1 is bonded to a2, but a2 can be bonded to more atoms.
@@ -291,9 +291,9 @@ universe_t *force_angle(vec3_t *frc, universe_t *universe, const size_t a1, cons
   return (universe);
 }
 
-universe_t *force_total(vec3_t *frc, universe_t *universe, const size_t atom_id)
+universe_t *force_total(vec3_t *frc, universe_t *universe, const uint64_t atom_id)
 {
-  size_t i;
+  uint64_t i;
   vec3_t to_target;
   vec3_t pos_backup;
   vec3_t vec_bond;

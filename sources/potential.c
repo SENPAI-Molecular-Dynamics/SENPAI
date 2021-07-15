@@ -16,7 +16,7 @@
 #include "util.h"
 #include "vec3.h"
 
-universe_t *potential_bond(double *pot, universe_t *universe, const size_t a1, const size_t a2)
+universe_t *potential_bond(double *pot, universe_t *universe, const uint64_t a1, const uint64_t a2)
 {
   atom_t *atom_1;
   atom_t *atom_2;
@@ -57,7 +57,7 @@ universe_t *potential_bond(double *pot, universe_t *universe, const size_t a1, c
   return (universe);
 }
 
-universe_t *potential_electrostatic(double *pot, universe_t *universe, const size_t a1, const size_t a2)
+universe_t *potential_electrostatic(double *pot, universe_t *universe, const uint64_t a1, const uint64_t a2)
 {
   atom_t *atom_1;
   atom_t *atom_2;
@@ -82,7 +82,7 @@ universe_t *potential_electrostatic(double *pot, universe_t *universe, const siz
   return (universe);
 }
 
-universe_t *potential_lennardjones(double *pot, universe_t *universe, const size_t a1, const size_t a2)
+universe_t *potential_lennardjones(double *pot, universe_t *universe, const uint64_t a1, const uint64_t a2)
 {
   atom_t *atom_1;
   atom_t *atom_2;
@@ -129,7 +129,7 @@ universe_t *potential_lennardjones(double *pot, universe_t *universe, const size
   return (universe);
 }
 
-universe_t *potential_angle(double *pot, universe_t *universe, const size_t a1, const size_t a2)
+universe_t *potential_angle(double *pot, universe_t *universe, const uint64_t a1, const uint64_t a2)
 {
   /* This function is a bit complex so here is a rundown:
    * a1 is bonded to a2, but a2 can be bonded to more atoms.
@@ -228,7 +228,7 @@ universe_t *potential_angle(double *pot, universe_t *universe, const size_t a1, 
   return (universe);
 }
 
-universe_t *potential_total(double *pot, universe_t *universe, const size_t atom_id)
+universe_t *potential_total(double *pot, universe_t *universe, const uint64_t atom_id)
 {
   size_t i;
   vec3_t to_target;
