@@ -136,6 +136,9 @@ args_t *args_parse(args_t *args, int argc, char **argv)
       args->numerical = MODE_NUMERICAL;
     }
 
+    else if (!strcmp(argv[i], FLAG_NUMERICAL_TETRA))
+      args->numerical = MODE_NUMERICAL_TETRA;
+
     else if (!strcmp(argv[i], FLAG_TIME) && (i+1)<argc)
     {
       args->max_time = atof(argv[++i]);

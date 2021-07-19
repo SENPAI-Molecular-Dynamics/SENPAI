@@ -64,8 +64,9 @@
  * as of the writing of this line, it makes no sense to use the numerical mode
  * as the analytical mode provides a ~6x speedup and accuracy improvement.
  */
-#define MODE_ANALYTICAL 0
-#define MODE_NUMERICAL  1
+#define MODE_ANALYTICAL          0
+#define MODE_NUMERICAL           1
+#define MODE_NUMERICAL_TETRA     2
 
 /* SIMULATION PARAMETERS
  *

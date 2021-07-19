@@ -11,6 +11,7 @@
 #include <stdint.h>
 
 #define FLAG_NUMERICAL  "--numerical"
+#define FLAG_NUMERICAL_TETRA  "--numerical-tetra"
 #define FLAG_SUBSTRATE  "--substrate"
 #define FLAG_OUTPUT     "--out"
 #define FLAG_TIMESTEP   "--dt"

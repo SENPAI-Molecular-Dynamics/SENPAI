@@ -664,6 +664,14 @@ universe_t *universe_iterate(universe_t *universe, const args_t *args)
     }
   }
 
+  /* By numerically differentiating the potential energy using points in a tetrahedron... */
+  if (args->numerical == MODE_NUMERICAL_TETRA)
+  {
+    for (i=0; i<(universe->atom_nb); ++i)
+      if (atom_update_frc_numerical_tetrahedron(universe, i) == NULL)
+        return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+  }
+
   /* Or analytically solving for force */
   else
   {
