@@ -100,6 +100,59 @@ universe_t *atom_update_frc_numerical(universe_t *universe, const uint64_t atom_
   return (universe);
 }
 
+/* Get the force through numerical differentiation in a tetrahedron */
+universe_t *atom_update_frc_numerical_tetrahedron(universe_t *universe, const uint64_t atom_id)
+{
+  double potential_000;
+  double potential_110;
+  double potential_011;
+  double potential_101;
+  double hx;
+  double hy;
+  double hz;
+
+  /* Reset the force vector */
+  universe->atom[atom_id].frc.x = 0.0;
+  universe->atom[atom_id].frc.y = 0.0;
+  universe->atom[atom_id].frc.z = 0.0;
+
+  /* I'm not entirely sure why these are multiplied by the position, but this is how the other numerical differentiation does h */
+  hx = ROOT_MACHINE_EPSILON * (universe->atom[atom_id].pos.x);
+  hy = ROOT_MACHINE_EPSILON * (universe->atom[atom_id].pos.y);
+  hz = ROOT_MACHINE_EPSILON * (universe->atom[atom_id].pos.z);
+
+  /* Calculate potentials for each of the corners of the tetrahedron */
+  universe->atom[atom_id].pos.x -= hx;
+  universe->atom[atom_id].pos.y -= hy;
+  universe->atom[atom_id].pos.z -= hz;
+  if (potential_total(&potential_000, universe, atom_id) == NULL)
+    return (retstr(NULL, TEXT_ATOM_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
+
+  universe->atom[atom_id].pos.x += 2*hx;
+  universe->atom[atom_id].pos.y += 2*hy;
+  if (potential_total(&potential_110, universe, atom_id) == NULL)
+    return (retstr(NULL, TEXT_ATOM_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
+
+  universe->atom[atom_id].pos.x -= 2*hx;
+  universe->atom[atom_id].pos.z += 2*hz;
+  if (potential_total(&potential_011, universe, atom_id) == NULL)
+    return (retstr(NULL, TEXT_ATOM_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
+
+  universe->atom[atom_id].pos.x += 2*hx;
+  universe->atom[atom_id].pos.y -= 2*hy;
+  if (potential_total(&potential_101, universe, atom_id) == NULL)
+    return (retstr(NULL, TEXT_ATOM_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
+
+  universe->atom[atom_id].frc.x = -(potential_110 + potential_101 - potential_000 - potential_011)/(4*hx);
+  universe->atom[atom_id].frc.y = -(potential_110 + potential_011 - potential_000 - potential_101)/(4*hy);
+  universe->atom[atom_id].frc.z = -(potential_101 + potential_011 - potential_000 - potential_110)/(4*hz);
+  universe->atom[atom_id].pos.x -= hx;
+  universe->atom[atom_id].pos.y -= hy;
+  universe->atom[atom_id].pos.z -= hz;
+
+  return (universe);
+}
+
 /* Get the force through analytical solving */
 universe_t *atom_update_frc_analytical(universe_t *universe, const uint64_t atom_id)
 {

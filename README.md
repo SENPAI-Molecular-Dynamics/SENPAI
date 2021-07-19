@@ -48,6 +48,8 @@ Options:
 
 - `--numerical` Configures the simulation to use numerical differentiation of the potential energy (defaults to analytical solving)
 
+- `--numerical-tetra` is similar to `--numerical`, but numerical differentiation uses points in a tetrahedron instead of points in an octahedron.
+
 - `--time t` Specifies the simulation duration (ns) (defaults to `1ns`)
 
 - `--dt t` Specifies the timestep (fs) (defaults to `1 fs`)
