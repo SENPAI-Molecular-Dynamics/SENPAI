@@ -72,6 +72,8 @@ Options:
 
 - `--reduce_potential` Reduces the potential energy to the provided value (pJ) or lower (defaults to 10 pJ)
 
+- `--srand` Specifies an integer seed for randomization.  If the seed is not specified, the program will default to a random-enough seed.
+
 ## Example use
 
 `$ ./senpai.bin --in examples/DES.mol --solvent examples/water.mol --out render.xyz`
