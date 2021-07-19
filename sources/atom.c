@@ -176,7 +176,7 @@ universe_t *atom_update_frc_numerical_tetrahedron(universe_t *universe, const ui
   universe->atom[atom_id].frc.y = -(potential_110 + potential_011 - potential_000 - potential_101)/(4*hy);
   universe->atom[atom_id].frc.z = -(potential_101 + potential_011 - potential_000 - potential_110)/(4*hz);
   universe->atom[atom_id].pos.x -= hx;
-  universe->atom[atom_id].pos.y -= hy;
+  universe->atom[atom_id].pos.y += hy;
   universe->atom[atom_id].pos.z -= hz;
 
   return (universe);
