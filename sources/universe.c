@@ -1,10 +1,11 @@
 /*
  * universe.c
  *
- * Licensed under MIT license
+ * Licensed under GPLv3 license
  *
  */
 
+#include <inttypes.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -14,7 +15,7 @@
 #include "args.h"
 #include "model.h"
 #include "text.h"
-#include "vec3d.h"
+#include "vec3.h"
 #include "util.h"
 #include "universe.h"
 #include "potential.h"
@@ -29,31 +30,45 @@ universe_t *universe_init(universe_t *universe, const args_t *args)
   double universe_mass;        /* Total mass of the universe */
 
   /* Initialize the structure variables */
-  universe->meta_substrate_name = NULL;
-  universe->meta_substrate_author = NULL;
-  universe->meta_substrate_comment = NULL;
-  universe->substrate_atom_nb = 0;
-  universe->substrate_bond_nb = 0;
-  universe->meta_solvent_name = NULL;
-  universe->meta_solvent_author = NULL;
-  universe->meta_solvent_comment = NULL;
-  universe->solvent_atom_nb = 0;
-  universe->solvent_bond_nb = 0;
+  universe->file_output = UNIVERSE_FILE_OUTPUT_DEFAULT;
+  universe->file_substrate = UNIVERSE_FILE_SUBSTRATE_DEFAULT;
+  universe->file_solvent = UNIVERSE_FILE_SOLVENT_DEFAULT;
+  universe->meta_substrate_name = UNIVERSE_META_SUBSTRATE_NAME_DEFAULT;
+  universe->meta_substrate_author = UNIVERSE_META_SUBSTRATE_AUTHOR_DEFAULT;
+  universe->meta_substrate_comment = UNIVERSE_META_SUBSTRATE_COMMENT_DEFAULT;
+  universe->meta_solvent_name = UNIVERSE_META_SOLVENT_NAME_DEFAULT;
+  universe->meta_solvent_author = UNIVERSE_META_SOLVENT_AUTHOR_DEFAULT;
+  universe->meta_solvent_comment = UNIVERSE_META_SOLVENT_COMMENT_DEFAULT;
+  universe->substrate_atom_nb = UNIVERSE_SUBSTRATE_ATOM_NB_DEFAULT;
+  universe->substrate_bond_nb = UNIVERSE_SUBSTRATE_BOND_NB_DEFAULT;
+  universe->substrate_atom = UNIVERSE_SUBSTRATE_ATOM_DEFAULT;
+  universe->solvent_atom_nb = UNIVERSE_SOLVENT_ATOM_NB_DEFAULT;
+  universe->solvent_bond_nb = UNIVERSE_SOLVENT_BOND_NB_DEFAULT;
+  universe->solvent_atom = UNIVERSE_SOLVENT_ATOM_DEFAULT;
+  universe->atom = UNIVERSE_ATOM_DEFAULT;
+  universe->copy_nb = UNIVERSE_COPY_NB_DEFAULT;
+  universe->atom_nb = UNIVERSE_ATOM_NB_DEFAULT;
+  universe->iterations = UNIVERSE_ITERATIONS_DEFAULT;
+  universe->size = UNIVERSE_SIZE_DEFAULT;
+  universe->time = UNIVERSE_TIME_DEFAULT;
+  universe->temperature = UNIVERSE_TEMPERATURE_DEFAULT;
+  universe->pressure = UNIVERSE_PRESSURE_DEFAULT;
+
   universe->copy_nb = args->copies;
-  universe->atom_nb = 0;
-  universe->size = 0.0;
-  universe->time = 0.0;
   universe->temperature = args->temperature;
   universe->pressure = args->pressure;
-  universe->iterations = 0;
 
   /* Open the output file */
   if ((universe->file_output = fopen(args->path_out, "w")) == NULL)
+  {
     return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
+  }
 
   /* Open the substrate file */
   if ((universe->file_substrate = fopen(args->path_substrate, "r")) == NULL)
+  {
     return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
+  }
 
   /* Get the substrate file's size */
   fseek(universe->file_substrate, 0, SEEK_END);
@@ -62,23 +77,31 @@ universe_t *universe_init(universe_t *universe, const args_t *args)
 
   /* Initialize the memory buffer for the substrate file */
   if ((substrate_file_buffer = (char*)malloc(substrate_file_len+1)) == NULL)
+  {
     return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
+  }
 
   /* Load it in the substrate buffer, terminate the string */
   if (fread(substrate_file_buffer, sizeof(char), substrate_file_len, universe->file_substrate) != substrate_file_len)
+  {
     return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
+  }
   substrate_file_buffer[substrate_file_len] = '\0';
 
   /* Load the initial state from the substrate file */
   if (universe_load_substrate(universe, substrate_file_buffer) == NULL)
+  {
     return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
+  }
 
   /* Free the substrate file buffer, we're done */
   free(substrate_file_buffer);
   
   /* Open the solvent file */
   if ((universe->file_solvent  = fopen(args->path_solvent, "r")) == NULL)
+  {
     return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
+  }
 
   /* Get the solvent file's size */
   fseek(universe->file_solvent, 0, SEEK_END);
@@ -87,16 +110,22 @@ universe_t *universe_init(universe_t *universe, const args_t *args)
 
   /* Initialize the memory buffer for the solvent file */
   if ((solvent_file_buffer = (char*)malloc(substrate_file_len+1)) == NULL)
+  {
     return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
+  }
 
   /* Load it in the solvent buffer, terminate the string */
   if (fread(solvent_file_buffer, sizeof(char), solvent_file_len, universe->file_solvent) != solvent_file_len)
+  {
     return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
+  }
   solvent_file_buffer[solvent_file_len] = '\0';
 
   /* Load the initial state from the solvent file */
   if (universe_load_solvent(universe, solvent_file_buffer) == NULL)
+  {
     return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
+  }
 
   /* Free the solvent file buffer, we're done */
   free(solvent_file_buffer);
@@ -106,31 +135,45 @@ universe_t *universe_init(universe_t *universe, const args_t *args)
 
   /* Allocate memory for the atoms */
   if ((universe->atom = malloc (sizeof(atom_t)*(universe->atom_nb))) == NULL)
+  {
     return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
+  }
 
   /* Initialize the atom memory */
   for (i=0; i<(universe->atom_nb); ++i)
+  {
     atom_init(&(universe->atom[i]));
+  }
 
   /* Compute the universe's size from the system density */
   /* size = cbrt(universe_mass / system_density) */
   universe_mass = 0.0;
   for (i=0; i<(universe->substrate_atom_nb); ++i)
+  {
     universe_mass += (args->copies)*model_mass(universe->substrate_atom[i].element);
+  }
   universe->size = cbrt((universe_mass) / (args->density));
 
   /* Populate the universe with extra molecules */
   if (universe_populate(universe) == NULL)
+  {
     return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
+  }
 
   /* Enforce the PBC */
   for (i=0; i<(universe->atom_nb); ++i)
+  {
     if (atom_enforce_pbc(universe, i) == NULL)
+    {
       return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
+    }
+  }
 
   /* Apply initial velocities */
   if (universe_setvelocity(universe) == NULL)
+  {
     return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
+  }
 
   return (universe);
 }
@@ -150,19 +193,25 @@ universe_t *universe_load_substrate(universe_t *universe, char *substrate_file_b
   /* Get the name line and load the system's name from it */
   tok = strtok(substrate_file_buffer, "\n");
   if ((universe->meta_substrate_name = malloc(sizeof(char)*(strlen(tok)+1))) == NULL)
+  {
     return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
+  }
   strcpy(universe->meta_substrate_name, tok);
 
   /* Get the author line and load the author's name from it */
   tok = strtok(NULL, "\n");
   if ((universe->meta_substrate_author = malloc(sizeof(char)*(strlen(tok)+1))) == NULL)
+  {
     return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
+  }
   strcpy(universe->meta_substrate_author, tok);
 
   /* Get the comment line and load the author's comment from it */
   tok = strtok(NULL, "\n");
   if ((universe->meta_substrate_comment = malloc(sizeof(char)*(strlen(tok)+1))) == NULL)
+  {
     return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
+  }
   strcpy(universe->meta_substrate_comment, tok);
 
   /* Get the count line, and the atom/bond nb from it  */
@@ -171,17 +220,21 @@ universe_t *universe_load_substrate(universe_t *universe, char *substrate_file_b
 
   /* Allocate memory for the atoms */
   if ((universe->substrate_atom = malloc (sizeof(atom_t)*(universe->substrate_atom_nb))) == NULL)
+  {
     return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
+  }
 
   /* Initialize the atom memory */
   for (i=0; i<(universe->substrate_atom_nb); ++i)
+  {
     atom_init(&(universe->substrate_atom[i]));
+  }
 
   /* Read the atom block */
   for (i=0; i<(universe->substrate_atom_nb); ++i)
   {
     tok = strtok(NULL, "\n");
-    sscanf(tok, "%lf %lf %lf %hhu %lf %lf %lf",
+    sscanf(tok, "%lf %lf %lf %ld %lf %lf %lf",
            &(universe->substrate_atom[i].pos.x),
            &(universe->substrate_atom[i].pos.y),
            &(universe->substrate_atom[i].pos.z),
@@ -191,7 +244,7 @@ universe_t *universe_load_substrate(universe_t *universe, char *substrate_file_b
            &(universe->substrate_atom[i].sigma));
 
     /* Scale the atom's position vector from Å to m */
-    vec3d_mul(&(universe->substrate_atom[i].pos), &(universe->substrate_atom[i].pos), 1E-10);
+    vec3_mul(&(universe->substrate_atom[i].pos), &(universe->substrate_atom[i].pos), 1E-10);
 
     /* Scale the atom's charge from C.e-1 to C */
     universe->substrate_atom[i].charge *= C_ELEMCHARGE;
@@ -199,14 +252,22 @@ universe_t *universe_load_substrate(universe_t *universe, char *substrate_file_b
 
   /* Allocate memory for the temporary bond information storage */
   if ((a1 = malloc(sizeof(uint64_t) * (universe->substrate_bond_nb))) == NULL)
+  {
     return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
+  }
   if ((a2 = malloc(sizeof(uint64_t) * (universe->substrate_bond_nb))) == NULL)
+  {
     return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
+  }
   if ((bond_strength = malloc(sizeof(double) * (universe->substrate_bond_nb))) == NULL)
+  {
     return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
+  }
   /* Zero the allocated memory */
   if ((bond_index = calloc(universe->substrate_atom_nb, sizeof(uint8_t))) == NULL)
+  {
     return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
+  }
 
   /* Read the bond block and get the number of bonds for each atom */
   for (i=0; i<(universe->substrate_bond_nb); ++i)
@@ -222,11 +283,15 @@ universe_t *universe_load_substrate(universe_t *universe, char *substrate_file_b
   {
     /* For the bond nodes */
     if ((universe->substrate_atom[i].bond = malloc(sizeof(uint64_t) * universe->substrate_atom[i].bond_nb)) == NULL)
+    {
       return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
+    }
 
     /* For the bond strengths */
     if ((universe->substrate_atom[i].bond_strength = malloc(sizeof(double) * universe->substrate_atom[i].bond_nb)) == NULL)
+    {
       return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
+    }
   }
 
   /* Load the bond information */
@@ -269,19 +334,25 @@ universe_t *universe_load_solvent(universe_t *universe, char *solvent_file_buffe
   /* Get the name line and load the system's name from it */
   tok = strtok(solvent_file_buffer, "\n");
   if ((universe->meta_solvent_name = malloc(sizeof(char)*(strlen(tok)+1))) == NULL)
+  {
     return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
+  }
   strcpy(universe->meta_solvent_name, tok);
 
   /* Get the author line and load the author's name from it */
   tok = strtok(NULL, "\n");
   if ((universe->meta_solvent_author = malloc(sizeof(char)*(strlen(tok)+1))) == NULL)
+  {
     return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
+  }
   strcpy(universe->meta_solvent_author, tok);
 
   /* Get the comment line and load the author's comment from it */
   tok = strtok(NULL, "\n");
   if ((universe->meta_solvent_comment = malloc(sizeof(char)*(strlen(tok)+1))) == NULL)
+  {
     return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
+  }
   strcpy(universe->meta_solvent_comment, tok);
 
   /* Get the count line, and the atom/bond nb from it  */
@@ -290,17 +361,21 @@ universe_t *universe_load_solvent(universe_t *universe, char *solvent_file_buffe
 
   /* Allocate memory for the atoms */
   if ((universe->solvent_atom = malloc (sizeof(atom_t)*(universe->solvent_atom_nb))) == NULL)
+  {
     return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
+  }
 
   /* Initialize the atom memory */
   for (i=0; i<(universe->solvent_atom_nb); ++i)
+  {
     atom_init(&(universe->solvent_atom[i]));
+  }
 
   /* Read the atom block */
   for (i=0; i<(universe->solvent_atom_nb); ++i)
   {
     tok = strtok(NULL, "\n");
-    sscanf(tok, "%lf %lf %lf %hhu %lf %lf %lf",
+    sscanf(tok, "%lf %lf %lf %ld %lf %lf %lf",
            &(universe->solvent_atom[i].pos.x),
            &(universe->solvent_atom[i].pos.y),
            &(universe->solvent_atom[i].pos.z),
@@ -310,7 +385,7 @@ universe_t *universe_load_solvent(universe_t *universe, char *solvent_file_buffe
            &(universe->solvent_atom[i].sigma));
 
     /* Scale the atom's position vector from Å to m */
-    vec3d_mul(&(universe->solvent_atom[i].pos), &(universe->solvent_atom[i].pos), 1E-10);
+    vec3_mul(&(universe->solvent_atom[i].pos), &(universe->solvent_atom[i].pos), 1E-10);
 
     /* Scale the atom's charge from C.e-1 to C */
     universe->solvent_atom[i].charge *= C_ELEMCHARGE;
@@ -318,14 +393,22 @@ universe_t *universe_load_solvent(universe_t *universe, char *solvent_file_buffe
 
   /* Allocate memory for the temporary bond information storage */
   if ((a1 = malloc(sizeof(uint64_t) * (universe->solvent_bond_nb))) == NULL)
+  {
     return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
+  }
   if ((a2 = malloc(sizeof(uint64_t) * (universe->solvent_bond_nb))) == NULL)
+  {
     return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
+  }
   if ((bond_strength = malloc(sizeof(double) * (universe->solvent_bond_nb))) == NULL)
+  {
     return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
+  }
   /* Zero the allocated memory */
   if ((bond_index = calloc(universe->solvent_atom_nb, sizeof(uint8_t))) == NULL)
+  {
     return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
+  }
 
   /* Read the bond block and get the number of bonds for each atom */
   for (i=0; i<(universe->solvent_bond_nb); ++i)
@@ -341,11 +424,15 @@ universe_t *universe_load_solvent(universe_t *universe, char *solvent_file_buffe
   {
     /* For the bond nodes */
     if ((universe->solvent_atom[i].bond = malloc(sizeof(uint64_t) * universe->solvent_atom[i].bond_nb)) == NULL)
+    {
       return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
+    }
 
     /* For the bond strengths */
     if ((universe->solvent_atom[i].bond_strength = malloc(sizeof(double) * universe->solvent_atom[i].bond_nb)) == NULL)
+    {
       return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
+    }
   }
 
   /* Load the bond information */
@@ -378,15 +465,15 @@ universe_t *universe_populate(universe_t *universe)
   size_t i;
   size_t ii;
   size_t iii;
-  vec3d_t pos_offset;
+  vec3_t pos_offset;
   atom_t *reference;
   atom_t *duplicate;
 
   for (i=0; i<(universe->copy_nb); ++i)
   {
     /* Generate a random position vector to load the system at */
-    vec3d_marsaglia(&pos_offset);
-    vec3d_mul(&pos_offset, &pos_offset, (1-UNIVERSE_POPULATE_MIN_DIST)*(universe->size)*cos(rand()) + UNIVERSE_POPULATE_MIN_DIST*(universe->size));
+    vec3_marsaglia(&pos_offset);
+    vec3_mul(&pos_offset, &pos_offset, (1-UNIVERSE_POPULATE_MIN_DIST)*(universe->size)*cos(rand()) + UNIVERSE_POPULATE_MIN_DIST*(universe->size));
 
     /* Load each atom from the reference system into the universe */
     for (ii=0; ii<(universe->substrate_atom_nb); ++ii)
@@ -415,13 +502,17 @@ universe_t *universe_populate(universe_t *universe)
       duplicate->frc.z = reference->frc.z;
 
       /* Load the atom's location */
-      vec3d_add(&(duplicate->pos), &(reference->pos), &pos_offset);
+      vec3_add(&(duplicate->pos), &(reference->pos), &pos_offset);
 
       /* Allocate memory for the bond information */
       if ((duplicate->bond = malloc(sizeof(uint64_t)*(reference->bond_nb))) == NULL)
+      {
         return (retstr(NULL, TEXT_UNIVERSE_POPULATE_FAILURE, __FILE__, __LINE__));
+      }
       if ((duplicate->bond_strength = malloc(sizeof(double)*(reference->bond_nb))) == NULL)
+      {
         return (retstr(NULL, TEXT_UNIVERSE_POPULATE_FAILURE, __FILE__, __LINE__));
+      }
 
       /* Load the bond information */
       for (iii=0; iii<(duplicate->bond_nb); ++iii)
@@ -441,12 +532,14 @@ universe_t *universe_setvelocity(universe_t *universe)
   size_t i;        /* Iterator */
   double mass_mol; /* Mass of a loaded system's */
   double velocity; /* Average velocity calculated */
-  vec3d_t vec;     /* Random vector */
+  vec3_t vec;     /* Random vector */
 
   /* Get the molecular mass */
   mass_mol = 0;
   for (i=0; i<(universe->substrate_atom_nb); ++i)
+  {
     mass_mol += model_mass(universe->substrate_atom[i].element);
+  }
 
   /* Get the average velocity */
   velocity = sqrt(3*C_BOLTZMANN*(universe->temperature)/mass_mol);
@@ -455,8 +548,8 @@ universe_t *universe_setvelocity(universe_t *universe)
   for (i=0; i<(universe->atom_nb); ++i)
   {
     /* Apply the velocity in a random direction */
-    vec3d_marsaglia(&vec);
-    vec3d_mul(&(universe->atom[i].vel), &vec, velocity);
+    vec3_marsaglia(&vec);
+    vec3_mul(&(universe->atom[i].vel), &vec, velocity);
   }
 
   return (universe);
@@ -468,11 +561,15 @@ void universe_clean(universe_t *universe)
 
   /* Clean each atom in the reference system */
   for (i=0; i<(universe->substrate_atom_nb); ++i)
+  {
     atom_clean(&(universe->substrate_atom[i]));
+  }
 
   /* Clean each atom in the universe */
   for (i=0; i<(universe->atom_nb); ++i)
+  {
     atom_clean(&(universe->atom[i]));
+  }
 
   /* Close the file pointers */
   fclose(universe->file_substrate);
@@ -507,7 +604,9 @@ int universe_simulate(universe_t *universe, const args_t *args)
     if (!frame_nb)
     {
       if (universe_printstate(universe) == NULL)
+      {
         return (retstri(EXIT_FAILURE, TEXT_UNIVERSE_SIMULATE_FAILURE, __FILE__, __LINE__));
+      }
       frame_nb = (args->frameskip);
     }
     else
@@ -515,7 +614,9 @@ int universe_simulate(universe_t *universe, const args_t *args)
 
     /* Iterate */
     if (universe_iterate(universe, args) == NULL)
+    {
       return (retstri(EXIT_FAILURE, TEXT_UNIVERSE_SIMULATE_FAILURE, __FILE__, __LINE__));
+    }
 
     universe->time += args->timestep;
     ++(universe->iterations);
@@ -534,21 +635,33 @@ universe_t *universe_iterate(universe_t *universe, const args_t *args)
 
   /* We update the position vector first, as part of the Velocity-Verley integration */
   for (i=0; i<(universe->atom_nb); ++i)
+  {
     if (atom_update_pos(universe, args, i) == NULL)
+    {
       return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+    }
+  }
 
   /* We enforce the periodic boundary conditions */
   for (i=0; i<(universe->atom_nb); ++i)
+  {
     if (atom_enforce_pbc(universe, i) == NULL)
+    {
       return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+    }
+  }
 
   /* Update the force vectors */
-  /* By numerically differentiating the potential energy... */
+  /* By numerically differentiating the potential energy... 'toute facon, entre ma consommation electrique, mes achats inter*/
   if (args->numerical == MODE_NUMERICAL)
   {
     for (i=0; i<(universe->atom_nb); ++i)
+    {
       if (atom_update_frc_numerical(universe, i) == NULL)
+      {
         return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+      }
+    }
   }
 
   /* By numerically differentiating the potential energy using points in a tetrahedron... */
@@ -563,19 +676,31 @@ universe_t *universe_iterate(universe_t *universe, const args_t *args)
   else
   {
     for (i=0; i<(universe->atom_nb); ++i)
+    {
       if (atom_update_frc_analytical(universe, i) == NULL)
+      {
         return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+      }
+    }
   }
 
   /* Update the acceleration vectors */
   for (i=0; i<(universe->atom_nb); ++i)
+  {
     if (atom_update_acc(universe, i) == NULL)
+    {
       return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+    }
+  }
 
   /* Update the speed vectors */
   for (i=0; i<(universe->atom_nb); ++i)
+  {
     if (atom_update_vel(universe, args, i) == NULL)
+    {
       return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+    }
+  }
 
   return (universe);
 }
@@ -608,7 +733,7 @@ universe_t *universe_energy_kinetic(universe_t *universe, double *energy)
   *energy = 0.0;
   for (i=0; i<(universe->atom_nb); ++i)
   {
-    vel = vec3d_mag(&(universe->atom[i].vel));
+    vel = vec3_mag(&(universe->atom[i].vel));
     *energy += 0.5*POW2(vel)*model_mass(universe->atom[i].element);
   }
 
@@ -625,7 +750,9 @@ universe_t *universe_energy_potential(universe_t *universe, double *energy)
   for (i=0; i<(universe->atom_nb); ++i)
   {
     if (potential_total(&potential, universe, i) == NULL)
+    {
       return (retstr(NULL, TEXT_UNIVERSE_ENERGY_POTENTIAL_FAILURE, __FILE__, __LINE__));
+    }
     *energy += potential;
   }
 
@@ -640,11 +767,15 @@ universe_t *universe_energy_total(universe_t *universe, double *energy)
 
   /* Get the kinetic energy */
   if (universe_energy_kinetic(universe, &kinetic) == NULL)
-      return (retstr(NULL, TEXT_UNIVERSE_ENERGY_TOTAL_FAILURE, __FILE__, __LINE__));
+  {
+    return (retstr(NULL, TEXT_UNIVERSE_ENERGY_TOTAL_FAILURE, __FILE__, __LINE__));
+  }
 
   /* Get the potential energy */
   if (universe_energy_potential(universe, &potential) == NULL)
-      return (retstr(NULL, TEXT_UNIVERSE_ENERGY_TOTAL_FAILURE, __FILE__, __LINE__));
+  {
+    return (retstr(NULL, TEXT_UNIVERSE_ENERGY_TOTAL_FAILURE, __FILE__, __LINE__));
+  }
 
   /* Get the total energy */
   *energy = kinetic + potential;
@@ -658,7 +789,9 @@ universe_t *universe_reducepot(universe_t *universe, args_t *args)
 
   /* Compute and print the current potential */
   if (universe_energy_potential(universe, &potential) == NULL)
+  {
     return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FAILURE, __FILE__, __LINE__));
+  }
   printf(TEXT_POTENTIAL, potential*1E12);
 
   /* Print the target potential */
@@ -668,22 +801,30 @@ universe_t *universe_reducepot(universe_t *universe, args_t *args)
   while (potential > UNIVERSE_REDUCEPOT_COARSE_THRESHOLD * args->reduce_potential)
   {
     if (universe_reducepot_coarse(universe) == NULL)
+    {
       return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FAILURE, __FILE__, __LINE__));
+    }
 
     /* Update the system's potential energy */
     if (universe_energy_potential(universe, &potential) == NULL)
+    {
       return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FAILURE, __FILE__, __LINE__));
+    }
   }
 
   /* PHASE 2 - GRADIENT DESCENT */
   while (potential > args->reduce_potential)
   {
     if (universe_reducepot_fine(universe) == NULL)
+    {
       return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FAILURE, __FILE__, __LINE__));
+    }
 
     /* Update the system's potential energy */
     if (universe_energy_potential(universe, &potential) == NULL)
+    {
       return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FAILURE, __FILE__, __LINE__));
+    }
   }
 
   return (universe);
@@ -697,8 +838,8 @@ universe_t *universe_reducepot_coarse(universe_t *universe)
   double step_magnitude;
   double pot_pre;
   double pot_post;
-  vec3d_t step;
-  vec3d_t pos_pre;
+  vec3_t step;
+  vec3_t pos_pre;
 
   /* For each atom */
   for (i=0; i<(universe->atom_nb); ++i)
@@ -710,7 +851,9 @@ universe_t *universe_reducepot_coarse(universe_t *universe)
 
     /* Compute the pre-transformation potential */
     if (universe_energy_total(universe, &pot_pre) == NULL)
+    {
       return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_COARSE_FAILURE, __FILE__, __LINE__));
+    }
 
     /* Until we lower the potential */
     tries = 0;
@@ -730,19 +873,23 @@ universe_t *universe_reducepot_coarse(universe_t *universe)
         ++tries;
 
       /* Compute the displacement */
-      vec3d_marsaglia(&step);
-      vec3d_mul(&step, &step, step_magnitude);
+      vec3_marsaglia(&step);
+      vec3_mul(&step, &step, step_magnitude);
 
       /* Apply the displacement */
-      vec3d_add(&(universe->atom[i].pos), &(universe->atom[i].pos), &step);
+      vec3_add(&(universe->atom[i].pos), &(universe->atom[i].pos), &step);
 
       /* Enforce PBCs */
       if (atom_enforce_pbc(universe, i) == NULL)
+      {
         return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_COARSE_FAILURE, __FILE__, __LINE__));
+      }
 
       /* Compute the post-transformation potential */
       if (universe_energy_total(universe, &pot_post) == NULL)
+      {
         return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_COARSE_FAILURE, __FILE__, __LINE__));
+      }
     } while (pot_post > pot_pre);
   }
 
@@ -756,8 +903,8 @@ universe_t *universe_reducepot_fine(universe_t *universe)
   double step_magnitude;
   double pot_pre;
   double pot_post;
-  vec3d_t step;
-  vec3d_t pos_pre;
+  vec3_t step;
+  vec3_t pos_pre;
 
   /* For each atom */
   for (i=0; i<(universe->atom_nb); ++i)
@@ -767,7 +914,15 @@ universe_t *universe_reducepot_fine(universe_t *universe)
 
     /* Compute the potential gradient with respect to the atom's coordinates (=force) */
     if (atom_update_frc_analytical(universe, i) == NULL)
+    {
       return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FINE_FAILURE, __FILE__, __LINE__));
+    }
+
+    /* Compute the potential before the transformation */
+    if (universe_energy_potential(universe, &pot_pre) == NULL)
+    {
+      return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FINE_FAILURE, __FILE__, __LINE__));
+    }
 
     /* "Take a step" toward the local minima*/
     /* The magnitude is derived from the displacement resulting from a constant acceleration */
@@ -777,30 +932,34 @@ universe_t *universe_reducepot_fine(universe_t *universe)
     /* Motion is just fancy gradient descent that instead of bleeding potential conserves it as kinetic energy */
     /* Think of this algorithm as a simulation without motion, we're just reaching equilibrium without motion */
     step_magnitude = POW2(UNIVERSE_REDUCEPOT_FINE_TIMESTEP)/(2*model_mass(universe->atom[i].element));
-    vec3d_mul(&step, &(universe->atom[i].frc), step_magnitude);
+    vec3_mul(&step, &(universe->atom[i].frc), step_magnitude);
 
     /* Limit the maximum displacement to 1 Angstrom */
-    if (vec3d_mag(&step) > UNIVERSE_REDUCEPOT_FINE_MAX_STEP)
-      vec3d_mul(&step, &step, UNIVERSE_REDUCEPOT_FINE_MAX_STEP/vec3d_mag(&step));
-
-    /* Compute the potential before the transformation */
-    if (universe_energy_potential(universe, &pot_pre) == NULL)
-      return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FINE_FAILURE, __FILE__, __LINE__));
+    if (vec3_mag(&step) > UNIVERSE_REDUCEPOT_FINE_MAX_STEP)
+    {
+      vec3_mul(&step, &step, UNIVERSE_REDUCEPOT_FINE_MAX_STEP/vec3_mag(&step));
+    }
 
     /* Apply the transformation */
-    vec3d_add(&(universe->atom[i].pos), &(universe->atom[i].pos), &step);
+    vec3_add(&(universe->atom[i].pos), &(universe->atom[i].pos), &step);
 
     /* Enforce PBCs */
     if (atom_enforce_pbc(universe, i) == NULL)
+    {
       return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FINE_FAILURE, __FILE__, __LINE__));
+    }
 
     /* Compute the potential after the transformation */
     if (universe_energy_potential(universe, &pot_post) == NULL)
+    {
       return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FINE_FAILURE, __FILE__, __LINE__));
+    }
 
     /* If the potential increased, discard the transformation */
     if (pot_post > pot_pre)
+    {
       universe->atom[i].pos = pos_pre;
+    }
   }
 
   return (universe);
@@ -812,28 +971,39 @@ universe_t *universe_parameters_print(universe_t *universe, const args_t *args)
 
   /* Compute the potential energy */
    if (universe_energy_potential(universe, &potential) == NULL)
+   {
      return (retstr(NULL, TEXT_UNIVERSE_PARAMETERS_PRINT_FAILURE, __FILE__, __LINE__));
+   }
   
   /* Print some useful information */
-  puts(TEXT_INFO_REFERENCE);
+  puts(TEXT_INFO_MODEL);
+  printf(TEXT_INFO_PATH, "todo");
+  printf(TEXT_INFO_NAME, "todo");
+  printf(TEXT_INFO_AUTHOR, "todo");
+  printf(TEXT_INFO_COMMENT, "todo");
+  puts("\n");
+
+  puts(TEXT_INFO_SUBSTRATE);
   printf(TEXT_INFO_PATH, args->path_substrate);
   printf(TEXT_INFO_NAME, universe->meta_substrate_name);
   printf(TEXT_INFO_AUTHOR, universe->meta_substrate_author);
   printf(TEXT_INFO_COMMENT, universe->meta_substrate_comment);
-  printf(TEXT_INFO_REF_ATOM_NB, universe->substrate_atom_nb);
+  printf(TEXT_INFO_SUBSTRATE_ATOM_NB, universe->substrate_atom_nb);
   printf(TEXT_INFO_REF_BOND_NB, universe->substrate_bond_nb);
   puts("\n");
-  puts(TEXT_INFO_REFERENCE_SOLVENT);
+
+  puts(TEXT_INFO_SOLVENT);
   printf(TEXT_INFO_PATH, args->path_solvent);
   printf(TEXT_INFO_NAME, universe->meta_solvent_name);
   printf(TEXT_INFO_AUTHOR, universe->meta_solvent_author);
   printf(TEXT_INFO_COMMENT, universe->meta_solvent_comment);
-  printf(TEXT_INFO_REF_ATOM_NB, universe->solvent_atom_nb);
+  printf(TEXT_INFO_SUBSTRATE_ATOM_NB, universe->solvent_atom_nb);
   printf(TEXT_INFO_REF_BOND_NB, universe->solvent_bond_nb);
   puts("\n");
+
   puts(TEXT_INFO_SIMULATION);
-  printf(TEXT_INFO_SYS_COPIES, universe->copy_nb);
-  printf(TEXT_INFO_ATOMS, universe->atom_nb);
+  printf(TEXT_INFO_SUBSTRATE_COPIES, universe->copy_nb);
+  printf(TEXT_INFO_ATOM_NB, universe->atom_nb);
   printf(TEXT_INFO_TEMPERATURE, universe->temperature);
   printf(TEXT_INFO_PRESSURE, args->pressure/1E2);
   printf(TEXT_INFO_DENSITY, args->density/1E3);

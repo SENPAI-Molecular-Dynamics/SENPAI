@@ -1,7 +1,7 @@
 /*
  * util.c
  *
- * Licensed under MIT license
+ * Licensed under GPLv3 license
  *
  */
 
@@ -38,8 +38,12 @@ uint64_t line_nb(const char *str)
 
   count = 1;
   for (i=0; str[i] != '\0'; ++i)
+  {
     if (str[i] == '\n')
+    {
       ++count;
+    }
+  }
 
   return (count);
 }

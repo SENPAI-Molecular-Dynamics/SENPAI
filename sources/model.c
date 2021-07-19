@@ -1,13 +1,40 @@
 /*
  * model.c
  *
- * Licensed under MIT license
+ * Licensed under GPLv3 license
  *
  */
 
 #include <stdint.h>
 
 #include "model.h"
+#include "text.h"
+#include "util.h"
+
+t_model_entry *model_entry_init(t_model_entry *model_entry)
+{
+  if (model_entry == NULL)
+    return (retstr(NULL, TEXT_MODEL_ENTRY_INIT_FAILURE, __FILE__, __LINE__));
+
+  model_entry->id=MODEL_ENTRY_ID_DEFAULT;
+  model_entry->name=MODEL_ENTRY_NAME_DEFAULT;
+  model_entry->symbol=MODEL_ENTRY_SYMBOL_DEFAULT;
+  model_entry->mass=MODEL_ENTRY_MASS_DEFAULT;
+  model_entry->radius_covalent=MODEL_ENTRY_RADIUS_COVALENT_DEFAULT;
+  model_entry->radius_vdw=MODEL_ENTRY_RADIUS_VDW_DEFAULT;
+  model_entry->bond_angle=MODEL_ENTRY_BOND_ANGLE_DEFAULT;
+  model_entry->lj_epsilon=MODEL_ENTRY_LJ_EPSILON_DEFAULT;
+  model_entry->lj_sigma=MODEL_ENTRY_LJ_SIGMA_DEFAULT;
+
+  return (model_entry);
+}
+
+t_model *model_init(t_model *model)
+{
+  model->model_entry_nb=MODEL_MODEL_ENTRY_NB_DEFAULT;
+  model->entry=MODEL_ENTRY_DEFAULT;
+  return (model);
+}
 
 char const *model_symbol(uint8_t atom)
 {

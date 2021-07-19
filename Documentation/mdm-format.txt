@@ -1,0 +1,70 @@
+##################################
+# MDM - Molecular Dynamics Model #
+##################################
+#                                #
+# Version history                #
+# * 14-04-2021 Added LJ params   #
+# * 13-04-2021 initial release   #
+#                                #
+# Contributors                   #
+# * MURGIA Sasha                 #
+#                                #
+##################################
+
+1. SCOPE
+  The MDM file format is used to store information regarding a newtonian
+  molecular dynamics model.
+
+2. FILE EXTENSION
+  The file extension for an MDM file is .mdm
+  Files following the MDM standard must have
+  their name terminate with .mdm
+
+3. FILE CONTENT
+  An MDM file contains:
+  * A list of atoms
+  * Their symbol
+  * Their mass
+  * Their covalent radius
+  * Their Van der Waals radius
+  * Their bond angle
+
+4. FILE STRUCTURE
+  MDM files are parsed line by line.
+  Line 1:
+    * Contains the model name.
+    * Formatted as `<string>`
+      * The string is the whole line
+  Line 2:
+    * Contains the file author's identity.
+    * Formatted as `<string>`
+      * The string is the whole line
+  Line 3:
+    * Contains a description of the substrate
+    * Formatted as `<string>`
+      * The string is the whole line
+  Remaining lines:
+    * Define the atoms
+    * Each atom is assigned an ID based on their line number
+      * The first atom to be defined is ID '1'
+      * There is no ID '0'.
+    * Each line is formatted as `<string> <string> <double> <double> <double> <double>`
+      * First string: Name (Ex: Uranium, Carbon, SP3_Carbon)
+      * Second string: Symbol (ex: H, Li, C, Be)
+      * First double: Mass (kilograms)
+      * Second double: Covalent radius (meters)
+      * Third double: Van der Waals radius (meters)
+      * Fourth double: bond angle (radians)
+      * Fifth double: Lennard Jones epsilon
+      * Sixth double: Lennard Jones sigma
+
+5. EXAMPLE FILE
+
+SENPAI model
+MURGIA Sasha <sashamurgia@protonmail.ch>
+The default model used by the SENPAI MD simulator
+LonePair   Lp 0.0       0.0    0.0 0.0
+Hydrogen   H 1.6605E-27 31E-12 120E-12 0.0
+SP_Carbon  C 1.9926E-26 69E-12 170E-12 3.1415
+SP2_Carbon C 1.9926E-26 73E-12 170E-12 2.0944
+SP3_Carbon C 1.9926E-26 77E-12 170E-12 1.9106

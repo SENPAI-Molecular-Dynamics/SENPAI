@@ -1,7 +1,7 @@
 /*
  * potential.c
  *
- * Licensed under MIT license
+ * Licensed under GPLv3 license
  *
  */
 
@@ -14,9 +14,9 @@
 #include "text.h"
 #include "universe.h"
 #include "util.h"
-#include "vec3d.h"
+#include "vec3.h"
 
-universe_t *potential_bond(double *pot, universe_t *universe, const size_t a1, const size_t a2)
+universe_t *potential_bond(double *pot, universe_t *universe, const uint64_t a1, const uint64_t a2)
 {
   atom_t *atom_1;
   atom_t *atom_2;
@@ -26,18 +26,18 @@ universe_t *potential_bond(double *pot, universe_t *universe, const size_t a1, c
   double displacement;
   int bond_id;
   double dst;
-  vec3d_t vec;
+  vec3_t vec;
 
   /* Makes the code easier to read */
   atom_1 = &(universe->atom[a1]);
   atom_2 = &(universe->atom[a2]);
 
   /* Get the distance between the atoms */
-  vec3d_sub(&vec, &(atom_2->pos), &(atom_1->pos));
-  dst = vec3d_mag(&vec);
+  vec3_sub(&vec, &(atom_2->pos), &(atom_1->pos));
+  dst = vec3_mag(&vec);
 
   /* Turn it into its unit vector */
-  if (vec3d_unit(&vec, &vec) == NULL)
+  if (vec3_unit(&vec, &vec) == NULL)
     return (retstr(NULL, TEXT_POTENTIAL_BOND_FAILURE, __FILE__, __LINE__));
 
   /* Find the bond id */
@@ -57,23 +57,23 @@ universe_t *potential_bond(double *pot, universe_t *universe, const size_t a1, c
   return (universe);
 }
 
-universe_t *potential_electrostatic(double *pot, universe_t *universe, const size_t a1, const size_t a2)
+universe_t *potential_electrostatic(double *pot, universe_t *universe, const uint64_t a1, const uint64_t a2)
 {
   atom_t *atom_1;
   atom_t *atom_2;
   double dst;
-  vec3d_t vec;
+  vec3_t vec;
 
   /* Makes the code easier to read */
   atom_1 = &(universe->atom[a1]);
   atom_2 = &(universe->atom[a2]);
 
   /* Get the distance between the atoms */
-  vec3d_sub(&vec, &(atom_2->pos), &(atom_1->pos));
-  dst = vec3d_mag(&vec);
+  vec3_sub(&vec, &(atom_2->pos), &(atom_1->pos));
+  dst = vec3_mag(&vec);
 
   /* Turn it into its unit vector */
-  if (vec3d_unit(&vec, &vec) == NULL)
+  if (vec3_unit(&vec, &vec) == NULL)
     return (retstr(NULL, TEXT_POTENTIAL_ELECTROSTATIC_FAILURE, __FILE__, __LINE__));
 
   /* Compute the potential */
@@ -82,14 +82,14 @@ universe_t *potential_electrostatic(double *pot, universe_t *universe, const siz
   return (universe);
 }
 
-universe_t *potential_lennardjones(double *pot, universe_t *universe, const size_t a1, const size_t a2)
+universe_t *potential_lennardjones(double *pot, universe_t *universe, const uint64_t a1, const uint64_t a2)
 {
   atom_t *atom_1;
   atom_t *atom_2;
   double sigma;
   double epsilon;
   double dst;
-  vec3d_t vec;
+  vec3_t vec;
 
   /* Makes the code easier to read */
   atom_1 = &(universe->atom[a1]);
@@ -97,12 +97,12 @@ universe_t *potential_lennardjones(double *pot, universe_t *universe, const size
 
   /* Get the distance between the atoms */
   /* Scale it to Angstroms */
-  vec3d_sub(&vec, &(atom_2->pos), &(atom_1->pos));
-  dst = vec3d_mag(&vec);
+  vec3_sub(&vec, &(atom_2->pos), &(atom_1->pos));
+  dst = vec3_mag(&vec);
   dst *= 1E10;
 
   /* Turn it into its unit vector */
-  if (vec3d_unit(&vec, &vec) == NULL)
+  if (vec3_unit(&vec, &vec) == NULL)
     return (retstr(NULL, TEXT_POTENTIAL_LENNARDJONES_FAILURE, __FILE__, __LINE__));
 
   /* Compute the Lennard-Jones parameters
@@ -129,7 +129,7 @@ universe_t *potential_lennardjones(double *pot, universe_t *universe, const size
   return (universe);
 }
 
-universe_t *potential_angle(double *pot, universe_t *universe, const size_t a1, const size_t a2)
+universe_t *potential_angle(double *pot, universe_t *universe, const uint64_t a1, const uint64_t a2)
 {
   /* This function is a bit complex so here is a rundown:
    * a1 is bonded to a2, but a2 can be bonded to more atoms.
@@ -153,9 +153,9 @@ universe_t *potential_angle(double *pot, universe_t *universe, const size_t a1, 
   double angular_displacement;
   double to_current_mag;
   double to_ligand_mag;
-  vec3d_t to_current;
-  vec3d_t to_ligand;
-  vec3d_t pos_backup;
+  vec3_t to_current;
+  vec3_t to_ligand;
+  vec3_t pos_backup;
   atom_t *current;
   atom_t *ligand;
   atom_t *node;
@@ -173,10 +173,10 @@ universe_t *potential_angle(double *pot, universe_t *universe, const size_t a1, 
     return (universe);
 
   /* Get the vector going from the node to the current atom */
-  vec3d_sub(&to_current, &(current->pos), &(node->pos));
+  vec3_sub(&to_current, &(current->pos), &(node->pos));
 
   /* As well as its magnitude */
-  to_current_mag = vec3d_mag(&to_current);
+  to_current_mag = vec3_mag(&to_current);
 
   /* For all ligands */
   for (i=0; i<(node->bond_nb); ++i)
@@ -187,7 +187,7 @@ universe_t *potential_angle(double *pot, universe_t *universe, const size_t a1, 
     if (ligand != NULL && ligand != current)
     {
       /* Get the vector going from the node to the ligand */
-      vec3d_sub(&to_ligand, &(ligand->pos), &(node->pos));
+      vec3_sub(&to_ligand, &(ligand->pos), &(node->pos));
 
       /* PERIODIC BOUNDARY CONDITIONS */
       pos_backup = ligand->pos;
@@ -209,10 +209,10 @@ universe_t *potential_angle(double *pot, universe_t *universe, const size_t a1, 
       /* PERIODIC BOUNDARY CONDITIONS */
 
       /* Get its magnitude */
-      to_ligand_mag = vec3d_mag(&to_ligand);
+      to_ligand_mag = vec3_mag(&to_ligand);
 
       /* Get the current angle */
-      angle = acos(vec3d_dot(&to_current, &to_ligand)/(to_current_mag*to_ligand_mag));
+      angle = acos(vec3_dot(&to_current, &to_ligand)/(to_current_mag*to_ligand_mag));
       if (angle > 2*(angle_eq))
         angle = fmod(angle, angle_eq);
 
@@ -228,11 +228,11 @@ universe_t *potential_angle(double *pot, universe_t *universe, const size_t a1, 
   return (universe);
 }
 
-universe_t *potential_total(double *pot, universe_t *universe, const size_t atom_id)
+universe_t *potential_total(double *pot, universe_t *universe, const uint64_t atom_id)
 {
   size_t i;
-  vec3d_t to_target;
-  vec3d_t pos_backup;
+  vec3_t to_target;
+  vec3_t pos_backup;
   double pot_bond;
   double pot_electrostatic;
   double pot_lennardjones;
@@ -252,7 +252,7 @@ universe_t *potential_total(double *pot, universe_t *universe, const size_t atom
       pos_backup = universe->atom[i].pos;
 
       /* Get the vector going to the target atom */
-      vec3d_sub(&to_target, &(universe->atom[i].pos), &(universe->atom[atom_id].pos));
+      vec3_sub(&to_target, &(universe->atom[i].pos), &(universe->atom[atom_id].pos));
 
       /* Temporarily undo the PBC enforcement, if needed */
       if (to_target.x > 0.5*(universe->size))

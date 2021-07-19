@@ -1,7 +1,7 @@
 /*
  * main.c
  *
- * Licensed under MIT license
+ * Licensed under GPLv3 license
  *
  */
 
@@ -29,19 +29,27 @@ int main(int argc, char **argv)
   /* Parse the arguments */
   args_init(&args);
   if (args_parse(&args, argc, argv) == NULL)
+  {
     return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));
+  }
 
   /* Initialise the universe with the arguments */
   if (universe_init(&universe, &args) == NULL)
+  {
     return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));
+  }
 
   /* Reduce the potential energy before simulating */
    if (universe_reducepot(&universe, &args) == NULL)
+  {
     return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));
+  }
 
   /* Print the simulation parameters */
   if (universe_parameters_print(&universe, &args) == NULL)
+  {
     return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));
+  }
 
   /* Let's roll */
   return (universe_simulate(&universe, &args));

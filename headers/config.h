@@ -1,7 +1,7 @@
 /*
  * config.h
  *
- * Licensed under MIT license
+ * Licensed under GPLv3 license
  *
  *
  * ####################################################################
@@ -24,8 +24,8 @@
  *   DIV_THRESHOLD: Dividing by a value smaller than this will throw an error
  *   ROOT_MACHINE_EPSILON: machine epsilon square root (num. differentiation)
  */
-#define DIV_THRESHOLD        (double)1E-50
-#define ROOT_MACHINE_EPSILON (double)1.48996644E-8
+#define DIV_THRESHOLD        ((double)1E-50)
+#define ROOT_MACHINE_EPSILON ((double)1.48996644E-8)
 
 /* UNIVERSE CONSTANTS
  *
@@ -40,13 +40,13 @@
  *   C_ELEMCHARGE: Elementary charge
  *   C_AHO:        Angular Harmonic Oscillator - used for torsion computations
  */
- #define C_BOLTZMANN  (double)(1.380649E-23)
- #define C_AVOGADRO   (double)(6.02214076E23)
- #define C_IDEALGAS   (double)(8.31446261)
- #define C_VACUUMPERM (double)(8.8541878128E-12)
- #define C_COULOMB    (double)(8.98755E9)
- #define C_ELEMCHARGE (double)(1.60217646E-19)
- #define C_AHO        (double)(5E-18)
+ #define C_BOLTZMANN  ((double)1.380649E-23)
+ #define C_AVOGADRO   ((double)6.02214076E23)
+ #define C_IDEALGAS   ((double)8.31446261)
+ #define C_VACUUMPERM ((double)8.8541878128E-12)
+ #define C_COULOMB    ((double)8.98755E9)
+ #define C_ELEMCHARGE ((double)1.60217646E-19)
+ #define C_AHO        ((double)5E-18)
 
 /* UNIVERSE GENERATION
  *
@@ -55,7 +55,7 @@
  *  UNIVERSE_POPULATE_MIN_DIST: Fraction of the universe size. Particles cannot
  *                              be inserted this close or closer from the origin
  */
-#define UNIVERSE_POPULATE_MIN_DIST (double)4E-1
+#define UNIVERSE_POPULATE_MIN_DIST ((double)4E-1)
 
 /* SIMULATION MODE
  *
@@ -63,7 +63,6 @@
  * differentiation or by computing it directly. Both have their advantages, but
  * as of the writing of this line, it makes no sense to use the numerical mode
  * as the analytical mode provides a ~6x speedup and accuracy improvement.
- *  ARGS_NUMERICAL_DEFAULT: Computation mode to use
  */
 #define MODE_ANALYTICAL          0
 #define MODE_NUMERICAL           1
@@ -89,15 +88,7 @@
  *                       than this multiple of sigma, the potential isn't
  *                       computed.
  */
-#define ARGS_TIMESTEP_DEFAULT    (double)1E0
-#define ARGS_MAX_TIME_DEFAULT    (double)1E0
-#define ARGS_COPIES_DEFAULT      (uint64_t)1E0
-#define ARGS_TEMPERATURE_DEFAULT (uint64_t)2.9815E2
-#define ARGS_PRESSURE_DEFAULT    (double)1E0
-#define ARGS_DENSITY_DEFAULT     (double)1E0
-#define ARGS_FRAMESKIP_DEFAULT   (uint64_t)0
-#define ARGS_REDUCEPOT_DEFAULT   (double)10.0
-#define LENNARDJONES_CUTOFF      (double)2.5E0
+#define LENNARDJONES_CUTOFF ((double)2.5E0)
 
 /* PRE-SIMULATION POTENTIAL ENERGY REDUCTION
  *
@@ -125,11 +116,11 @@
  *   UNIVERSE_REDUCEPOT_FINE_MAX_STEP: Maximum step an atom can take
  *   UNIVERSE_REDUCEPOT_FINE_TIMESTEP: Used to compute the step (dx=(dt^2)/2)
  */
-#define UNIVERSE_REDUCEPOT_COARSE_STEP_MAGNITUDE       (double)1E-9
-#define UNIVERSE_REDUCEPOT_COARSE_MAX_ATTEMPTS         (size_t)1E2
-#define UNIVERSE_REDUCEPOT_COARSE_MAGNITUDE_MULTIPLIER (double)1E-1
-#define UNIVERSE_REDUCEPOT_COARSE_THRESHOLD            (double)2E0
-#define UNIVERSE_REDUCEPOT_FINE_MAX_STEP               (double)1E-10
-#define UNIVERSE_REDUCEPOT_FINE_TIMESTEP               (double)1E-15
+#define UNIVERSE_REDUCEPOT_COARSE_STEP_MAGNITUDE       ((double)1E-9)
+#define UNIVERSE_REDUCEPOT_COARSE_MAX_ATTEMPTS         ((size_t)1E2)
+#define UNIVERSE_REDUCEPOT_COARSE_MAGNITUDE_MULTIPLIER ((double)1E-1)
+#define UNIVERSE_REDUCEPOT_COARSE_THRESHOLD            ((double)2E0)
+#define UNIVERSE_REDUCEPOT_FINE_MAX_STEP               ((double)1E-10)
+#define UNIVERSE_REDUCEPOT_FINE_TIMESTEP               ((double)1E-15)
 
 #endif

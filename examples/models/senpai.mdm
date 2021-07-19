@@ -1,0 +1,21 @@
+SENPAI
+MURGIA Sasha <sashamurgia@protonmail.ch>
+The default model used by SENPAI
+LonePair     Lp 0.0        0.0       0.0        0.0
+Hydrogen     H  1.6605E-27 31E-12    122E-12    0.0
+Helium       He 6.6422E-27 28E-12    140E-12    0.0
+Lithium      Li 1.1624E-26 128E-12   182E-12    0.0
+Beryllium    Be 1.4945E-26 91E-12    153E-12    3.1415
+Boron_SP3    B  1.8266E-26 84E-12    192E-12    1.9106
+Boron_SP2    B  1.8266E-26 84E-12    192E-12    2.0944
+Carbon_SP3   C  1.9926E-26 77E-12    170E-12    1.9106
+Carbon_SP2   C  1.9926E-26 73E-12    170E-12    2.0944
+Carbon_SP    C  1.9926E-26 69E-12    170E-12    3.1415
+Nitrogen_SP3 N  2.3248E-26 71E-12    155E-12    1.9106
+Nitrogen_SP2 N  2.3248E-26 71E-12    155E-12    2.0944
+Oxygen_SP3   O  2.6569E-26 66E-12    152E-12    1.9106
+Oxygen_SP2   O  2.6569E-26 66E-12    152E-12    2.0944
+Oxygen_Water O  2.6569E-26 64.84E-12 152E-12    1.8230
+Fluorine     F  3.1550E-26 64E-12    135E-12    0.0
+Neon         Ne 3.3211E-26 58E-12    154E-12    0.0
+Chlorine     Cl 5.8118E-26 102E-12   175E-12    0.0
