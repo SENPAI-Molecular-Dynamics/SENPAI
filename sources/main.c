@@ -7,7 +7,6 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <time.h>
 #include <math.h>
 
 #include "universe.h"
@@ -20,9 +19,6 @@ int main(int argc, char **argv)
   args_t args;         /* Program arguments (from argv) */
   universe_t universe; /* The universe itself (wow) */
 
-  /* We don't need a perfectly random generator */
-  srand((unsigned int)time(NULL));
-
   /* That's the welcome message */
   puts(TEXT_START);
 
@@ -32,6 +28,7 @@ int main(int argc, char **argv)
   {
     return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));
   }
+  srand (args.srand_seed);
 
   /* Initialise the universe with the arguments */
   if (universe_init(&universe, &args) == NULL)

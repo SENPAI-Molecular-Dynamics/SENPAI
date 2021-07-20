@@ -24,6 +24,7 @@
 #define FLAG_REDUCEPOT  "--reduce_potential"
 #define FLAG_SOLVENT    "--solvent"
 #define FLAG_MODEL      "--model"
+#define FLAG_SRAND_SEED "--srand"
 
 /* t_args */
 #define ARGS_PATH_SUBSTRATE_DEFAULT    ((char*)NULL)      /* Path to the MDS substrate file */
@@ -39,6 +40,7 @@
 #define ARGS_DENSITY_DEFAULT           ((double)1E0)      /* Density (g.cm-3) */
 #define ARGS_FRAMESKIP_DEFAULT         ((uint64_t)0)      /* Frames to skip (= render but not save) */
 #define ARGS_REDUCE_POTENTIAL_DEFAULT  ((double)1E1)      /* Pre-simulation target potential energy */
+#define ARGS_SRAND_SEED_DEFAULT        ((unsigned int)time(NULL))  /* Seed for SRAND */
 
 typedef struct args_s args_t;
 struct args_s
@@ -53,6 +55,7 @@ struct args_s
   double reduce_potential;   /* (pJ)       Maximum potential energy before simulating */
   uint64_t frameskip;        /* (unitless) Frameskip */
   uint8_t numerical;         /* (unitless) Force computation mode */
+  uint64_t srand_seed;        /* (unitless) Seed to give to srand for setting RNG seed */
 
   /* Chemical properties, thermodynamics */
   uint64_t copies;           /* (unitless) Substrate copies to be simulated */

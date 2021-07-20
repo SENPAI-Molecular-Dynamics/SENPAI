@@ -9,6 +9,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 
 #include "config.h"
 #include "args.h"
@@ -35,6 +36,7 @@ args_t *args_init(args_t *args)
   args->density = ARGS_DENSITY_DEFAULT;
   args->frameskip = ARGS_FRAMESKIP_DEFAULT;
   args->reduce_potential = ARGS_REDUCE_POTENTIAL_DEFAULT;
+  args->srand_seed = ARGS_SRAND_SEED_DEFAULT;
   return (args);
 }
 
@@ -182,6 +184,11 @@ args_t *args_parse(args_t *args, int argc, char **argv)
     else if (!strcmp(argv[i], FLAG_MODEL) && (i+1)<argc)
     {
       args->path_model = argv[++i];
+    }
+
+    else if (!strcmp(argv[i], FLAG_SRAND_SEED) && (i+1)<argc)
+    {
+      args->srand_seed = strtoul(argv[++i], NULL, 10);
     }
 
     else if (i == (argc-1))
