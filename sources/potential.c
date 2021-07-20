@@ -38,12 +38,18 @@ universe_t *potential_bond(double *pot, universe_t *universe, const uint64_t a1,
 
   /* Turn it into its unit vector */
   if (vec3_unit(&vec, &vec) == NULL)
+  {
     return (retstr(NULL, TEXT_POTENTIAL_BOND_FAILURE, __FILE__, __LINE__));
+  }
 
   /* Find the bond id */
   for (bond_id=0; bond_id<(atom_1->bond_nb); ++bond_id)
+  {
     if (atom_1->bond[bond_id] == a2)
+    {
       break;
+    }
+  }
 
   /* Compute the displacement */
   radius_a1 = model_covalent_radius(atom_1->element);
@@ -74,7 +80,9 @@ universe_t *potential_electrostatic(double *pot, universe_t *universe, const uin
 
   /* Turn it into its unit vector */
   if (vec3_unit(&vec, &vec) == NULL)
+  {
     return (retstr(NULL, TEXT_POTENTIAL_ELECTROSTATIC_FAILURE, __FILE__, __LINE__));
+  }
 
   /* Compute the potential */
   *pot = (atom_1->charge * atom_2->charge) / (dst*4*M_PI*C_VACUUMPERM);
@@ -103,7 +111,9 @@ universe_t *potential_lennardjones(double *pot, universe_t *universe, const uint
 
   /* Turn it into its unit vector */
   if (vec3_unit(&vec, &vec) == NULL)
+  {
     return (retstr(NULL, TEXT_POTENTIAL_LENNARDJONES_FAILURE, __FILE__, __LINE__));
+  }
 
   /* Compute the Lennard-Jones parameters
    * (Duffy, E. M.; Severance, D. L.; Jorgensen, W. L.; Isr. J. Chem.1993, 33,  323)
@@ -170,7 +180,9 @@ universe_t *potential_angle(double *pot, universe_t *universe, const uint64_t a1
 
   /* If the node has no other ligand, don't bother either */
   if (node->bond_nb == 1)
+  {
     return (universe);
+  }
 
   /* Get the vector going from the node to the current atom */
   vec3_sub(&to_current, &(current->pos), &(node->pos));
@@ -193,19 +205,34 @@ universe_t *potential_angle(double *pot, universe_t *universe, const uint64_t a1
       pos_backup = ligand->pos;
 
       if (to_ligand.x > 0.5*(universe->size))
+      {
         ligand->pos.x -= universe->size;
+      }
+
       else if (to_ligand.x <= -0.5*(universe->size))
+      {
         ligand->pos.x += universe->size;
+      }
 
       if (to_ligand.y > 0.5*(universe->size))
+      {
         ligand->pos.y -= universe->size;
+      }
+
       else if (to_ligand.y <= -0.5*(universe->size))
+      {
         ligand->pos.y += universe->size;
+      }
 
       if (to_ligand.z > 0.5*(universe->size))
+      {
         ligand->pos.z -= universe->size;
+      }
+
       else if (to_ligand.z <= -0.5*(universe->size))
+      {
         ligand->pos.z += universe->size;
+      }
       /* PERIODIC BOUNDARY CONDITIONS */
 
       /* Get its magnitude */
@@ -214,7 +241,9 @@ universe_t *potential_angle(double *pot, universe_t *universe, const uint64_t a1
       /* Get the current angle */
       angle = acos(vec3_dot(&to_current, &to_ligand)/(to_current_mag*to_ligand_mag));
       if (angle > 2*(angle_eq))
+      {
         angle = fmod(angle, angle_eq);
+      }
 
       /* Compute the potential U=(k/2)*(angle^2) */
       angular_displacement = angle - angle_eq;
@@ -256,28 +285,49 @@ universe_t *potential_total(double *pot, universe_t *universe, const uint64_t at
 
       /* Temporarily undo the PBC enforcement, if needed */
       if (to_target.x > 0.5*(universe->size))
+      {
         universe->atom[i].pos.x -= universe->size;
+      }
+      
       else if (to_target.x <= -0.5*(universe->size))
+      {
         universe->atom[i].pos.x += universe->size;
+      }
 
       if (to_target.y > 0.5*(universe->size))
+      {
         universe->atom[i].pos.y -= universe->size;
+      }
+        
       else if (to_target.y <= -0.5*(universe->size))
+      {
         universe->atom[i].pos.y += universe->size;
+      }
 
       if (to_target.z > 0.5*(universe->size))
+      {
         universe->atom[i].pos.z -= universe->size;
+      }
+        
       else if (to_target.z <= -0.5*(universe->size))
+      {
         universe->atom[i].pos.z += universe->size;
+      }
+
       /* PERIODIC BOUNDARY CONDITIONS */
 
       /* Bonded interractions */
       if (atom_is_bonded(universe, atom_id, i))
       {
         if (potential_bond(&pot_bond, universe, atom_id, i) == NULL)
+        {
           return (retstr(NULL, TEXT_POTENTIAL_TOTAL_FAILURE, __FILE__, __LINE__));
+        }
+          
         if (potential_angle(&pot_angle, universe, atom_id, i) == NULL)
+        {
           return (retstr(NULL, TEXT_POTENTIAL_TOTAL_FAILURE, __FILE__, __LINE__));
+        }
 
         /* Sum the potentials */
         *pot += pot_bond;
@@ -288,9 +338,14 @@ universe_t *potential_total(double *pot, universe_t *universe, const uint64_t at
       else
       {
         if (potential_electrostatic(&pot_electrostatic, universe, atom_id, i) == NULL)
+        {
           return (retstr(NULL, TEXT_POTENTIAL_TOTAL_FAILURE, __FILE__, __LINE__));
+        }
+          
         if (potential_lennardjones(&pot_lennardjones, universe, atom_id, i) == NULL)
+        {
           return (retstr(NULL, TEXT_POTENTIAL_TOTAL_FAILURE, __FILE__, __LINE__));
+        }
 
         /* Sum the potentials */
         *pot += pot_electrostatic;
