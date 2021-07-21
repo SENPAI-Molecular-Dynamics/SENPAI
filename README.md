@@ -28,11 +28,11 @@ SENPAI is a molecular dynamics (MD) simulation software aimed at simulating orga
 
 ## Installation
 
-The first step consists of configuring SENPAI for your machine and use case. This is done by editing the constants in `headers.config.h`.
+The first step consists of configuring SENPAI for your machine and use case. This is done by editing the constants in `headers/config.h`.
 
 On UNIX systems, compilation is achieved using the provided makefile. No additional software is required.
 
-`$ git clone https://github.com/Garuda1/senpai`
+`$ git clone https://github.com/Chelsea486MHz/senpai`
 
 `$ cd senpai`
 

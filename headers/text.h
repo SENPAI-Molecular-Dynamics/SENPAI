@@ -20,7 +20,7 @@
                     " |_____/|______|_| \\_|_| /_/    \\_\\_____|\n\n" \
                     "Simplified Evolutive N-body Processing and Analytics for Integration\n\n"\
                     "<< 2018-2021 Sasha MURGIA - SENPAI and its source code are licensed under the terms of the GPLv3 license >>\n" \
-                    "<< sashamurgia@protonmail.ch | https://github.com/Garuda1/senpai >> \n"
+                    "<< sashamurgia@protonmail.ch | https://github.com/Chelsea486MHz/senpai >> \n"
 
 
 #define TEXT_FAILURE                           "[" COLOUR_RED "FAILURE" COLOUR_RESET "] "
