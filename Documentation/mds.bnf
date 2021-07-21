@@ -14,15 +14,61 @@
 ;; classes when convenient.
 ;;
 
+<whitespace> ::= " "
+<ws> ::= <whitespace>
+
+<optional-whitespace> ::= " " | ""
+<opt-ws> ::= <optional-whitespace>
+
 ;; <newline> is used to stick each component/record of the format together.
 ;; As such, it is illegal inside <string>
-<newline> ::= \n|\r\n
+<newline> ::= \n|\r\n|<whitespace><newline>
+<nl> ::= <newline>
 
 ;; Any characters that are not valid for <newline>.
-<string> ::= <character'>|<character'><string>
+<line> ::= <character'>|<character'><string>
   where
-    <character'> ::= <newline> △ <character>
+    <character'> = <newline> △ <character>
 
     ;; Do we need all of utf8?
     ;; I tend to prefer generality, but maybe this is too much.
     <character> ::= <set of all valid utf8>
+
+<substrate> ::= <line>
+
+<author> ::= <line>
+
+<description> ::= <line>
+
+<digit> ::= 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 0
+
+<digits> ::= <digit>|<digit><digits>
+
+<int> ::= -<digits>|<digits>|+<digits>
+
+<double> ::= -<double'>|<double'>|+<digits>
+  where
+    <double'> ::= <digits>.<digits>
+
+<atom> ::= <x> <ws> <y> <ws> <z> <ws> <id> <ws> <charge>
+  where
+    <x>,
+    <y>,
+    <z>      ::= <double>
+    <id>     ::= <int>
+    <charge> ::= <double>
+
+<atom-block> ::= <atom>|<atom-block><newline><atom>
+
+<bond> ::= <x> <ws> <y> <ws> <K>
+  where
+    <x>, <y> ::= <int>
+    <K>      ::= <double>
+
+<bond-block> ::= <bond>|<bond-block><newline><bond>
+
+<mds> ::= <substrate>   <nl>
+          <author>      <nl>
+          <description> <nl>
+          <atom-block>  <nl>
+          <bond-block>  (<nl><eof>|<eof>)
