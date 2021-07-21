@@ -22,11 +22,11 @@
 
 ;; <newline> is used to stick each component/record of the format together.
 ;; As such, it is illegal inside <string>
-<newline> ::= \n|\r\n|<whitespace><newline>
+<newline> ::= \n | \r\n | <whitespace> <newline>
 <nl> ::= <newline>
 
 ;; Any characters that are not valid for <newline>.
-<line> ::= <character'>|<character'><string>
+<line> ::= <character'> | <character'> <string>
   where
     <character'> = <newline> △ <character>
 
@@ -42,11 +42,11 @@
 
 <digit> ::= 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 0
 
-<digits> ::= <digit>|<digit><digits>
+<digits> ::= <digit> | <digit><digits>
 
-<int> ::= -<digits>|<digits>|+<digits>
+<int> ::= -<digits> | <digits> | +<digits>
 
-<double> ::= -<double'>|<double'>|+<digits>
+<double> ::= -<double'> | <double'> | +<digits>
   where
     <double'> ::= <digits>.<digits>
 
@@ -58,14 +58,14 @@
     <id>     ::= <int>
     <charge> ::= <double>
 
-<atom-block> ::= <atom>|<atom-block><newline><atom>
+<atom-block> ::= <atom> | <atom-block> <newline> <atom>
 
 <bond> ::= <x> <ws> <y> <ws> <K>
   where
     <x>, <y> ::= <int>
     <K>      ::= <double>
 
-<bond-block> ::= <bond>|<bond-block><newline><bond>
+<bond-block> ::= <bond> | <bond-block> <newline> <bond>
 
 <mds> ::= <substrate>   <nl>
           <author>      <nl>
