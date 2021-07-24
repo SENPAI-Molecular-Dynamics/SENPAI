@@ -10,23 +10,29 @@ $(CC) := gcc
 
 SRC_DIR := ./sources
 HDR_DIR := ./headers
+BUILD_DIR := ./build
 
-SRCS := $(shell find $(SRC_DIR) -name "*.c")
-OBJS := $(shell find $(SRC_DIR) -name "*.o")
 NAME := senpai
 
 WARNINGS := -Wall -Wextra -Werror -Wshadow -Wpointer-arith -Wcast-align -Wwrite-strings -Wmissing-prototypes -Wmissing-declarations -Wredundant-decls -Wnested-externs -Winline -Wno-long-long -Wuninitialized -Wstrict-prototypes
 OPTIONS := -std=c99 -O2 -g3 -U__STRICT_ANSI__
 LIBS := -lm
-CFLAGS := -I$(HDR_DIR) $(WARNINGS) $(OPTIONS) $(LIBS) -o $(NAME).bin
+CFLAGS := -I$(HDR_DIR) $(WARNINGS) $(OPTIONS) $(LIBS)
+
+SRCS := $(notdir $(wildcard $(SRC_DIR)/*.c))
+OBJS := $(addprefix $(BUILD_DIR),$(patsubst %.c,%.o,$(SRCS)))
+
+
+$(OBJS): $(SRCS)
+	$(CC) -c $(CFLAGS) $< -o $@
 
 all:
-	$(CC) $(SRCS) $(CFLAGS)
+	$(CC) $(OBJS) $(CFLAGS) -o $(NAME)
 
 clean:
-	$(RM) $(OBJS)
+	$(RM) -rf $(BUILD_DIR)
 
 fclean: clean
-	$(RM) $(NAME).bin
+	$(RM) $(NAME)
 
 re: fclean all
