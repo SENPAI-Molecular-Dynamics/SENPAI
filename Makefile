@@ -22,7 +22,7 @@ $(NAME): $(OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDLIBS) -o $@
 
 %.o: %.c
-	$(CC) -MMD -MP -MF .$*.d $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
+	$(CC) -MMD -MP -MF $*.d $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
 
 clean:
 	$(RM) -rf $(DEPFILES) $(OBJS) $(NAME)
