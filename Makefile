@@ -14,13 +14,19 @@ CFLAGS ?= -O2 -g3
 CFLAGS := $(CFLAGS) -std=c99 -U__STRICT_ANSI__ -I./headers $(WARNINGS)
 LDLIBS := -lm
 
+DEPFILES := $(wildcard sources/*.d)
 SRCS := $(wildcard sources/*.c)
 OBJS := $(SRCS:.c=.o)
 
 $(NAME): $(OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDLIBS) -o $@
 
+%.o: %.c
+	$(CC) -MMD -MP -MF .$*.d $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
+
 clean:
-	$(RM) -rf $(OBJS) $(NAME)
+	$(RM) -rf $(DEPFILES) $(OBJS) $(NAME)
+
+-include $(DEPFILES)
 
 .PHONY: clean
