@@ -27,6 +27,9 @@ $(NAME): $(OBJS)
 clean:
 	$(RM) -rf $(DEPFILES) $(OBJS) $(NAME)
 
+install:
+	cp senpai /usr/bin/senpai
+
 -include $(DEPFILES)
 
-.PHONY: clean
+.PHONY: clean install
