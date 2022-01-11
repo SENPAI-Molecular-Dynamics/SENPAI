@@ -1,5 +1,7 @@
 # SENPAI - Simplified Evolutive N-body Processing and Analytics for Integration
 
+[Official SENPAI website](https://www.chelsea486mhz.fr/senpai/index.html)
+
 SENPAI is a flexible, highly-configurable molecular dynamics (MD) simulation software aimed at students and academia.
 
 It provides a way to simulate molecular systems of educative and academic interest on devices ranging from personal laptops to purpose-built mainframes.
@@ -20,68 +22,16 @@ SENPAI is licensed under the terms of the GPLv3.
 
 - **Efficient computing model:** the ONICHaN (Optimized Numerical Integration, Classical Harmonics, and N-body) model was tailored for SENPAI over months of work. Inspired by the AMBER family of force fields, it allows SENPAI to compute forces with unprecedented efficiency.
 
-# Installation
+# Documentation
 
-You might first want to configure SENPAI for your machine and use case. This is done by editing the constants in `headers/config.h`.
+Documentation is available on the [Official SENPAI website](https://www.chelsea486mhz.fr/senpai/index.html).
 
-Should you want to go ahead with the default settings, compilation is achieved on UNIX systems using the provided Makefile.
+[Installation Manual](https://www.chelsea486mhz.fr/senpai/manuals/installation.html)
 
-```
-$ git clone https://github.com/Chelsea486MHz/senpai
-$ cd senpai
-$ make
-```
+[Your first simulation](https://www.chelsea486mhz.fr/senpai/manuals/first-simulation.html)
 
-The installation process requires the C standard library, a C99-compliant compiler, and GNU Make.
+[Creating substrates](https://www.chelsea486mhz.fr/senpai/manuals/creating-substrates.html)
 
-# Usage
-From a terminal:
+[Creating models](https://www.chelsea486mhz.fr/senpai/manuals/creating-models.html)
 
-`$ senpai [options]`
-
-Options:
-
-- `--in` **Required.** Specifies the path to the substrate to simulate
-
-- `--solvent` **Required.** Specified the path to the solvent file
-
-- `--out` **Required.** Specifies the path to the output file
-
-- `--model` **Required.** Specifies the path to the model file 
-
-- `--numerical` Configures the simulation to use numerical differentiation of the potential energy (defaults to analytical solving)
-
-- `--numerical-tetra` is similar to `--numerical`, but numerical differentiation uses points in a tetrahedron instead of points in an octahedron
-
-- `--time t` Specifies the simulation duration (ns) (defaults to `1ns`)
-
-- `--dt t` Specifies the timestep (fs) (defaults to `1 fs`)
-
-- `--temp` Specifies the thermodynamic temperature of the system (K) (defaults to `298.15 K`)
-
-- `--pressure` Specifies the pressure of the system (mbar) (defaults to `1 atm`)
-
-- `--density` Specifies the density of the system (g.cm-3) (defaults to `1 g.cm-3`)
-
-- `--copy` Specifies how many copies of the loaded system are to be inserted in the simulation
-
-- `--frameskip` Sets a frameskip to reduce I/O usage. Disabled by default
-
-- `--reduce_potential` Reduces the potential energy to the provided value (pJ) or lower (defaults to 10 pJ)
-
-- `--srand` Specifies an unsigned integer seed for randomization.  If the seed is not specified, the program will default to a random-enough seed.
-
-# Example use
-
-`$ ./senpai.bin --substrate examples/water.mol examples/void.mol --out water_render.xyz --model examples/models/senpai.mdm --srand 0`
-
-This simulation is used to test-run SENPAI during development. It should run pretty fast and tell you if everything is working correctly.
-
-`$ ./senpai.bin --substrate examples/DES.mol --solvent examples/water.mol --out render.xyz --model examples/models/senpai.mdm`
-
-This will tell SENPAI to simulate the contents of `examples/DES.mol` in STP water for one nanosecond using a one femtosecond timestep. The rendered simulation will be saved in `render.xyz` for further analysis.
-
-`$ ./senpai.bin --substrate examples/water.mol examples/void.mol --out water_render.xyz --model examples/models/senpai.mdm --copy 5000 --reduce_potential 10 --temp 300`
-
-This will have SENPAI load 1000 water molecules from `examples/water.mol`, arrange them so that the total potential energy is lower than 100 pJ, and finally simulate the system at 300 Kelvin for 1 ns, saving the render in `water_render.xyz`.
-
+[Logging simulation data](https://www.chelsea486mhz.fr/senpai/manuals/logging.html)
