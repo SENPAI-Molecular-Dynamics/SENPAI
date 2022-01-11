@@ -1,0 +1,5 @@
+1-Ethane simulation model
+MURGIA Sasha Emily Chelsea <chelsea486mhz@protonmail.com>
+Model used for the 1-ethane simulation
+Hydrogen     H  1.6605E-27 31E-12    122E-12    0.0
+Carbon_SP3   C  1.9926E-26 77E-12    170E-12    1.9106
