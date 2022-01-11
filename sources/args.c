@@ -36,7 +36,7 @@ args_t *args_init(args_t *args)
   args->density = ARGS_DENSITY_DEFAULT;
   args->frameskip = ARGS_FRAMESKIP_DEFAULT;
   args->reduce_potential = ARGS_REDUCE_POTENTIAL_DEFAULT;
-  args->srand_seed = ARGS_SRAND_SEED_DEFAULT;
+  args->srand_seed = time(NULL);
   return (args);
 }
 
