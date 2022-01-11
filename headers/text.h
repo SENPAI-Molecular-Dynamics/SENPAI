@@ -19,7 +19,8 @@
                     "  ____) | |____| |\\  | |  / ____ \\ _| |_ \n"\
                     " |_____/|______|_| \\_|_| /_/    \\_\\_____|\n\n" \
                     "Simplified Evolutive N-body Processing and Analytics for Integration (VERSION 1.0)\n\n"\
-                    "<< 2018-2022 Sasha MURGIA - SENPAI and its source code are licensed under the terms of the GPLv3 license >>\n" \
+                    "<< 2018-2022 Sasha Emily Chelsea MURGIA >>\n" \
+                    "<< SENPAI and its source code are licensed under the terms of the GPLv3 license >>\n" \
                     "<< sashamurgia@protonmail.ch | https://github.com/Chelsea486MHz/senpai >> \n"
 
 
