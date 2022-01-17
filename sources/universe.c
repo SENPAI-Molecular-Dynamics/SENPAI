@@ -23,10 +23,12 @@
 universe_t *universe_init(universe_t *universe, const args_t *args)
 {
   size_t i;                    /* Iterator */
-  size_t substrate_file_len;   /* Size of the substrate file (bytes) */
-  size_t solvent_file_len;     /* Size of the solvent file (bytes) */
-  char *substrate_file_buffer; /* A memory copy of the substrate file */
-  char *solvent_file_buffer;   /* A memory copy of the solvent file */
+  size_t file_len_model;       /* Size of the model file (bytes) */
+  size_t file_len_substrate;   /* Size of the substrate file (bytes) */
+  size_t file_len_solvent;     /* Size of the solvent file (bytes) */
+  char *file_buffer_model;     /* A memory copy of the model */
+  char *file_buffer_substrate; /* A memory copy of the substrate file */
+  char *file_buffer_solvent;   /* A memory copy of the solvent file */
   double universe_mass;        /* Total mass of the universe */
 
   /* Initialize the structure variables */
@@ -68,6 +70,39 @@ universe_t *universe_init(universe_t *universe, const args_t *args)
     return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
   }
 
+  /* Open the model file */
+  if ((universe->file_model = fopen(args->path_model, "r")) == NULL)
+  {
+    return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
+  }
+
+  /* Get the model file's size */
+  fseek(universe->file_model, 0, SEEK_END);
+  file_len_model = ftell(universe->file_model);
+  rewind(universe->file_model);
+
+  /* Initialize the memory buffer for the model file */
+  if ((file_buffer_model = (char*)malloc(file_len_model+1)) == NULL)
+  {
+    return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
+  }
+
+  /* Load it in the model buffer, terminate the string */
+  if (fread(file_buffer_model, sizeof(char), file_len_model, universe->file_model) != file_len_model)
+  {
+    return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
+  }
+  file_buffer_model[file_len_model] = '\0';
+
+  /* Load the model from the file */
+  if (universe_load_model(universe, file_buffer_model) == NULL)
+  {
+    return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
+  }
+
+  /* Free the model file buffer, we're done */
+  free(file_buffer_substrate);
+
   /* Open the substrate file */
   if ((universe->file_substrate = fopen(args->path_substrate, "r")) == NULL)
   {
@@ -76,30 +111,30 @@ universe_t *universe_init(universe_t *universe, const args_t *args)
 
   /* Get the substrate file's size */
   fseek(universe->file_substrate, 0, SEEK_END);
-  substrate_file_len = ftell(universe->file_substrate);
+  file_len_substrate = ftell(universe->file_substrate);
   rewind(universe->file_substrate);
 
   /* Initialize the memory buffer for the substrate file */
-  if ((substrate_file_buffer = (char*)malloc(substrate_file_len+1)) == NULL)
+  if ((file_buffer_substrate = (char*)malloc(file_len_substrate+1)) == NULL)
   {
     return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
   }
 
   /* Load it in the substrate buffer, terminate the string */
-  if (fread(substrate_file_buffer, sizeof(char), substrate_file_len, universe->file_substrate) != substrate_file_len)
+  if (fread(file_buffer_substrate, sizeof(char), file_len_substrate, universe->file_substrate) != file_len_substrate)
   {
     return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
   }
-  substrate_file_buffer[substrate_file_len] = '\0';
+  file_buffer_substrate[file_len_substrate] = '\0';
 
   /* Load the initial state from the substrate file */
-  if (universe_load_substrate(universe, substrate_file_buffer) == NULL)
+  if (universe_load_substrate(universe, file_buffer_substrate) == NULL)
   {
     return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
   }
 
   /* Free the substrate file buffer, we're done */
-  free(substrate_file_buffer);
+  free(file_buffer_substrate);
   
   /* Open the solvent file */
   if ((universe->file_solvent  = fopen(args->path_solvent, "r")) == NULL)
@@ -109,30 +144,30 @@ universe_t *universe_init(universe_t *universe, const args_t *args)
 
   /* Get the solvent file's size */
   fseek(universe->file_solvent, 0, SEEK_END);
-  solvent_file_len = ftell(universe->file_solvent);
+  file_len_solvent = ftell(universe->file_solvent);
   rewind(universe->file_solvent);
 
   /* Initialize the memory buffer for the solvent file */
-  if ((solvent_file_buffer = (char*)malloc(substrate_file_len+1)) == NULL)
+  if ((file_buffer_solvent = (char*)malloc(file_len_substrate+1)) == NULL)
   {
     return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
   }
 
   /* Load it in the solvent buffer, terminate the string */
-  if (fread(solvent_file_buffer, sizeof(char), solvent_file_len, universe->file_solvent) != solvent_file_len)
+  if (fread(file_buffer_solvent, sizeof(char), file_len_solvent, universe->file_solvent) != file_len_solvent)
   {
     return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
   }
-  solvent_file_buffer[solvent_file_len] = '\0';
+  file_buffer_solvent[file_len_solvent] = '\0';
 
   /* Load the initial state from the solvent file */
-  if (universe_load_solvent(universe, solvent_file_buffer) == NULL)
+  if (universe_load_solvent(universe, file_buffer_solvent) == NULL)
   {
     return (retstr(NULL, TEXT_UNIVERSE_INIT_FAILURE, __FILE__, __LINE__));
   }
 
   /* Free the solvent file buffer, we're done */
-  free(solvent_file_buffer);
+  free(file_buffer_solvent);
 
   /* Initialize the atom number */
   universe->atom_nb = (universe->substrate_atom_nb) * (universe->copy_nb);
@@ -182,7 +217,7 @@ universe_t *universe_init(universe_t *universe, const args_t *args)
   return (universe);
 }
 
-universe_t *universe_load_substrate(universe_t *universe, char *substrate_file_buffer)
+universe_t *universe_load_substrate(universe_t *universe, char *file_buffer_substrate)
 {
   size_t i;
   char *tok;
@@ -195,7 +230,7 @@ universe_t *universe_load_substrate(universe_t *universe, char *substrate_file_b
   uint64_t second;
 
   /* Get the name line and load the system's name from it */
-  tok = strtok(substrate_file_buffer, "\n");
+  tok = strtok(file_buffer_substrate, "\n");
   if ((universe->meta_substrate_name = malloc(sizeof(char)*(strlen(tok)+1))) == NULL)
   {
     return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
@@ -323,7 +358,7 @@ universe_t *universe_load_substrate(universe_t *universe, char *substrate_file_b
   return (universe);
 }
 
-universe_t *universe_load_solvent(universe_t *universe, char *solvent_file_buffer)
+universe_t *universe_load_solvent(universe_t *universe, char *file_buffer_solvent)
 {
   size_t i;
   char *tok;
@@ -336,7 +371,7 @@ universe_t *universe_load_solvent(universe_t *universe, char *solvent_file_buffe
   uint64_t second;
 
   /* Get the name line and load the system's name from it */
-  tok = strtok(solvent_file_buffer, "\n");
+  tok = strtok(file_buffer_solvent, "\n");
   if ((universe->meta_solvent_name = malloc(sizeof(char)*(strlen(tok)+1))) == NULL)
   {
     return (retstr(NULL, TEXT_UNIVERSE_LOAD_FAILURE, __FILE__, __LINE__));
