@@ -101,7 +101,7 @@ universe_t *universe_init(universe_t *universe, const args_t *args)
   }
 
   /* Free the model file buffer, we're done */
-  free(file_buffer_substrate);
+  free(file_buffer_model);
 
   /* Open the substrate file */
   if ((universe->file_substrate = fopen(args->path_substrate, "r")) == NULL)
