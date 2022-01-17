@@ -32,8 +32,8 @@
 
 #define TEXT_SIMSTART                          TEXT_INFO "Simulation started"
 #define TEXT_SIMEND                            TEXT_INFO "Simulation ended"
-#define TEXT_REDUCEPOT                         TEXT_INFO "Lowering potential energy to %lf pJ...\n"
-#define TEXT_POTENTIAL                         TEXT_INFO"Current potential energy is %lf pJ\n"
+#define TEXT_REDUCEPOT                         TEXT_INFO "Lowering potential energy to %E pJ...\n"
+#define TEXT_POTENTIAL                         TEXT_INFO "Current potential energy is %E pJ\n"
 
 /* args.c */
 #define TEXT_ARG_INVALIDARG                    TEXT_FAILURE "args_init: Unknown argument (\"%s\"). Did you read README.md?\n"
