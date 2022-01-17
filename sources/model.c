@@ -31,7 +31,7 @@ model_entry_t *model_entry_init(model_entry_t *model_entry)
 
 model_t *model_init(model_t *model)
 {
-  model->model_entry_nb=MODEL_MODEL_ENTRY_NB_DEFAULT;
+  model->entry_nb=MODEL_MODEL_ENTRY_NB_DEFAULT;
   model->entry=MODEL_ENTRY_DEFAULT;
   return (model);
 }

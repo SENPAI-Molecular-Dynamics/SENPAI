@@ -50,7 +50,7 @@ struct model_entry_s
 typedef struct model_s model_t;
 struct model_s
 {
-  size_t model_entry_nb;
+  size_t entry_nb;
   model_entry_t *entry;
 };
 

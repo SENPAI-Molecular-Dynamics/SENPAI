@@ -556,7 +556,7 @@ universe_t *universe_parameters_print(universe_t *universe, const args_t *args)
   printf(TEXT_INFO_NAME, universe->meta_model_name);
   printf(TEXT_INFO_AUTHOR, universe->meta_model_author);
   printf(TEXT_INFO_COMMENT, universe->meta_model_comment);
-  printf(TEXT_INFO_MODEL_ENTRY_NB, universe->model_entry_nb);
+  printf(TEXT_INFO_MODEL_ENTRY_NB, universe->model.entry_nb);
   puts("\n");
 
   puts(TEXT_INFO_SUBSTRATE);

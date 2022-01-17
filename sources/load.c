@@ -19,6 +19,10 @@ universe_t *universe_load_model(universe_t *universe, char *file_buffer_model)
 {
   char *tok;
 
+  /* Get the number of entries in the model */
+  /* -3 is there because we're not counting the metadata lines */
+  universe->model.entry_nb = line_nb(file_buffer_model) - 3;
+
   /* Get the name line and load the model's name from it */
   tok = strtok(file_buffer_model, "\n");
   if ((universe->meta_model_name = malloc(sizeof(char)*(strlen(tok)+1))) == NULL)
@@ -42,9 +46,6 @@ universe_t *universe_load_model(universe_t *universe, char *file_buffer_model)
     return (retstr(NULL, TEXT_UNIVERSE_LOAD_MODEL_FAILURE, __FILE__, __LINE__));
   }
   strcpy(universe->meta_model_comment, tok);
-
-  /* Get the number of entries in the model */
-
 
   return (universe);
 }
