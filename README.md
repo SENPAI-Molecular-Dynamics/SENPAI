@@ -33,5 +33,3 @@ Documentation is available on the [Official SENPAI website](https://www.chelsea4
 [Creating substrates](https://www.chelsea486mhz.fr/senpai/manuals/creating-substrates.html)
 
 [Creating models](https://www.chelsea486mhz.fr/senpai/manuals/creating-models.html)
-
-[Logging simulation data](https://www.chelsea486mhz.fr/senpai/manuals/logging.html)
