@@ -30,9 +30,13 @@ universe_t *universe_init(universe_t *universe, const args_t *args)
   double universe_mass;        /* Total mass of the universe */
 
   /* Initialize the structure variables */
+  universe->file_model = UNIVERSE_FILE_MODEL_DEFAULT;
   universe->file_output = UNIVERSE_FILE_OUTPUT_DEFAULT;
   universe->file_substrate = UNIVERSE_FILE_SUBSTRATE_DEFAULT;
   universe->file_solvent = UNIVERSE_FILE_SOLVENT_DEFAULT;
+  universe->meta_model_name = UNIVERSE_META_MODEL_NAME_DEFAULT;
+  universe->meta_model_author = UNIVERSE_META_MODEL_AUTHOR_DEFAULT;
+  universe->meta_model_comment = UNIVERSE_META_MODEL_COMMENT_DEFAULT;
   universe->meta_substrate_name = UNIVERSE_META_SUBSTRATE_NAME_DEFAULT;
   universe->meta_substrate_author = UNIVERSE_META_SUBSTRATE_AUTHOR_DEFAULT;
   universe->meta_substrate_comment = UNIVERSE_META_SUBSTRATE_COMMENT_DEFAULT;

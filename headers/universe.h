@@ -37,9 +37,13 @@
 #define ATOM_FRC_Z_DEFAULT         ((double)     0.0)
 
 /* t_universe */
+#define UNIVERSE_FILE_MODEL_DEFAULT             ((FILE*)    NULL)
 #define UNIVERSE_FILE_OUTPUT_DEFAULT            ((FILE*)    NULL)
 #define UNIVERSE_FILE_SUBSTRATE_DEFAULT         ((FILE*)    NULL)
 #define UNIVERSE_FILE_SOLVENT_DEFAULT           ((FILE*)    NULL)
+#define UNIVERSE_META_MODEL_NAME_DEFAULT        ((char*)    NULL)
+#define UNIVERSE_META_MODEL_AUTHOR_DEFAULT      ((char*)    NULL)
+#define UNIVERSE_META_MODEL_COMMENT_DEFAULT     ((char*)    NULL)
 #define UNIVERSE_META_SUBSTRATE_NAME_DEFAULT    ((char*)    NULL)
 #define UNIVERSE_META_SUBSTRATE_AUTHOR_DEFAULT  ((char*)    NULL)
 #define UNIVERSE_META_SUBSTRATE_COMMENT_DEFAULT ((char*)    NULL)
