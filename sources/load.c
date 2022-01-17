@@ -155,14 +155,17 @@ universe_t *universe_load_substrate(universe_t *universe, char *file_buffer_subs
   for (i=0; i<(universe->substrate_atom_nb); ++i)
   {
     tok = strtok(NULL, "\n");
-    sscanf(tok, "%lf %lf %lf %ld %lf %lf %lf",
+    if ((sscanf(tok, "%lf %lf %lf %ld %lf %lf %lf",
            &(universe->substrate_atom[i].pos.x),
            &(universe->substrate_atom[i].pos.y),
            &(universe->substrate_atom[i].pos.z),
            &(universe->substrate_atom[i].element),
            &(universe->substrate_atom[i].charge),
            &(universe->substrate_atom[i].epsilon),
-           &(universe->substrate_atom[i].sigma));
+           &(universe->substrate_atom[i].sigma))) != 7)
+    {
+      return (retstr(NULL, TEXT_UNIVERSE_LOAD_SUBSTRATE_FAILURE, __FILE__, __LINE__));
+    }
 
     /* Scale the atom's position vector from Å to m */
     vec3_mul(&(universe->substrate_atom[i].pos), &(universe->substrate_atom[i].pos), 1E-10);
@@ -296,14 +299,17 @@ universe_t *universe_load_solvent(universe_t *universe, char *file_buffer_solven
   for (i=0; i<(universe->solvent_atom_nb); ++i)
   {
     tok = strtok(NULL, "\n");
-    sscanf(tok, "%lf %lf %lf %ld %lf %lf %lf",
+    if ((sscanf(tok, "%lf %lf %lf %ld %lf %lf %lf",
            &(universe->solvent_atom[i].pos.x),
            &(universe->solvent_atom[i].pos.y),
            &(universe->solvent_atom[i].pos.z),
            &(universe->solvent_atom[i].element),
            &(universe->solvent_atom[i].charge),
            &(universe->solvent_atom[i].epsilon),
-           &(universe->solvent_atom[i].sigma));
+           &(universe->solvent_atom[i].sigma))) != 7)
+    {
+      return (retstr(NULL, TEXT_UNIVERSE_LOAD_SOLVENT_FAILURE, __FILE__, __LINE__));
+    }
 
     /* Scale the atom's position vector from Å to m */
     vec3_mul(&(universe->solvent_atom[i].pos), &(universe->solvent_atom[i].pos), 1E-10);
