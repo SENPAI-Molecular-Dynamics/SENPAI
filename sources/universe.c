@@ -830,7 +830,7 @@ universe_t *universe_reducepot(universe_t *universe, args_t *args)
   return (universe);
 }
 
-/* Apply transformations to lower the system's potential energy (Bruteforcing) */
+/* Apply transformations to lower the system's potential energy (wiggling) */
 universe_t *universe_reducepot_coarse(universe_t *universe)
 {
   size_t i;
@@ -896,7 +896,7 @@ universe_t *universe_reducepot_coarse(universe_t *universe)
   return (universe);
 }
 
-/* Apply transformations to lower the system's potential energy (Gradient descent) */
+/* Apply transformations to lower the system's potential energy (gradient descent) */
 universe_t *universe_reducepot_fine(universe_t *universe)
 {
   size_t i;
