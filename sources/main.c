@@ -37,7 +37,7 @@ int main(int argc, char **argv)
   }
 
   /* Reduce the potential energy before simulating */
-   if (universe_reducepot(&universe, &args) == NULL)
+  if (universe_reducepot(&universe, &args) == NULL)
   {
     return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));
   }
