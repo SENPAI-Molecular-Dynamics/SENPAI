@@ -127,14 +127,9 @@ universe_t *force_lennardjones(vec3_t *frc, universe_t *universe, const uint64_t
   if (dst < LENNARDJONES_CUTOFF*sigma)
   {
     /* Compute the force and scale it to Newtons
-     * TODO: idk where I got this constant from
-     *       idk how to find it again
-     *       idk how to make an algorithm to find it again
-     *       if I get rid of it, everything breaks down
-     *       THE CONSTANT IS HERE TO STAY
      */
     force = 48*epsilon*((POW12(sigma)/POW13(dst)) - 0.5*(POW6(sigma)/POW7(dst)));
-    force *= 1.66053892103219E-11;
+    force *= 1.66053892103219E-11; /* Scaling constant to SI units */
     vec3_mul(frc, &vec, force/dst); /* Divide by dst to get the unit vector */
   }
 
