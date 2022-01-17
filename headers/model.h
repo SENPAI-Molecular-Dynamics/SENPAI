@@ -18,7 +18,7 @@
  *
  */
 
-/* t_model_entry */
+/* model_entry_t */
 #define MODEL_ENTRY_ID_DEFAULT              ((uint64_t) 0)
 #define MODEL_ENTRY_NAME_DEFAULT            ((char*)    NULL)
 #define MODEL_ENTRY_SYMBOL_DEFAULT          ((char*)    NULL)
@@ -31,10 +31,10 @@
 
 /* t_model */
 #define MODEL_MODEL_ENTRY_NB_DEFAULT        ((size_t) 0)
-#define MODEL_ENTRY_DEFAULT                 ((t_model_entry*) NULL)
+#define MODEL_ENTRY_DEFAULT                 ((model_entry_t*) NULL)
 
-typedef struct s_model_entry t_model_entry;
-struct s_model_entry
+typedef struct model_entry_s model_entry_t;
+struct model_entry_s
 {
   uint64_t id;
   char *name;
@@ -47,17 +47,17 @@ struct s_model_entry
   double lj_sigma;
 };
 
-typedef struct s_model t_model;
-struct s_model
+typedef struct model_s model_t;
+struct model_s
 {
   size_t model_entry_nb;
-  t_model_entry *entry;
+  model_entry_t *entry;
 };
 
-t_model_entry *model_entry_init(t_model_entry *model_entry);
+model_entry_t *model_entry_init(model_entry_t *model_entry);
 
-t_model *model_init(t_model *model);
-t_model *model_clean(t_model *model);
+model_t *model_init(model_t *model);
+model_t *model_clean(model_t *model);
 
 #define ATOM_NULL 0
 #define ATOM_LP   1

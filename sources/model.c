@@ -11,7 +11,7 @@
 #include "text.h"
 #include "util.h"
 
-t_model_entry *model_entry_init(t_model_entry *model_entry)
+model_entry_t *model_entry_init(model_entry_t *model_entry)
 {
   if (model_entry == NULL)
     return (retstr(NULL, TEXT_MODEL_ENTRY_INIT_FAILURE, __FILE__, __LINE__));
@@ -29,7 +29,7 @@ t_model_entry *model_entry_init(t_model_entry *model_entry)
   return (model_entry);
 }
 
-t_model *model_init(t_model *model)
+model_t *model_init(model_t *model)
 {
   model->model_entry_nb=MODEL_MODEL_ENTRY_NB_DEFAULT;
   model->entry=MODEL_ENTRY_DEFAULT;

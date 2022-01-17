@@ -11,6 +11,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include "model.h"
 #include "vec3.h"
 #include "text.h"
 #include "args.h"
@@ -50,6 +51,7 @@
 #define UNIVERSE_META_SOLVENT_NAME_DEFAULT      ((char*)    NULL)
 #define UNIVERSE_META_SOLVENT_AUTHOR_DEFAULT    ((char*)    NULL)
 #define UNIVERSE_META_SOLVENT_COMMENT_DEFAULT   ((char*)    NULL)
+#define UNIVERSE_MODEL_ENTRY_NB_DEFAULT         ((uint64_t) 0   )
 #define UNIVERSE_SUBSTRATE_ATOM_NB_DEFAULT      ((uint64_t) 0   )
 #define UNIVERSE_SUBSTRATE_BOND_NB_DEFAULT      ((uint64_t) 0   )
 #define UNIVERSE_SUBSTRATE_ATOM_DEFAULT         ((atom_t*)  NULL)
@@ -111,6 +113,10 @@ struct universe_s
   char *meta_solvent_name;      /* The name of the solvent */
   char *meta_solvent_author;    /* Who made the file */
   char *meta_solvent_comment;   /* Some message from the author */
+
+  /* MODEL */
+  model_t model;                /* The model used by the universe */
+  uint64_t model_entry_nb;      /* How many entries are in the model */
 
   /* SUBSTRATE */
   uint64_t substrate_atom_nb;   /* The number of atoms in the substrate */
