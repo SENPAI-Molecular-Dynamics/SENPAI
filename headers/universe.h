@@ -90,8 +90,8 @@ struct universe_s
   /* MISC. INFORMATION */
   FILE *file_model;             /* The model file (.mdm) */
   FILE *file_output;            /* The output file (.xyz) */
-  FILE *file_substrate;         /* The substrate file (.mol) */
-  FILE *file_solvent;           /* The solvent file (.mol) */
+  FILE *file_substrate;         /* The substrate file (.mds) */
+  FILE *file_solvent;           /* The solvent file (.mds) */
 
   /* MODEL METADATA */
   char *meta_model_name;        /* The name of the model */
