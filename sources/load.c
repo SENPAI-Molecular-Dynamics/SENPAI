@@ -96,6 +96,21 @@ universe_t *universe_load_model(universe_t *universe, char *file_buffer_model)
     }
   }
 
+  printf("[ INFO ] Successfully loaded %ld entries:\n\n", universe->model.entry_nb);
+  for (i=0; i < (universe->model.entry_nb); ++i)
+  {
+    printf("[ INFO ] Entry................%ld\n", i+1);
+    printf("         Name.................%s\n", universe->model.entry[i].name);
+    printf("         Symbol...............%s\n", universe->model.entry[i].symbol);
+    printf("         Mass.................%E\n", universe->model.entry[i].mass);
+    printf("         Covalent radius......%E\n", universe->model.entry[i].radius_covalent);
+    printf("         Van Der Waals radius.%E\n", universe->model.entry[i].radius_vdw);
+    printf("         Bond angle...........%lf\n", universe->model.entry[i].bond_angle);
+    printf("         LJ epsilon...........%E\n", universe->model.entry[i].lj_epsilon);
+    printf("         LJ sigma.............%E\n", universe->model.entry[i].lj_sigma);
+    printf("\n");
+  }
+
   return (universe);
 }
 

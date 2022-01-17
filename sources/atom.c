@@ -201,7 +201,7 @@ universe_t *atom_update_frc_analytical(universe_t *universe, const uint64_t atom
 /* Velocity-Verlet integrator */
 universe_t *atom_update_acc(universe_t *universe, const uint64_t atom_id)
 {
-  if (vec3_div(&(universe->atom[atom_id].acc), &(universe->atom[atom_id].frc), model_mass(universe->atom[atom_id].element)) == NULL)
+  if (vec3_div(&(universe->atom[atom_id].acc), &(universe->atom[atom_id].frc), universe->model.entry[universe->atom[atom_id].element].mass) == NULL)
   {
     return (retstr(NULL, TEXT_ATOM_UPDATE_ACC_FAILURE, __FILE__, __LINE__));
   }

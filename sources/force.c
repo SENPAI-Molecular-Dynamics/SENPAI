@@ -51,8 +51,8 @@ universe_t *force_bond(vec3_t *frc, universe_t *universe, const uint64_t a1, con
   }
 
   /* Compute the displacement */
-  radius_a1 = model_covalent_radius(atom_1->element);
-  radius_a2 = model_covalent_radius(atom_2->element);
+  radius_a1 = universe->model.entry[atom_1->element].radius_covalent;
+  radius_a2 = universe->model.entry[atom_2->element].radius_covalent;
   displacement = dst - (radius_a1 + radius_a2);
 
   /* Compute the force vector */
@@ -179,7 +179,7 @@ universe_t *force_angle(vec3_t *frc, universe_t *universe, const uint64_t a1, co
   /* Those are just shortcuts, making the code easier to read */
   current = &(universe->atom[a1]);
   node = &(universe->atom[a2]);
-  angle_eq = model_bond_angle(node->element);
+  angle_eq = universe->model.entry[node->element].bond_angle;
 
   /* If the node has no other ligand, there's nothing to compute */
   if (node->bond_nb == 1)

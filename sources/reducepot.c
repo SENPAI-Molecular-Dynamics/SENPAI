@@ -163,7 +163,7 @@ universe_t *universe_reducepot_fine(universe_t *universe)
     /* The direction in which the step is taken is derived from the force vector, since force = -nabla*potential */
     /* Motion is just fancy gradient descent that instead of bleeding potential conserves it as kinetic energy */
     /* Think of this algorithm as a simulation without motion, we're just reaching equilibrium without motion */
-    step_magnitude = POW2(UNIVERSE_REDUCEPOT_FINE_TIMESTEP)/(2*model_mass(universe->atom[i].element));
+    step_magnitude = POW2(UNIVERSE_REDUCEPOT_FINE_TIMESTEP)/(2* universe->model.entry[universe->atom[i].element].mass);
     vec3_mul(&step, &(universe->atom[i].frc), step_magnitude);
 
     /* Limit the maximum displacement to 1 Angstrom */

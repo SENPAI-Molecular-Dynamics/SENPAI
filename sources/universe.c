@@ -190,7 +190,7 @@ universe_t *universe_init(universe_t *universe, const args_t *args)
   universe_mass = 0.0;
   for (i=0; i<(universe->substrate_atom_nb); ++i)
   {
-    universe_mass += (args->copies)*model_mass(universe->substrate_atom[i].element);
+    universe_mass += args->copies * universe->model.entry[universe->substrate_atom[i].element].mass;
   }
   universe->size = cbrt((universe_mass) / (args->density));
 
@@ -296,7 +296,7 @@ universe_t *universe_setvelocity(universe_t *universe)
   mass_mol = 0;
   for (i=0; i<(universe->substrate_atom_nb); ++i)
   {
-    mass_mol += model_mass(universe->substrate_atom[i].element);
+    mass_mol += universe->model.entry[universe->substrate_atom[i].element].mass;
   }
 
   /* Get the average velocity */
@@ -480,7 +480,7 @@ universe_t *universe_printstate(universe_t *universe)
   {
     fprintf(universe->file_output,
             "%s\t%lf\t%lf\t%lf\n",
-            model_symbol(universe->atom[i].element),
+            universe->model.entry[universe->atom[i].element].symbol,
             universe->atom[i].pos.x*1E10,
             universe->atom[i].pos.y*1E10,
             universe->atom[i].pos.z*1E10);
@@ -498,7 +498,7 @@ universe_t *universe_energy_kinetic(universe_t *universe, double *energy)
   for (i=0; i<(universe->atom_nb); ++i)
   {
     vel = vec3_mag(&(universe->atom[i].vel));
-    *energy += 0.5*POW2(vel)*model_mass(universe->atom[i].element);
+    *energy += 0.5 * POW2(vel) * universe->model.entry[universe->atom[i].element].mass;
   }
 
   return (universe);

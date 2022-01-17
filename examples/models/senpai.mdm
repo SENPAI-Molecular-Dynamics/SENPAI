@@ -1,6 +1,7 @@
 SENPAI
 MURGIA Sasha Emily Chelsea <chelsea486mhz@protonmail.com>
 The default model used by SENPAI
+Null         ?? 0.0        0.0       0.0        0.0    0.0 0.0
 LonePair     Lp 0.0        0.0       0.0        0.0    0.0 0.0
 Hydrogen     H  1.6605E-27 31E-12    122E-12    0.0    0.0 0.0
 Helium       He 6.6422E-27 28E-12    140E-12    0.0    0.0 0.0
@@ -15,7 +16,7 @@ Nitrogen_SP3 N  2.3248E-26 71E-12    155E-12    1.9106 0.0 0.0
 Nitrogen_SP2 N  2.3248E-26 71E-12    155E-12    2.0944 0.0 0.0
 Oxygen_SP3   O  2.6569E-26 66E-12    152E-12    1.9106 0.0 0.0
 Oxygen_SP2   O  2.6569E-26 66E-12    152E-12    2.0944 0.0 0.0
-Oxygen_Water O  2.6569E-26 64.84E-12 152E-12    1.8230 0.0 0.0
 Fluorine     F  3.1550E-26 64E-12    135E-12    0.0    0.0 0.0
 Neon         Ne 3.3211E-26 58E-12    154E-12    0.0    0.0 0.0
 Chlorine     Cl 5.8118E-26 102E-12   175E-12    0.0    0.0 0.0
+Oxygen_Water O  2.6569E-26 64.84E-12 152E-12    1.8230 0.0 0.0
