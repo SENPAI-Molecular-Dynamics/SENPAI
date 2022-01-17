@@ -8,8 +8,14 @@
 #ifndef TEXT_H
 #define TEXT_H
 
-#define COLOUR_RESET "\x1B[0m"
-#define COLOUR_RED   "\x1B[31m"
+#define COLOUR_RESET  "\x1B[0m"
+#define COLOUR_RED    "\x1B[31m"
+#define COLOUR_GREEN  "\x1B[32m"
+#define COLOUR_YELLOW "\x1B[33m"
+
+#define TEXT_INFO    "[ "  COLOUR_YELLOW "INFO"   COLOUR_RESET " ] "
+#define TEXT_FAILURE "["   COLOUR_RED    "FAILED" COLOUR_RESET "] "
+#define TEXT_SUCCESS "[  " COLOUR_GREEN  "OK"     COLOUR_RESET "  ] "
 
 /* Misc. text */
 #define TEXT_START  "   _____ ______ _   _ _____        _____ \n"\
@@ -24,11 +30,10 @@
                     "<< sashamurgia@protonmail.ch | https://github.com/Chelsea486MHz/senpai >> \n"
 
 
-#define TEXT_FAILURE                           "[" COLOUR_RED "FAILURE" COLOUR_RESET "] "
-#define TEXT_SIMSTART                          "Simulation started"
-#define TEXT_SIMEND                            "Simulation ended"
-#define TEXT_REDUCEPOT                         "Lowering potential energy to %lf pJ...\n"
-#define TEXT_POTENTIAL                         "Current potential energy is %lf pJ\n"
+#define TEXT_SIMSTART                          TEXT_INFO "Simulation started"
+#define TEXT_SIMEND                            TEXT_INFO "Simulation ended"
+#define TEXT_REDUCEPOT                         TEXT_INFO "Lowering potential energy to %lf pJ...\n"
+#define TEXT_POTENTIAL                         TEXT_INFO"Current potential energy is %lf pJ\n"
 
 /* args.c */
 #define TEXT_ARG_INVALIDARG                    TEXT_FAILURE "args_init: Unknown argument (\"%s\"). Did you read README.md?\n"

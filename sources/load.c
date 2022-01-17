@@ -6,6 +6,7 @@
  */
 
 #include <stdlib.h>
+#include <errno.h>
 #include <string.h>
 #include <stdio.h>
 
@@ -18,10 +19,26 @@
 universe_t *universe_load_model(universe_t *universe, char *file_buffer_model)
 {
   char *tok;
+  size_t i;
 
   /* Get the number of entries in the model */
   /* -3 is there because we're not counting the metadata lines */
-  universe->model.entry_nb = line_nb(file_buffer_model) - 3;
+  universe->model.entry_nb = line_nb(file_buffer_model) - 4;
+
+  /* Allocate memory for the entries */
+  if ((universe->model.entry = malloc(sizeof(model_entry_t) * universe->model.entry_nb)) == NULL)
+  {
+    return (retstr(NULL, TEXT_UNIVERSE_LOAD_MODEL_FAILURE, __FILE__, __LINE__));
+  }
+
+  /* Initialize each entry */
+  for (i=0; i < universe->model.entry_nb; ++i)
+  {
+    if (model_entry_init(&(universe->model.entry[i])) == NULL)
+    {
+      return (retstr(NULL, TEXT_UNIVERSE_LOAD_MODEL_FAILURE, __FILE__, __LINE__));
+    }
+  }
 
   /* Get the name line and load the model's name from it */
   tok = strtok(file_buffer_model, "\n");
@@ -46,6 +63,38 @@ universe_t *universe_load_model(universe_t *universe, char *file_buffer_model)
     return (retstr(NULL, TEXT_UNIVERSE_LOAD_MODEL_FAILURE, __FILE__, __LINE__));
   }
   strcpy(universe->meta_model_comment, tok);
+
+  /* Load each entry */
+  for (i=0; i < (universe->model.entry_nb); ++i)
+  {
+    /* Get the next line */
+    tok = strtok(NULL, "\n");
+
+    /* Initialize memory for each entry name and symbol */
+    if ((universe->model.entry[i].name = malloc(sizeof(char) * strlen(tok))) == NULL)
+    {
+      return (retstr(NULL, TEXT_UNIVERSE_LOAD_MODEL_FAILURE, __FILE__, __LINE__));
+    }
+
+    if ((universe->model.entry[i].symbol = malloc(sizeof(char) * strlen(tok))) == NULL)
+    {
+      return (retstr(NULL, TEXT_UNIVERSE_LOAD_MODEL_FAILURE, __FILE__, __LINE__));
+    }
+
+    /* Get the next entry as a line */
+    if (sscanf(tok, "%s %s %lf %lf %lf %lf %lf %lf",
+           universe->model.entry[i].name,
+           universe->model.entry[i].symbol,
+           &(universe->model.entry[i].mass),
+           &(universe->model.entry[i].radius_covalent),
+           &(universe->model.entry[i].radius_vdw),
+           &(universe->model.entry[i].bond_angle),
+           &(universe->model.entry[i].lj_epsilon),
+           &(universe->model.entry[i].lj_sigma)) != 8)
+    {
+      return (retstr(NULL, TEXT_UNIVERSE_LOAD_MODEL_FAILURE, __FILE__, __LINE__));
+    }
+  }
 
   return (universe);
 }

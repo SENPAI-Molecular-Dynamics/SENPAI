@@ -329,12 +329,18 @@ void universe_clean(universe_t *universe)
     atom_clean(&(universe->atom[i]));
   }
 
+  model_clean(&(universe->model));
+
   /* Close the file pointers */
+  fclose(universe->file_model);
   fclose(universe->file_substrate);
   fclose(universe->file_solvent);
   fclose(universe->file_output);
 
   /* Free allocated memory */
+  free(universe->meta_model_name);
+  free(universe->meta_model_author);
+  free(universe->meta_model_comment);
   free(universe->meta_substrate_name);
   free(universe->meta_substrate_author);
   free(universe->meta_substrate_comment);

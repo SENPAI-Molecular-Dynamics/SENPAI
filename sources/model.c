@@ -33,6 +33,22 @@ model_t *model_init(model_t *model)
 {
   model->entry_nb=MODEL_MODEL_ENTRY_NB_DEFAULT;
   model->entry=MODEL_ENTRY_DEFAULT;
+
+  return (model);
+}
+
+model_t *model_clean(model_t *model)
+{
+  size_t i;
+
+  for (i=0; i < model->entry_nb; ++i)
+  {
+    free(model->entry[i].name);
+    free(model->entry[i].symbol);
+  }
+
+  free(model->entry);
+
   return (model);
 }
 
