@@ -88,9 +88,15 @@ typedef struct universe_s universe_t;
 struct universe_s
 {
   /* MISC. INFORMATION */
+  FILE *file_model;             /* The model file (.mdm) */
   FILE *file_output;            /* The output file (.xyz) */
   FILE *file_substrate;         /* The substrate file (.mol) */
   FILE *file_solvent;           /* The solvent file (.mol) */
+
+  /* MODEL METADATA */
+  char *meta_model_name;        /* The name of the model */
+  char *meta_model_author;      /* Who made the file */
+  char *meta_model_comment;     /* Some message from the author */
 
   /* SUBSTRATE METADATA */
   char *meta_substrate_name;    /* The name of the substrate */
@@ -148,6 +154,7 @@ universe_t *universe_init(universe_t *universe, const args_t *args);
 void        universe_clean(universe_t *universe);
 universe_t *universe_populate(universe_t *universe);
 universe_t *universe_setvelocity(universe_t *universe);
+universe_t *universe_load_model(universe_t *universe, char *model_file_buffer);
 universe_t *universe_load_substrate(universe_t *universe, char *substrate_file_buffer);
 universe_t *universe_load_solvent(universe_t *universe, char *solvent_file_buffer);
 universe_t *universe_printstate(universe_t *universe);
