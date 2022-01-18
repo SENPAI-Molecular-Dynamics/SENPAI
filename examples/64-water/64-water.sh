@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# 16-water.sh
+# 64-water.sh
 # SENPAI technological demonstration
 # 2022-01-07 Chelsea Murgia
 #
@@ -14,7 +14,7 @@ SOLVENT=void.mds
 MODEL=model.mdm
 OUTPUT=render.xyz
 DURATION=0.001
-WATER_NB=16
+WATER_NB=64
 TARGET_POTENTIAL=0.1
 RANDOM_SEED=1337
 
