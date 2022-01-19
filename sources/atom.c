@@ -155,22 +155,30 @@ universe_t *atom_update_frc_numerical_tetrahedron(universe_t *universe, const ui
   universe->atom[atom_id].pos.y -= hy;
   universe->atom[atom_id].pos.z -= hz;
   if (potential_total(&potential_000, universe, atom_id) == NULL)
+  {
     return (retstr(NULL, TEXT_ATOM_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
+  }
 
   universe->atom[atom_id].pos.x += 2*hx;
   universe->atom[atom_id].pos.y += 2*hy;
   if (potential_total(&potential_110, universe, atom_id) == NULL)
+  {
     return (retstr(NULL, TEXT_ATOM_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
+  }
 
   universe->atom[atom_id].pos.x -= 2*hx;
   universe->atom[atom_id].pos.z += 2*hz;
   if (potential_total(&potential_011, universe, atom_id) == NULL)
+  {
     return (retstr(NULL, TEXT_ATOM_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
+  }
 
   universe->atom[atom_id].pos.x += 2*hx;
   universe->atom[atom_id].pos.y -= 2*hy;
   if (potential_total(&potential_101, universe, atom_id) == NULL)
+  {
     return (retstr(NULL, TEXT_ATOM_UPDATE_FRC_FAILURE, __FILE__, __LINE__));
+  }
 
   universe->atom[atom_id].frc.x = -(potential_110 + potential_101 - potential_000 - potential_011)/(4*hx);
   universe->atom[atom_id].frc.y = -(potential_110 + potential_011 - potential_000 - potential_101)/(4*hy);
