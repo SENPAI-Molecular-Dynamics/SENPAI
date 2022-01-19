@@ -8,6 +8,8 @@
 #ifndef TEXT_H
 #define TEXT_H
 
+#define LINE_RESET    "\33[2K\r"
+
 #define COLOUR_RESET  "\x1B[0m"
 #define COLOUR_RED    "\x1B[31m"
 #define COLOUR_GREEN  "\x1B[32m"
@@ -101,6 +103,9 @@
 #define TEXT_INFO_TIMESTEP                                  "Timestep...............%lf fs\n"
 #define TEXT_INFO_FRAMESKIP                                 "Frameskip..............%ld\n"
 #define TEXT_INFO_ITERATIONS                                "Iterations.............%ld\n\n"
+
+#define TEXT_UNIVERSE_SIMULATE_SUCCESS         LINE_RESET TEXT_SUCCESS "Rendered frame %ld/%ld (%.2lf %%)"
+
 #define TEXT_UNIVERSE_INIT_FAILURE             TEXT_FAILURE "universe_init: Failed to initialize the universe"
 #define TEXT_UNIVERSE_LOAD_MODEL_FAILURE       TEXT_FAILURE "universe_load_model: Failed to load initial state"
 #define TEXT_UNIVERSE_LOAD_SUBSTRATE_FAILURE   TEXT_FAILURE "universe_load_substrate: Failed to load initial state"

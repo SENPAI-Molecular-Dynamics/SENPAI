@@ -356,7 +356,9 @@ void universe_clean(universe_t *universe)
 int universe_simulate(universe_t *universe, const args_t *args)
 {
   uint64_t frame_nb; /* Used for frameskipping */
+  uint64_t frame_max;
 
+  frame_max = (args->max_time / args->timestep);
   /* Tell the user the simulation is starting */
   puts(TEXT_SIMSTART);
 
@@ -382,9 +384,13 @@ int universe_simulate(universe_t *universe, const args_t *args)
       return (retstri(EXIT_FAILURE, TEXT_UNIVERSE_SIMULATE_FAILURE, __FILE__, __LINE__));
     }
 
+    printf(TEXT_UNIVERSE_SIMULATE_SUCCESS, universe->iterations + 1, frame_max, (double) 100 * (universe->iterations + 1) / frame_max);
+
     universe->time += args->timestep;
     ++(universe->iterations);
   }
+
+  printf("\n");
 
   /* End of simulation */
   puts(TEXT_SIMEND);
