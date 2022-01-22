@@ -17,21 +17,48 @@
 /* Move the atoms around until a target potential is reached */
 universe_t *universe_reducepot(universe_t *universe, args_t *args)
 {
-  double potential;
+  uint64_t cycle_nb_coarse;                 /* How many cycles of wiggling we went through */
+  uint64_t cycle_nb_fine;                   /* How many cycles of gradient descent we went through */
+  double potential_last_cycle;              /* Potential energy at the last cycle */
+  double potential_delta;                   /* How much the potential changed after the last cycle */
+  double potential;                         /* Current potential energy of the universe */
+  double potential_reduced_so_far;
+  double potential_to_reduce;
+  double progress;
 
   /* Compute and print the current potential */
   if (universe_energy_potential(universe, &potential) == NULL)
   {
     return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FAILURE, __FILE__, __LINE__));
   }
-  printf(TEXT_POTENTIAL, potential*1E12);
+  printf(TEXT_UNIVERSE_REDUCEPOT_CURRENT_POT, potential*1E12, args->reduce_potential * 1E12);
 
-  /* Print the target potential */
-  printf(TEXT_REDUCEPOT, args->reduce_potential*1E12);
-
-  /* PHASE 1 - BRUTEFORCE */
-  while (potential > UNIVERSE_REDUCEPOT_COARSE_THRESHOLD * args->reduce_potential)
+  /* Exit if we don't need to reduce the potential any more */
+  if (potential < args->reduce_potential)
   {
+    printf("\n");
+    return (universe);
+  }
+
+  /* Otherwise, get the potential to reduce */
+  potential_to_reduce = potential - args->reduce_potential;
+
+  /* Print the message that says we're starting potential reduction */
+  printf(TEXT_UNIVERSE_REDUCEPOT_START);
+
+  /* PHASE 1 - BRUTEFORCE/WIGGLING */
+  cycle_nb_coarse = 0;
+  potential_reduced_so_far = 0.0;
+  potential_delta = 0.0;
+  progress = 0.0;
+  printf(TEXT_UNIVERSE_REDUCEPOT_COARSE_START);
+  while (progress < 0.5)
+  {
+    potential_last_cycle = potential;
+
+    /* Increment how many cycles we went through */
+    ++cycle_nb_coarse;
+
     if (universe_reducepot_coarse(universe) == NULL)
     {
       return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FAILURE, __FILE__, __LINE__));
@@ -42,11 +69,46 @@ universe_t *universe_reducepot(universe_t *universe, args_t *args)
     {
       return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FAILURE, __FILE__, __LINE__));
     }
+
+    /* Compute how much the potential changed */
+    potential_delta = potential_last_cycle - potential;
+
+    /* Compute the current progress
+     * progress = percentage
+     *            (of how much potential we reduced,
+     *            out of the potential we have to reduce
+     *            to reach the target potential)
+     * progress = potential_reduced_so_far / potential_to_reduce;
+     *
+     * potential_reduced_so_far is the sum of all potential deltas.
+     */
+    potential_reduced_so_far += potential_delta;
+    progress = potential_reduced_so_far / potential_to_reduce;
+
+    /* Print current status */
+    printf(TEXT_UNIVERSE_REDUCEPOT_COARSE_SUCCESS, potential_delta*1E12, potential*1E12, cycle_nb_coarse, progress*1E2);
+    fflush(stdout);
+  }
+
+  /* We need to print a new line, that last message doesn't print its own */
+  printf("\n");
+  
+  /* Exit if we don't need to reduce the potential any more */
+  if (potential < args->reduce_potential)
+  {
+    printf("\n");
+    return (universe);
   }
 
   /* PHASE 2 - GRADIENT DESCENT */
+  cycle_nb_fine= 0;
+  printf(TEXT_UNIVERSE_REDUCEPOT_FINE_START);
   while (potential > args->reduce_potential)
   {
+    potential_last_cycle = potential;
+
+    /* Increment how many cycles we went through */
+    ++cycle_nb_fine;
     if (universe_reducepot_fine(universe) == NULL)
     {
       return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FAILURE, __FILE__, __LINE__));
@@ -57,7 +119,32 @@ universe_t *universe_reducepot(universe_t *universe, args_t *args)
     {
       return (retstr(NULL, TEXT_UNIVERSE_REDUCEPOT_FAILURE, __FILE__, __LINE__));
     }
+
+    /* Compute how much the potential changed */
+    potential_delta = potential_last_cycle - potential;
+    
+    /* Compute the current progress
+     * progress = percentage
+     *            (of how much potential we reduced,
+     *            out of the potential we have to reduce
+     *            to reach the target potential)
+     * progress = potential_reduced_so_far / potential_to_reduce;
+     *
+     * potential_reduced_so_far is the sum of all potential deltas.
+     */
+    potential_reduced_so_far += potential_delta;
+    progress = potential_reduced_so_far / potential_to_reduce;
+
+    /* Print current status */
+    printf(TEXT_UNIVERSE_REDUCEPOT_FINE_SUCCESS, potential_delta*1E12, potential*1E12, cycle_nb_fine, progress*1E2);
+    fflush(stdout);
   }
+
+  /* We need to print a new line, that last message doesn't print its own */
+  printf("\n");
+
+  /* Print the message saying we're done reducing the potential */
+  printf(TEXT_UNIVERSE_REDUCEPOT_SUCCESS);
 
   return (universe);
 }

@@ -34,8 +34,6 @@
 
 #define TEXT_SIMSTART                          TEXT_INFO "Simulation started"
 #define TEXT_SIMEND                            TEXT_INFO "Simulation ended"
-#define TEXT_REDUCEPOT                         TEXT_INFO "Lowering potential energy to %E pJ...\n"
-#define TEXT_POTENTIAL                         TEXT_INFO "Current potential energy is %E pJ\n"
 
 /* args.c */
 #define TEXT_ARG_INVALIDARG                    TEXT_FAILURE "args_init: Unknown argument (\"%s\"). Did you read README.md?\n"
@@ -104,7 +102,18 @@
 #define TEXT_INFO_FRAMESKIP                                 "Frameskip..............%ld\n"
 #define TEXT_INFO_ITERATIONS                                "Iterations.............%ld\n\n"
 
-#define TEXT_UNIVERSE_SIMULATE_SUCCESS         LINE_RESET TEXT_SUCCESS "Rendered frame %ld/%ld (%.2lf %%)"
+#define TEXT_UNIVERSE_SIMULATE_SUCCESS         LINE_RESET TEXT_SUCCESS "Rendered frame %ld/%ld (%.2lf%%)"
+
+#define TEXT_UNIVERSE_REDUCEPOT_CURRENT_POT               TEXT_INFO    "Current potential is %.2E pJ (Target: %.2E pJ)\n"
+#define TEXT_UNIVERSE_REDUCEPOT_START                     TEXT_INFO    "Starting potential reduction\n"
+#define TEXT_UNIVERSE_REDUCEPOT_COARSE_START              TEXT_INFO    "Reducing potential through wiggling\n"
+#define TEXT_UNIVERSE_REDUCEPOT_COARSE_SUCCESS LINE_RESET TEXT_SUCCESS "Reduced potential by %.2E pJ to %.2E pJ (%ld cycles, %.2lf%% complete)"
+#define TEXT_UNIVERSE_REDUCEPOT_FINE_START                TEXT_INFO    "Reducing potential through gradient descent\n"
+#define TEXT_UNIVERSE_REDUCEPOT_FINE_SUCCESS   LINE_RESET TEXT_SUCCESS "Reduced potential by %.2E pJ to %.2E pJ (%ld cycles, %.2lf%% complete)"
+#define TEXT_UNIVERSE_REDUCEPOT_SUCCESS                   TEXT_SUCCESS "Universe reached target potential\n"
+#define TEXT_UNIVERSE_REDUCEPOT_FAILURE                   TEXT_FAILURE "universe_reducepot: Failed to lower the system's potential"
+#define TEXT_UNIVERSE_REDUCEPOT_COARSE_FAILURE            TEXT_FAILURE "universe_reducepot_coarse: Failed to lower the system's potential"
+#define TEXT_UNIVERSE_REDUCEPOT_FINE_FAILURE              TEXT_FAILURE "universe_reducepot_fine: Failed to lower the system's potential"
 
 #define TEXT_UNIVERSE_INIT_FAILURE             TEXT_FAILURE "universe_init: Failed to initialize the universe"
 #define TEXT_UNIVERSE_LOAD_MODEL_FAILURE       TEXT_FAILURE "universe_load_model: Failed to load initial state"
@@ -117,9 +126,6 @@
 #define TEXT_UNIVERSE_ENERGY_KINETIC_FAILURE   TEXT_FAILURE "universe_energy_kinetic: Failed to compute kinetic system energy"
 #define TEXT_UNIVERSE_ENERGY_POTENTIAL_FAILURE TEXT_FAILURE "universe_energy_potential: Failed to compute potential system energy"
 #define TEXT_UNIVERSE_ENERGY_TOTAL_FAILURE     TEXT_FAILURE "universe_energy_total: Failed to compute total system energy"
-#define TEXT_UNIVERSE_REDUCEPOT_FAILURE        TEXT_FAILURE "universe_reducepot: Failed to lower the system's potential"
-#define TEXT_UNIVERSE_REDUCEPOT_COARSE_FAILURE TEXT_FAILURE "universe_reducepot_coarse: Failed to lower the system's potential"
-#define TEXT_UNIVERSE_REDUCEPOT_FINE_FAILURE   TEXT_FAILURE "universe_reducepot_fine: Failed to lower the system's potential"
 #define TEXT_UNIVERSE_PARAMETERS_PRINT_FAILURE TEXT_FAILURE "universe_parameters_print: Failed to print the simulation parameters"
 
 /* vec3.c */

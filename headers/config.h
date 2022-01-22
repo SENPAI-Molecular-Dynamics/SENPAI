@@ -94,19 +94,17 @@
  * Before starting a simulation, SENPAI will use a two-stage algorithm to reduce
  * the potential energy of the system.
  *
- * STAGE 1: COARSE (brute force)
+ * STAGE 1: COARSE (brute force, wiggling)
  * The first stage consists of iterating through the particles and relocating
  * them to random offsets, discarding the relocation should the total potential
  * increase. The magnitude of the relocation offset gets lowered after a set
- * number of attempts. The first stage ends when the potential reaches a
- * defined multiple of the target potential.
+ * number of attempts. The first stage ends when the potential energy has been
+ * halved.
  *   UNIVERSE_REDUCEPOT_COARSE_STEP_MAGNITUDE: start magnitude of the relocation
  *   UNIVERSE_REDUCEPOT_COARSE_MAX_ATTEMPTS: Max attempts before lowering the
  *                                           magnitude.
  *   UNIVERSE_REDUCEPOT_COARSE_MAGNITUDE_MULTIPLIER: Reduce the magnitude by
  *                                                   multiplying it.
- *   UNIVERSE_REDUCEPOT_COARSE_THRESHOLD: Target (multiple of the pre-reduction
-                                          potential)
  *
  * STAGE 2: FINE (fine)
  * The second stage consists of tuning the coordinates of each atom so as to
@@ -118,7 +116,6 @@
 #define UNIVERSE_REDUCEPOT_COARSE_STEP_MAGNITUDE       ((double)1E-9)
 #define UNIVERSE_REDUCEPOT_COARSE_MAX_ATTEMPTS         ((size_t)1E2)
 #define UNIVERSE_REDUCEPOT_COARSE_MAGNITUDE_MULTIPLIER ((double)1E-1)
-#define UNIVERSE_REDUCEPOT_COARSE_THRESHOLD            ((double)2E0)
 #define UNIVERSE_REDUCEPOT_FINE_MAX_STEP               ((double)1E-10)
 #define UNIVERSE_REDUCEPOT_FINE_TIMESTEP               ((double)1E-15)
 

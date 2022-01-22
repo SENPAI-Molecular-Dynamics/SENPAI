@@ -356,9 +356,6 @@ universe_t *potential_total(double *pot, universe_t *universe, const uint64_t at
         
         *pot += pot_electrostatic;
         *pot += pot_lennardjones;
-        
-        if (pot_electrostatic < 0.0) printf("DEBUG: Negative electrostatic potential computed for atom %ld\n", i);
-        if (pot_lennardjones < 0.0) printf("DEBUG: Negative LJ potential computed for atom %ld\n", i);
       }
 
       /* Restore the backup coordinates */
