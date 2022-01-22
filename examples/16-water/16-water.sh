@@ -27,7 +27,7 @@ senpai --substrate ${SUBSTRATE}\
        --time ${DURATION} \
        --copy ${WATER_NB} \
        --reduce_potential ${TARGET_POTENTIAL} \
-       --srand ${RANDOM_SEED}
+       --srand ${RANDOM_SEED} \
 
 if [ $? -ne 0 ]; then
   echo "[FAILED] SENPAI couldn't execute properly."

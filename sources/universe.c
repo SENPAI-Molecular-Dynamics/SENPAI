@@ -385,6 +385,7 @@ int universe_simulate(universe_t *universe, const args_t *args)
     }
 
     printf(TEXT_UNIVERSE_SIMULATE_SUCCESS, universe->iterations + 1, frame_max, (double) 100 * (universe->iterations + 1) / frame_max);
+    fflush(stdout);
 
     universe->time += args->timestep;
     ++(universe->iterations);
