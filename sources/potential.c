@@ -67,6 +67,8 @@ universe_t *potential_electrostatic(double *pot, universe_t *universe, const uin
 {
   atom_t *atom_1;
   atom_t *atom_2;
+  double atom1_charge;
+  double atom2_charge;
   double dst;
   vec3_t vec;
 
@@ -84,8 +86,12 @@ universe_t *potential_electrostatic(double *pot, universe_t *universe, const uin
     return (retstr(NULL, TEXT_POTENTIAL_ELECTROSTATIC_FAILURE, __FILE__, __LINE__));
   }
 
+  /* Convert the charges to their absolute values */
+  atom1_charge = (atom_1->charge < 0.0 ) ? -(atom_1->charge) : (atom_1->charge);
+  atom2_charge = (atom_2->charge < 0.0 ) ? -(atom_2->charge) : (atom_2->charge);
+
   /* Compute the potential */
-  *pot = (atom_1->charge * atom_2->charge) / (dst*4*M_PI*C_VACUUMPERM);
+  *pot = (atom1_charge * atom2_charge) / (dst*4*M_PI*C_VACUUMPERM);
 
   return (universe);
 }
@@ -347,8 +353,12 @@ universe_t *potential_total(double *pot, universe_t *universe, const uint64_t at
         }
 
         /* Sum the potentials */
+        
         *pot += pot_electrostatic;
         *pot += pot_lennardjones;
+        
+        if (pot_electrostatic < 0.0) printf("DEBUG: Negative electrostatic potential computed for atom %ld\n", i);
+        if (pot_lennardjones < 0.0) printf("DEBUG: Negative LJ potential computed for atom %ld\n", i);
       }
 
       /* Restore the backup coordinates */
