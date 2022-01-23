@@ -52,7 +52,7 @@ universe_t *universe_reducepot(universe_t *universe, args_t *args)
   potential_delta = 0.0;
   progress = 0.0;
   printf(TEXT_UNIVERSE_REDUCEPOT_COARSE_START);
-  while (progress < 0.5)
+  while (progress < UNIVERSE_REDUCEPOT_END_WIGGLING)
   {
     potential_last_cycle = potential;
 
@@ -84,10 +84,18 @@ universe_t *universe_reducepot(universe_t *universe, args_t *args)
      */
     potential_reduced_so_far += potential_delta;
     progress = potential_reduced_so_far / potential_to_reduce;
-
+    
     /* Print current status */
     printf(TEXT_UNIVERSE_REDUCEPOT_COARSE_SUCCESS, potential_delta*1E12, potential*1E12, cycle_nb_coarse, progress*1E2);
     fflush(stdout);
+    
+    /* If the potential can't be significantly reduced anymore, start the simulation */
+    if (potential_delta < UNIVERSE_REDUCEPOT_CUTOFF)
+    {
+      printf("\n");
+      printf(TEXT_UNIVERSE_REDUCEPOT_CUTOFF);
+      break;
+    }
   }
 
   /* We need to print a new line, that last message doesn't print its own */
@@ -138,6 +146,14 @@ universe_t *universe_reducepot(universe_t *universe, args_t *args)
     /* Print current status */
     printf(TEXT_UNIVERSE_REDUCEPOT_FINE_SUCCESS, potential_delta*1E12, potential*1E12, cycle_nb_fine, progress*1E2);
     fflush(stdout);
+
+    /* If the potential can't be significantly reduced anymore, start the simulation */
+    if (potential_delta < UNIVERSE_REDUCEPOT_CUTOFF)
+    {
+      printf("\n");
+      printf(TEXT_UNIVERSE_REDUCEPOT_CUTOFF);
+      break;
+    }
   }
 
   /* We need to print a new line, that last message doesn't print its own */

@@ -112,11 +112,18 @@
  * analytical gradient is easily computable from the force (F = -nabla*U).
  *   UNIVERSE_REDUCEPOT_FINE_MAX_STEP: Maximum step an atom can take
  *   UNIVERSE_REDUCEPOT_FINE_TIMESTEP: Used to compute the step (dx=(dt^2)/2)
+ *   UNIVERSE_REDUCEPOT_END_WIGGLING: Percentage progress after which we
+ *                                    stop wiggling and use grad descent
+ *   UNIVERSE_REDUCEPOT_CUTOFF: If a step decreases the potential energy
+ *                              by less than this value, potential reduction
+ *                              stops and the simulation starts. (J)
  */
 #define UNIVERSE_REDUCEPOT_COARSE_STEP_MAGNITUDE       ((double)1E-9)
 #define UNIVERSE_REDUCEPOT_COARSE_MAX_ATTEMPTS         ((size_t)1E2)
 #define UNIVERSE_REDUCEPOT_COARSE_MAGNITUDE_MULTIPLIER ((double)1E-1)
 #define UNIVERSE_REDUCEPOT_FINE_MAX_STEP               ((double)1E-10)
 #define UNIVERSE_REDUCEPOT_FINE_TIMESTEP               ((double)1E-15)
+#define UNIVERSE_REDUCEPOT_END_WIGGLING                ((double)0.5)
+#define UNIVERSE_REDUCEPOT_CUTOFF                      ((double)1E-6 * 1E-12)
 
 #endif
