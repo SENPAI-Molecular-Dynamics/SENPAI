@@ -36,14 +36,14 @@ int main(int argc, char **argv)
     return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));
   }
 
-  /* Reduce the potential energy before simulating */
-  if (universe_reducepot(&universe, &args) == NULL)
+  /* Print the simulation parameters */
+  if (universe_parameters_print(&universe, &args) == NULL)
   {
     return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));
   }
 
-  /* Print the simulation parameters */
-  if (universe_parameters_print(&universe, &args) == NULL)
+  /* Reduce the potential energy before simulating */
+  if (universe_reducepot(&universe, &args) == NULL)
   {
     return (retstri(EXIT_FAILURE, TEXT_MAIN_FAILURE, __FILE__, __LINE__));
   }

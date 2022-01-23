@@ -95,7 +95,6 @@
 #define TEXT_INFO_TEMPERATURE                               "Temperature............%lf K\n"
 #define TEXT_INFO_PRESSURE                                  "Pressure...............%lf hPa\n"
 #define TEXT_INFO_DENSITY                                   "Density................%lf g.cm-3\n"
-#define TEXT_INFO_POTENTIAL_ENERGY                          "Total potential energy.%lf pJ\n"
 #define TEXT_INFO_UNIVERSE_SIZE                             "Universe size  ........%lf pm\n"
 #define TEXT_INFO_SIMULATION_TIME                           "Simulation time........%lf ns\n"
 #define TEXT_INFO_TIMESTEP                                  "Timestep...............%lf fs\n"
