@@ -596,9 +596,9 @@ universe_t *universe_parameters_print(universe_t *universe, const args_t *args)
   printf(TEXT_INFO_TEMPERATURE, universe->temperature);
   printf(TEXT_INFO_PRESSURE, args->pressure/1E2);
   printf(TEXT_INFO_DENSITY, args->density/1E3);
-  printf(TEXT_INFO_UNIVERSE_SIZE, universe->size*1E12);
-  printf(TEXT_INFO_SIMULATION_TIME, args->max_time*1E9);
-  printf(TEXT_INFO_TIMESTEP, args->timestep*1E15);
+  printf(TEXT_INFO_UNIVERSE_SIZE, universe->size);
+  printf(TEXT_INFO_SIMULATION_TIME, args->max_time);
+  printf(TEXT_INFO_TIMESTEP, args->timestep);
   printf(TEXT_INFO_FRAMESKIP, args->frameskip);
   printf(TEXT_INFO_ITERATIONS, (long)floor(args->max_time/args->timestep));
 
