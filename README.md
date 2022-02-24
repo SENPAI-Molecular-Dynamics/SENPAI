@@ -1,6 +1,6 @@
 # SENPAI - Simplified Evolutive N-body Processing and Analytics for Integration
 
-[Official SENPAI website](https://www.chelsea486mhz.fr/senpai/index.html)
+[Official SENPAI website](https://senpaimd.org)
 
 SENPAI is a flexible, highly-configurable molecular dynamics (MD) simulation software aimed at students and academia.
 
@@ -24,12 +24,12 @@ SENPAI is licensed under the terms of the GPLv3.
 
 # Documentation
 
-Documentation is available on the [Official SENPAI website](https://www.chelsea486mhz.fr/senpai/index.html).
+Documentation is available on the [Official SENPAI website](https://senpaimd.org).
 
-[Installation Manual](https://www.chelsea486mhz.fr/senpai/manuals/installation.html)
+[Installation Manual](https://senpaimd.org/manuals/installation)
 
-[Your first simulation](https://www.chelsea486mhz.fr/senpai/manuals/first-simulation.html)
+[Your first simulation](https://senpaimd.org/senpai/manuals/first-simulation)
 
-[Creating substrates](https://www.chelsea486mhz.fr/senpai/manuals/creating-substrates.html)
+[Creating substrates](https://senpaimd.org/senpai/manuals/creating-substrates)
 
-[Creating models](https://www.chelsea486mhz.fr/senpai/manuals/creating-models.html)
+[Creating models](https://senpaimd.org/senpai/manuals/creating-models)

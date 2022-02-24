@@ -20,16 +20,14 @@
 #define TEXT_SUCCESS "[  " COLOUR_GREEN  "OK"     COLOUR_RESET "  ] "
 
 /* Misc. text */
-#define TEXT_START  "   _____ ______ _   _ _____        _____ \n"\
-                    "  / ____|  ____| \\ | |  __ \\ /\\   |_   _|\n"\
-                    " | (___ | |__  |  \\| | |__) /  \\    | |  \n"\
-                    "  \\___ \\|  __| | . ` |  ___/ /\\ \\   | |  \n"\
-                    "  ____) | |____| |\\  | |  / ____ \\ _| |_ \n"\
-                    " |_____/|______|_| \\_|_| /_/    \\_\\_____|\n\n" \
-                    "Simplified Evolutive N-body Processing and Analytics for Integration (VERSION 1.0)\n\n"\
-                    "<< 2018-2022 Sasha Emily Chelsea MURGIA >>\n" \
+#define TEXT_START  "   _____ _______   ______  ___    ____\n" \
+                    "  / ___// ____/ | / / __ \\/   |  /  _/\n" \
+                    "  \\__ \\/ __/ /  |/ / /_/ / /| |  / /  \n" \
+                    " ___/ / /___/ /|  / ____/ ___ |_/ /   \n" \
+                    "/____/_____/_/ |_/_/   /_/  |_/___/   \n" \
+                    "<< 2018-2022 SENPAI Molecular Dynamics >>\n" \
                     "<< SENPAI and its source code are licensed under the terms of the GPLv3 license >>\n" \
-                    "<< sashamurgia@protonmail.ch | https://github.com/Chelsea486MHz/senpai >> \n"
+                    "<< https://senpaimd.org | https://github.com/SENPAI-Molecular-Dynamics/senpai >> \n"
 
 
 #define TEXT_SIMSTART                          TEXT_INFO "Simulation started"
