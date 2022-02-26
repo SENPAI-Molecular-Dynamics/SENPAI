@@ -6,27 +6,52 @@
  */
 
 #include <stdio.h>
+#include <time.h>
 
 #include "util.h"
 
 /* Prints str, with extra info (__FILE__ and __LINE__) before returning ret */
 void *retstr(void *ret, const char *str, const char *file, const int line)
 {
-  fprintf(stderr, "%s (%s:%d)\n", str, file, line);
+  char timestr[1024];
+
+  /* Get current time */
+  time_t t = time(NULL);
+  struct tm *p = localtime(&t);
+  strftime(timestr, 1024, "[%F %H:%M:%S]", p);
+
+  fprintf(stderr, "%s %s (%s:%d)\n", timestr, str, file, line);
+
   return (ret);
 }
 
 /* Prints str, with extra info (__FILE__ and __LINE__) before returning ret */
 int retstri(const int ret, const char *str, const char *file, const int line)
 {
-  fprintf(stderr, "%s (%s:%d)\n", str, file, line);
+  char timestr[1024];
+
+  /* Get current time */
+  time_t t = time(NULL);
+  struct tm *p = localtime(&t);
+  strftime(timestr, 1024, "[%F %H:%M:%S]", p);
+
+  fprintf(stderr, "%s %s (%s:%d)\n", timestr, str, file, line);
+
   return (ret);
 }
 
 /* Prints str, with extra info (__FILE__ and __LINE__) before returning ret */
 double retstrf(const double ret, const char *str, const char *file, const int line)
 {
-  fprintf(stderr, "%s (%s:%d)\n", str, file, line);
+  char timestr[1024];
+
+  /* Get current time */
+  time_t t = time(NULL);
+  struct tm *p = localtime(&t);
+  strftime(timestr, 1024, "[%F %H:%M:%S]", p);
+
+  fprintf(stderr, "%s %s (%s:%d)\n", timestr, str, file, line);
+
   return (ret);
 }
 
