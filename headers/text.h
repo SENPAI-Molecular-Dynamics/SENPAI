@@ -24,7 +24,7 @@
                     "  / ___// ____/ | / / __ \\/   |  /  _/\n" \
                     "  \\__ \\/ __/ /  |/ / /_/ / /| |  / /  \n" \
                     " ___/ / /___/ /|  / ____/ ___ |_/ /   \n" \
-                    "/____/_____/_/ |_/_/   /_/  |_/___/   \n" \
+                    "/____/_____/_/ |_/_/   /_/  |_/___/   \n\n" \
                     "<< 2018-2022 SENPAI Molecular Dynamics >>\n" \
                     "<< SENPAI and its source code are licensed under the terms of the GPLv3 license >>\n" \
                     "<< https://senpaimd.org | https://github.com/SENPAI-Molecular-Dynamics/senpai >> \n"
