@@ -11,6 +11,7 @@
 #include <stdio.h>
 
 #include "config.h"
+#include "config_file.h"
 #include "model.h"
 #include "text.h"
 #include "util.h"
@@ -385,4 +386,48 @@ universe_t *universe_load_solvent(universe_t *universe, char *file_buffer_solven
   free(bond_index);
 
   return (universe);
+}
+
+/* Load the config file, put its content in the config structure */
+config_t *config_load(config_t *config, char *path_config)
+{
+  size_t i;
+  size_t file_len;
+  char *file_buffer;
+  FILE *file_fd;
+
+  /* Open the config file */
+  if ((file_fd = fopen(path_config, "r")) == NULL)
+  {
+    return (retstr(NULL, TEXT_CONFIG_LOAD_FAILURE, __FILE__, __LINE__));
+  }
+
+  /* Get the config file size */
+  fseek(file_fd, 0, SEEK_END);
+  file_len = ftell(file_fd);
+  rewind(file_fd);
+
+  /* Initialize the memory buffer for the config file */
+  if ((file_buffer = (char*)malloc(file_len + 1)) == NULL)
+  {
+    return (retstr(NULL, TEXT_CONFIG_LOAD_FAILURE, __FILE__, __LINE__));
+  }
+
+  /* Load the config file in the buffer, terminate the string */
+  if (fread(file_buffer, sizeof(char), file_len, file_fd) != file_len)
+  {
+    return (retstr(NULL, TEXT_CONFIG_LOAD_FAILURE, __FILE__, __LINE__));
+  }
+  file_buffer[file_len] = '\0';
+
+  /* Parse the buffer into the configuration structure */
+  /* TODO */
+
+  /* Free the file buffer */
+  free(file_buffer);
+
+  /* Close the config file */
+  fclose(file_fd);
+
+  return (config);
 }

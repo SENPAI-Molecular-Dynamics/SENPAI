@@ -49,6 +49,9 @@
 #define TEXT_ARGS_DENSITY_FAILURE              TEXT_FAILURE "args_check: The system's density must be positive!"
 #define TEXT_ARGS_REDUCEPOT_FAILURE            TEXT_FAILURE "args_check: The target potential must be positive!"
 
+/* config_file.c */
+#define TEXT_CONFIG_LOAD_FAILURE               TEXT_FAILURE "config_load: Couldn't load the config file"
+
 /* force.c */
 #define TEXT_FORCE_BOND_FAILURE                TEXT_FAILURE "force_bond: Failed to compute the bond force"
 #define TEXT_FORCE_ELECTROSTATIC_FAILURE       TEXT_FAILURE "force_electrostatic: Failed to compute the electrostatic force"
