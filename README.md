@@ -1,5 +1,7 @@
 # SENPAI - Simplified Evolutive N-body Processing and Analytics for Integration
 
+Latest stable release: 1.1
+
 [Official SENPAI website](https://senpaimd.org)
 
 SENPAI is a flexible, highly-configurable molecular dynamics (MD) simulation software aimed at students and academia.
