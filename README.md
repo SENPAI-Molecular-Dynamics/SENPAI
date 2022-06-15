@@ -30,8 +30,8 @@ Documentation is available on the [Official SENPAI website](https://senpaimd.org
 
 [Installation Manual](https://senpaimd.org/manuals/installation)
 
-[Your first simulation](https://senpaimd.org/senpai/manuals/first-simulation)
+[Your first simulation](https://senpaimd.org/manuals/first-simulation)
 
-[Creating substrates](https://senpaimd.org/senpai/manuals/creating-substrates)
+[Creating substrates](https://senpaimd.org/manuals/creating-substrates)
 
-[Creating models](https://senpaimd.org/senpai/manuals/creating-models)
+[Creating models](https://senpaimd.org/manuals/mdm-format)
