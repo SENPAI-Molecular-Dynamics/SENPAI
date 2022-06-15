@@ -32,6 +32,6 @@ Documentation is available on the [Official SENPAI website](https://senpaimd.org
 
 [Your first simulation](https://senpaimd.org/manuals/first-simulation)
 
-[Creating substrates (MDS files)](https://senpaimd.org/manuals/creating-substrates)
+[Creating substrates (MDS files)](https://senpaimd.org/manuals/mds-format/)
 
 [Creating models (MDM files)](https://senpaimd.org/manuals/mdm-format)
