@@ -435,7 +435,7 @@ universe_t *universe_iterate(universe_t *universe, const args_t *args)
       return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
     }
   /* Update the force vectors */
-  /* By numerically differentiating the potential energy... 'toute facon, entre ma consommation electrique, mes achats inter*/
+  /* By numerically differentiating the potential energy... */
   if (args->numerical == MODE_NUMERICAL)
     {
 #pragma omp parallel for
