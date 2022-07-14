@@ -403,76 +403,119 @@ int universe_simulate(universe_t *universe, const args_t *args)
 universe_t *universe_iterate(universe_t *universe, const args_t *args)
 {
   size_t i; /* Iterator */
-
+  int err = 0;
+  
   /* We update the position vector first, as part of the Velocity-Verley integration */
+#pragma omp parallel for 
   for (i=0; i<(universe->atom_nb); ++i)
-  {
-    if (atom_update_pos(universe, args, i) == NULL)
+    {
+      if (atom_update_pos(universe, args, i) == NULL)
+        {
+#pragma omp atomic write
+          err = 1;
+        }
+    }
+  if( 0 != err )
     {
       return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
     }
-  }
-
+  
   /* We enforce the periodic boundary conditions */
+#pragma omp parallel for 
   for (i=0; i<(universe->atom_nb); ++i)
-  {
-    if (atom_enforce_pbc(universe, i) == NULL)
+    {
+      if (atom_enforce_pbc(universe, i) == NULL)
+        {
+#pragma omp atomic write
+          err = 1;
+        }
+    }
+  if( 0 != err )
     {
       return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
     }
-  }
-
   /* Update the force vectors */
   /* By numerically differentiating the potential energy... 'toute facon, entre ma consommation electrique, mes achats inter*/
   if (args->numerical == MODE_NUMERICAL)
-  {
-    for (i=0; i<(universe->atom_nb); ++i)
     {
-      if (atom_update_frc_numerical(universe, i) == NULL)
-      {
-        return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
-      }
+#pragma omp parallel for
+      for (i=0; i<(universe->atom_nb); ++i)
+        {
+          if (atom_update_frc_numerical(universe, i) == NULL)
+            {
+#pragma omp atomic write
+              err = 1;
+            }
+        }
     }
-  }
-
+  if( 0 != err )
+    {
+      return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+    }
   /* By numerically differentiating the potential energy using points in a tetrahedron... */
   if (args->numerical == MODE_NUMERICAL_TETRA)
-  {
-    for (i=0; i<(universe->atom_nb); ++i)
-      if (atom_update_frc_numerical_tetrahedron(universe, i) == NULL)
-        return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
-  }
-
+    {
+#pragma omp parallel for
+      for (i=0; i<(universe->atom_nb); ++i)
+        {
+          if (atom_update_frc_numerical_tetrahedron(universe, i) == NULL)
+            {
+#pragma omp atomic write
+              err = 1;
+            }
+        }
+      if( 0 != err )
+          {
+            return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+          }
+    }
+  
   /* Or analytically solving for force */
   else
-  {
-    for (i=0; i<(universe->atom_nb); ++i)
     {
-      if (atom_update_frc_analytical(universe, i) == NULL)
-      {
-        return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
-      }
+#pragma omp parallel for
+      for (i=0; i<(universe->atom_nb); ++i)
+        {
+          if (atom_update_frc_analytical(universe, i) == NULL)
+            {
+#pragma omp atomic write
+              err = 1;
+            }
+        }
+      if( 0 != err )
+        {
+          return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+        }
     }
-  }
-
+  
   /* Update the acceleration vectors */
+#pragma omp parallel for
   for (i=0; i<(universe->atom_nb); ++i)
   {
     if (atom_update_acc(universe, i) == NULL)
     {
-      return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+#pragma omp atomic write
+        err = 1;
     }
   }
-
+  if( 0 != err )
+    {
+      return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+    }
   /* Update the speed vectors */
+#pragma omp parallel for
   for (i=0; i<(universe->atom_nb); ++i)
   {
     if (atom_update_vel(universe, args, i) == NULL)
     {
-      return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+#pragma omp atomic write
+        err = 1;
     }
   }
-
+  if( 0 != err )
+    {
+      return (retstr(NULL, TEXT_UNIVERSE_ITERATE_FAILURE, __FILE__, __LINE__));
+    }
   return (universe);
 }
 

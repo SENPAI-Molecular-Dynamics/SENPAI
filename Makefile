@@ -10,9 +10,9 @@ CC ?= gcc
 NAME := senpai
 
 WARNINGS := -Wall -Wextra -Wshadow -Wpointer-arith -Wcast-align -Wwrite-strings -Wmissing-prototypes -Wmissing-declarations -Wredundant-decls -Wnested-externs -Winline -Wno-long-long -Wuninitialized -Wstrict-prototypes
-CFLAGS ?= -O2 -g3
+CFLAGS ?= -O2 -g3 -fopenmp
 CFLAGS := $(CFLAGS) -std=c99 -U__STRICT_ANSI__ -I./headers $(WARNINGS)
-LDLIBS := -lm
+LDLIBS := -lm -fopenmp
 
 DEPFILES := $(wildcard sources/*.d)
 SRCS := $(wildcard sources/*.c)
