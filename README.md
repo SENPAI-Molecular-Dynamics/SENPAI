@@ -1,14 +1,17 @@
-# SENPAI - Simplified Evolutive N-body Processing and Analytics for Integration
+# SENPAI
+## Molecular Dynamics (MD) simulations made easy
 
-Latest stable release: 1.1
+![GitHub](https://img.shields.io/github/license/SENPAI-Molecular-Dynamics/SENPAI)
 
-[Official SENPAI website](https://senpaimd.org)
+Website: [https://senpaimd.org](https://senpaimd.org)
+
+# Hassle-free simulations
 
 SENPAI is a flexible, highly-configurable molecular dynamics (MD) simulation software aimed at students and academia.
 
 It provides a way to simulate molecular systems of educative and academic interest on devices ranging from personal laptops to purpose-built mainframes.
 
-SENPAI is licensed under the terms of the GPLv3.
+It just works, out of the box.
 
 ![SENPAI being used with VMD](https://i.imgur.com/kSL3KkY.png)*SENPAI being used with VMD to simulate a urea-ChCl deep eutectic solvent*
 
@@ -20,9 +23,7 @@ SENPAI is licensed under the terms of the GPLv3.
 
 - **No complicated file formats:** The MDS, MDM, and MDP file formats developped for SENPAI can be hand-written! No need for special software. Quickly and easily prepare simulations and adjust them with no hassle. Simulations are rendered as XYZ, and can be immediately viewed using existing software without prior conversion!
 
-- **Full C99 compliance, no libraries needed:** SENPAI is 100% compliant with the C99 standard. No extra libraries are required!
-
-- **Efficient computing model:** the ONICHaN (Optimized Numerical Integration, Classical Harmonics, and N-body) model was tailored for SENPAI over months of work. Inspired by the AMBER family of force fields, it allows SENPAI to compute forces with unprecedented efficiency.
+- **Efficient computing model:** the ONICHaN (Optimized Numerical Integration, Classical Harmonics, and N-body) force field was tailored for SENPAI over months of work. Inspired by the AMBER family of force fields, it allows SENPAI to compute forces with unprecedented efficiency.
 
 # Documentation
 
