@@ -1,0 +1,76 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checking out the code
+      - name: Checkout code
+        uses: actions/checkout@v2
+        
+      # Setting up the C environment
+      - name: Setup C environment
+        run: sudo apt-get install -y build-essential rpm
+        
+      # Linting using clang-format
+      - name: Lint code
+        run: |
+          sudo apt-get install -y clang-format
+          find . -name '*.[ch]' | xargs clang-format -i --style=Google
+          git diff --exit-code # This will fail if there are any changes, i.e., the code was not properly formatted
+        
+      # Checking C99 compliance
+      - name: Check C99 compliance
+        run: gcc -std=c99 -pedantic -Wall -Werror -c *.c
+        
+      # SAST using Clang Static Analyzer
+      - name: Static Application Security Testing
+        run: |
+          sudo apt-get install -y clang-tools
+          scan-build make
+        
+      # Building RPM package
+      - name: Build RPM package
+        uses: naveenramasamy/rpmbuild-action@master
+        with:
+          specFile: 'senpai.spec'
+          
+      # Signing RPM package
+      - name: Sign RPM package
+        run: |
+          echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --import
+          rpm --addsign --define "_gpg_name YOUR_KEY_ID" path_to_your_package.rpm
+
+      # Increment version based on Git tags
+      - name: Get the version
+        id: get_version
+        run: echo "::set-output name=VERSION::$(git describe --tags)"
+
+      # Create GitHub Release
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.get_version.outputs.VERSION }}
+          release_name: Release ${{ steps.get_version.outputs.VERSION }}
+          draft: false
+          prerelease: false
+
+      # Upload RPM package to the created GitHub Release
+      - name: Upload RPM package
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: path_to_your_package.rpm
+          asset_name: your_package_name-${{ steps.get_version.outputs.VERSION }}.rpm
+          asset_content_type: application/x-rpm
