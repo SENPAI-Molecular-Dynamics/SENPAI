@@ -34,6 +34,10 @@ jobs:
         run: |
           sudo apt-get install -y clang-tools
           scan-build make
+
+      # Replace version placeholder in the spec file
+      - name: Set version in the spec file
+        run: sed -i 's/VERSION_PLACEHOLDER/${{ steps.get_version.outputs.VERSION }}/g' path_to_your_spec_file
         
       # Building RPM package
       - name: Build RPM package
