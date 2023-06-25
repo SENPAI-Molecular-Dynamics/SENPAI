@@ -143,17 +143,25 @@ mat3_t *mat3_transform_apply(mat3_t *m, vec3_t *v)
 /* Generates a rotation transform matrix */
 mat3_t *mat3_transform_gen_rot(mat3_t *m, vec3_t *axis, const double angle)
 {
-  m->x0=(((axis->x) * (axis->x)) * (1-cos(angle))) +            cos(angle);
-  m->x1=(((axis->x) * (axis->y)) * (1-cos(angle))) + ((axis->z)*sin(angle));
-  m->x2=(((axis->x) * (axis->z)) * (1-cos(angle))) - ((axis->y)*sin(angle));
+    double c = cos(angle);
+    double s = sin(angle);
+    double t = 1.0 - c;
 
-  m->y0=(((axis->y) * (axis->x)) * (1-cos(angle))) - ((axis->z)*sin(angle));
-  m->x1=(((axis->y) * (axis->y)) * (1-cos(angle))) +            cos(angle);
-  m->x2=(((axis->y) * (axis->z)) * (1-cos(angle))) + ((axis->x)*sin(angle));
+    double x = axis->x;
+    double y = axis->y;
+    double z = axis->z;
 
-  m->z0=(((axis->z) * (axis->x)) * (1-cos(angle))) + ((axis->y)*sin(angle));
-  m->z1=(((axis->z) * (axis->y)) * (1-cos(angle))) - ((axis->x)*sin(angle));
-  m->z2=(((axis->z) * (axis->z)) * (1-cos(angle))) +            cos(angle);
+    m->x0 = (x * x * t) + c;
+    m->x1 = (x * y * t) - (z * s);
+    m->x2 = (x * z * t) + (y * s);
 
-  return (m);
+    m->y0 = (y * x * t) + (z * s);
+    m->y1 = (y * y * t) + c;
+    m->y2 = (y * z * t) - (x * s);
+
+    m->z0 = (z * x * t) - (y * s); 
+    m->z1 = (z * y * t) + (x * s);
+    m->z2 = (z * z * t) + c;
+
+    return (m);
 }
