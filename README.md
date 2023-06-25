@@ -5,11 +5,9 @@
 
 Website: [https://senpaimd.org](https://senpaimd.org)
 
-# Hassle-free simulations
+SENPAI is a \molecular dynamics (MD) simulation software aimed at students and academia.
 
-SENPAI is a flexible, highly-configurable molecular dynamics (MD) simulation software aimed at students and academia.
-
-It provides a way to simulate molecular systems of educative and academic interest on devices ranging from personal laptops to purpose-built mainframes.
+It provides a way to simulate molecular systems of educative and academic interest on just about any device.
 
 It just works, out of the box.
 
