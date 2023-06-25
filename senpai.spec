@@ -1,5 +1,5 @@
 Name:		senpai
-Version:	VERSION_PLACEHOLDER
+Version:	%VERSION_PLACEHOLDER%
 Release:	1
 Summary:	Molecular dynamics simulator
 License:	GPLv3
