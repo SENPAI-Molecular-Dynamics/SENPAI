@@ -17,6 +17,7 @@ LDLIBS := -lm -fopenmp
 TEST_LDLIBS := -lm -fopenmp -lcriterion
 
 DEPFILES := $(wildcard sources/*.d)
+DEPFILES += $(wildcard tests/*.d)
 SRCS := $(wildcard sources/*.c)
 OBJS := $(SRCS:.c=.o)
 
