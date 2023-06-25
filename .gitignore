@@ -1,3 +1,10 @@
+# VSCODE
+.vscode
+
+# Binaries
+senpai
+test_senpai
+
 # SENPAI files
 *.bin
 *.xyz
