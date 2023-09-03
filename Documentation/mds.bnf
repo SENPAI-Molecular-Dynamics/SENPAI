@@ -1,0 +1,74 @@
+;;
+;; BNF formalization of MDS file grammar.
+;;
+
+;;
+;; This specification takes some liberties to reduce absurd verbosity.
+;; Care must be taken to ensure the extensions are explained in clear terms
+;; accompanied by proofs if necessary. Given the 'classes', identifiers
+;; between angle-brackets '<' and '>', as sets, set theory operations
+;; will be used to describe other classes when convenient. To make things
+;; clearer the regular equality sign will be used when the right side of a
+;; class definition uses set operations and their notation. General use
+;; of `where` will also be used for the addition of lexically scoped
+;; classes when convenient.
+;;
+
+<whitespace> ::= " "
+<ws> ::= <whitespace>
+
+<optional-whitespace> ::= " " | ""
+<opt-ws> ::= <optional-whitespace>
+
+;; <newline> is used to stick each component/record of the format together.
+;; As such, it is illegal inside <string>
+<newline> ::= \n | \r\n | <whitespace> <newline>
+<nl> ::= <newline>
+
+;; Any characters that are not valid for <newline>.
+<line> ::= <character'> | <character'> <string>
+  where
+    <character'> = <newline> △ <character>
+
+    ;; Do we need all of utf8?
+    ;; I tend to prefer generality, but maybe this is too much.
+    <character> ::= <set of all valid utf8>
+
+<substrate> ::= <line>
+
+<author> ::= <line>
+
+<description> ::= <line>
+
+<digit> ::= 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 0
+
+<digits> ::= <digit> | <digit><digits>
+
+<int> ::= -<digits> | <digits> | +<digits>
+
+<double> ::= -<double'> | <double'> | +<digits>
+  where
+    <double'> ::= <digits>.<digits>
+
+<atom> ::= <x> <ws> <y> <ws> <z> <ws> <id> <ws> <charge>
+  where
+    <x>,
+    <y>,
+    <z>      ::= <double>
+    <id>     ::= <int>
+    <charge> ::= <double>
+
+<atom-block> ::= <atom> | <atom-block> <newline> <atom>
+
+<bond> ::= <x> <ws> <y> <ws> <K>
+  where
+    <x>, <y> ::= <int>
+    <K>      ::= <double>
+
+<bond-block> ::= <bond> | <bond-block> <newline> <bond>
+
+<mds> ::= <substrate>   <nl>
+          <author>      <nl>
+          <description> <nl>
+          <atom-block>  <nl>
+          <bond-block>  (<nl><eof>|<eof>)
